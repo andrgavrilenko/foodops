@@ -82,7 +82,7 @@ npm run build --workspace=extensions/chrome
 
 ## Work — Now
 
-- [ ] **Фаза 0.1** — Инициализация monorepo (Turborepo, TypeScript, ESLint, Prettier)
+- [x] **Фаза 0.1** — Инициализация monorepo (Turborepo, TypeScript, ESLint, Prettier)
 - [ ] **Фаза 0.2** — Настройка Neon PostgreSQL, Prisma schema (модель данных из ТЗ)
 - [ ] **Фаза 0.3** — Базовый Fastify сервер с healthcheck
 - [ ] **Фаза 0.4** — CI pipeline (GitHub Actions: lint, typecheck, test)
@@ -110,7 +110,13 @@ npm run build --workspace=extensions/chrome
 > Формат: 1 запись = 1 сессия, max 10 строк. Только milestones и contract changes.
 > Храним последние 20 записей. Старее — удаляем.
 
-### 2026-02-09
+### 2026-02-09 (сессия 2)
+
+- **Done:** Фаза 0.1 завершена — monorepo инициализирован. Turborepo + npm workspaces, 5 workspace скелетов (@foodops/api, @foodops/web, @foodops/shared, @foodops/db, @foodops/chrome-extension). TypeScript strict, ESLint 9 flat config, Prettier. QA: typecheck/lint/build — всё PASS. Запушено на GitHub.
+- **Changed:** @eslint/js понижен до ^9.0.0 (peer dep конфликт с ESLint 9). Next.js 15 (не 16).
+- **Notes:** Следующий шаг — Фаза 0.2 (Neon PostgreSQL + Prisma schema).
+
+### 2026-02-09 (сессия 1)
 
 - **Done:** Создана документация проекта (ТЗ архитектора, маркетинговое исследование, ТЗ инфраструктуры, план работ). Создан CLAUDE.md.
 - **Changed:** —
@@ -120,7 +126,8 @@ npm run build --workspace=extensions/chrome
 
 ## References
 
-- **Extension source of truth:** `extensions/chrome/README.md` (будет создан)
+- **GitHub:** https://github.com/andrgavrilenko/foodops
+- **Extension source of truth:** `extensions/chrome/README.md`
 - **ТЗ (требования):** `docs/technical-specification.md` — FR-xxx, US-xxx, NFR-xxx
 - **Рынок:** `docs/market-research.md` — TAM/SAM/SOM, конкуренты, S-Group
 - **Инфраструктура:** `docs/infrastructure-specification.md` — Hetzner/Neon/Upstash

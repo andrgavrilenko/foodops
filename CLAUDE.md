@@ -83,7 +83,7 @@ npm run build --workspace=extensions/chrome
 ## Work — Now
 
 - [x] **Фаза 0.1** — Инициализация monorepo (Turborepo, TypeScript, ESLint, Prettier)
-- [ ] **Фаза 0.2** — Настройка Neon PostgreSQL, Prisma schema (модель данных из ТЗ)
+- [x] **Фаза 0.2** — Настройка Neon PostgreSQL, Prisma schema (модель данных из ТЗ)
 - [ ] **Фаза 0.3** — Базовый Fastify сервер с healthcheck
 - [ ] **Фаза 0.4** — CI pipeline (GitHub Actions: lint, typecheck, test)
 
@@ -109,6 +109,12 @@ npm run build --workspace=extensions/chrome
 
 > Формат: 1 запись = 1 сессия, max 10 строк. Только milestones и contract changes.
 > Храним последние 20 записей. Старее — удаляем.
+
+### 2026-02-09 (сессия 3)
+
+- **Done:** Фаза 0.2 завершена — Prisma schema + local Docker PostgreSQL. 17 моделей, 8 enum-ов из ТЗ. Prisma Client сгенерирован. Schema pushed в локальную БД. QA: typecheck/lint/build — PASS.
+- **Changed:** Локальная разработка через Docker PostgreSQL 16 вместо Neon (Neon — для staging/prod позже).
+- **Notes:** Следующий шаг — Фаза 0.3 (базовый Fastify сервер с healthcheck).
 
 ### 2026-02-09 (сессия 2)
 

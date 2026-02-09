@@ -1,0 +1,427 @@
+// FoodOps Prisma Schema
+// All 17 models from docs/technical-specification.md section 6
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum FamilyMemberRole {
+  ADULT
+  CHILD
+  INFANT
+}
+
+enum DietaryRestrictionType {
+  ALLERGY
+  INTOLERANCE
+  LIFESTYLE
+}
+
+enum DietaryRestrictionSeverity {
+  STRICT
+  MODERATE
+  MILD
+}
+
+enum PreferenceType {
+  CUISINE
+  EXCLUDED_INGREDIENT
+  FAVORITE_RECIPE
+}
+
+enum MenuStatus {
+  DRAFT
+  APPROVED
+  ARCHIVED
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+}
+
+enum ShoppingListStatus {
+  DRAFT
+  READY
+  IN_CART
+  COMPLETED
+}
+
+enum ShoppingListItemStatus {
+  PENDING
+  ADDED_TO_CART
+  NOT_FOUND
+  REPLACED
+}
+
+// ---------------------------------------------------------------------------
+// 1. User
+// ---------------------------------------------------------------------------
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique @db.VarChar(255)
+  passwordHash   String?  @map("password_hash") @db.VarChar(255)
+  authProvider   String   @default("local") @map("auth_provider") @db.VarChar(50)
+  authProviderId String?  @map("auth_provider_id") @db.VarChar(255)
+  language       String   @default("en") @db.VarChar(5)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  family  Family?
+  recipes Recipe[]
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// 2. Family
+// ---------------------------------------------------------------------------
+
+model Family {
+  id               String   @id @default(uuid())
+  userId           String   @unique @map("user_id")
+  name             String   @db.VarChar(100)
+  weeklyBudget     Decimal? @map("weekly_budget") @db.Decimal(8, 2)
+  mealsPerDay      Int      @default(3) @map("meals_per_day") @db.SmallInt
+  preferredStoreId String?  @map("preferred_store_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferredStore Store?         @relation(fields: [preferredStoreId], references: [id], onDelete: SetNull)
+  members        FamilyMember[]
+  preferences    Preference[]
+  weeklyMenus    WeeklyMenu[]
+  shoppingLists  ShoppingList[]
+
+  @@index([preferredStoreId])
+  @@map("families")
+}
+
+// ---------------------------------------------------------------------------
+// 3. FamilyMember
+// ---------------------------------------------------------------------------
+
+model FamilyMember {
+  id        String           @id @default(uuid())
+  familyId  String           @map("family_id")
+  name      String           @db.VarChar(100)
+  age       Int              @db.SmallInt
+  role      FamilyMemberRole
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  family              Family               @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  dietaryRestrictions DietaryRestriction[]
+  medicalRestrictions MedicalRestriction[]
+
+  @@index([familyId])
+  @@map("family_members")
+}
+
+// ---------------------------------------------------------------------------
+// 4. DietaryRestriction
+// ---------------------------------------------------------------------------
+
+model DietaryRestriction {
+  id       String                     @id @default(uuid())
+  memberId String                     @map("member_id")
+  type     DietaryRestrictionType
+  value    String                     @db.VarChar(100)
+  severity DietaryRestrictionSeverity
+
+  member FamilyMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@map("dietary_restrictions")
+}
+
+// ---------------------------------------------------------------------------
+// 5. MedicalRestriction
+// ---------------------------------------------------------------------------
+
+model MedicalRestriction {
+  id        String  @id @default(uuid())
+  memberId  String  @map("member_id")
+  condition String  @db.VarChar(100)
+  notes     String?
+
+  member FamilyMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@map("medical_restrictions")
+}
+
+// ---------------------------------------------------------------------------
+// 6. Preference
+// ---------------------------------------------------------------------------
+
+model Preference {
+  id       String         @id @default(uuid())
+  familyId String         @map("family_id")
+  type     PreferenceType
+  value    String         @db.VarChar(255)
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@map("preferences")
+}
+
+// ---------------------------------------------------------------------------
+// 7. Recipe
+// ---------------------------------------------------------------------------
+
+model Recipe {
+  id                 String   @id @default(uuid())
+  titleEn            String   @map("title_en") @db.VarChar(255)
+  titleFi            String   @map("title_fi") @db.VarChar(255)
+  descriptionEn      String?  @map("description_en")
+  descriptionFi      String?  @map("description_fi")
+  cuisineType        String?  @map("cuisine_type") @db.VarChar(50)
+  prepTimeMin        Int?     @map("prep_time_min") @db.SmallInt
+  caloriesPerServing Int?     @map("calories_per_serving") @db.SmallInt
+  proteinPerServing  Decimal? @map("protein_per_serving") @db.Decimal(6, 2)
+  carbsPerServing    Decimal? @map("carbs_per_serving") @db.Decimal(6, 2)
+  fatPerServing      Decimal? @map("fat_per_serving") @db.Decimal(6, 2)
+  tags               Json?    @default("[]")
+  isCustom           Boolean  @default(false) @map("is_custom")
+  userId             String?  @map("user_id")
+  source             String?  @db.VarChar(500)
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  user              User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  recipeIngredients RecipeIngredient[]
+  meals             Meal[]
+
+  @@index([userId])
+  @@index([cuisineType])
+  @@map("recipes")
+}
+
+// ---------------------------------------------------------------------------
+// 8. Ingredient
+// ---------------------------------------------------------------------------
+
+model Ingredient {
+  id          String @id @default(uuid())
+  nameEn      String @map("name_en") @db.VarChar(255)
+  nameFi      String @map("name_fi") @db.VarChar(255)
+  category    String @db.VarChar(100)
+  defaultUnit String @map("default_unit") @db.VarChar(20)
+
+  recipeIngredients  RecipeIngredient[]
+  ingredientMappings IngredientMapping[]
+  shoppingListItems  ShoppingListItem[]
+
+  @@map("ingredients")
+}
+
+// ---------------------------------------------------------------------------
+// 9. RecipeIngredient
+// ---------------------------------------------------------------------------
+
+model RecipeIngredient {
+  id           String  @id @default(uuid())
+  recipeId     String  @map("recipe_id")
+  ingredientId String  @map("ingredient_id")
+  quantity     Decimal @map("quantity") @db.Decimal(8, 2)
+  unit         String  @db.VarChar(20)
+  isOptional   Boolean @default(false) @map("is_optional")
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
+  @@index([ingredientId])
+  @@map("recipe_ingredients")
+}
+
+// ---------------------------------------------------------------------------
+// 10. Product
+// ---------------------------------------------------------------------------
+
+model Product {
+  id              String    @id @default(uuid())
+  ean             String?   @db.VarChar(20)
+  nameFi          String    @map("name_fi") @db.VarChar(500)
+  brand           String?   @db.VarChar(255)
+  price           Decimal   @db.Decimal(8, 2)
+  promoPrice      Decimal?  @map("promo_price") @db.Decimal(8, 2)
+  promoEndDate    DateTime? @map("promo_end_date") @db.Date
+  unitSize        Decimal   @map("unit_size") @db.Decimal(8, 2)
+  unitType        String    @map("unit_type") @db.VarChar(20)
+  category        String    @db.VarChar(100)
+  subcategory     String?   @db.VarChar(100)
+  imageUrl        String?   @map("image_url") @db.VarChar(500)
+  inStock         Boolean   @default(true) @map("in_stock")
+  storeId         String    @map("store_id")
+  foodieProductId String?   @map("foodie_product_id") @db.VarChar(100)
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  store              Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  ingredientMappings IngredientMapping[]
+  shoppingListItems  ShoppingListItem[]  @relation("ProductItems")
+  replacedItems      ShoppingListItem[]  @relation("ReplacedProductItems")
+
+  @@index([storeId])
+  @@index([ean])
+  @@index([foodieProductId])
+  @@map("products")
+}
+
+// ---------------------------------------------------------------------------
+// 11. Store
+// ---------------------------------------------------------------------------
+
+model Store {
+  id         String @id @default(uuid())
+  name       String @db.VarChar(255)
+  chain      String @db.VarChar(100)
+  address    String @db.VarChar(500)
+  city       String @db.VarChar(100)
+  catalogUrl String @map("catalog_url") @db.VarChar(500)
+
+  products Product[]
+  families Family[]
+
+  @@map("stores")
+}
+
+// ---------------------------------------------------------------------------
+// 12. IngredientMapping
+// ---------------------------------------------------------------------------
+
+model IngredientMapping {
+  id           String  @id @default(uuid())
+  ingredientId String  @map("ingredient_id")
+  productId    String  @map("product_id")
+  confidence   Float
+  isDefault    Boolean @default(false) @map("is_default")
+
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([ingredientId, productId])
+  @@index([ingredientId])
+  @@index([productId])
+  @@map("ingredient_mappings")
+}
+
+// ---------------------------------------------------------------------------
+// 13. WeeklyMenu
+// ---------------------------------------------------------------------------
+
+model WeeklyMenu {
+  id                String     @id @default(uuid())
+  familyId          String     @map("family_id")
+  weekStart         DateTime   @map("week_start") @db.Date
+  status            MenuStatus @default(DRAFT)
+  totalCostEstimate Decimal?   @map("total_cost_estimate") @db.Decimal(8, 2)
+  totalCalories     Int?       @map("total_calories")
+  createdAt         DateTime   @default(now()) @map("created_at")
+
+  family        Family         @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  menuDays      MenuDay[]
+  shoppingLists ShoppingList[]
+
+  @@index([familyId])
+  @@map("weekly_menus")
+}
+
+// ---------------------------------------------------------------------------
+// 14. MenuDay
+// ---------------------------------------------------------------------------
+
+model MenuDay {
+  id        String   @id @default(uuid())
+  menuId    String   @map("menu_id")
+  dayOfWeek Int      @map("day_of_week") @db.SmallInt
+  date      DateTime @db.Date
+
+  menu  WeeklyMenu @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  meals Meal[]
+
+  @@index([menuId])
+  @@map("menu_days")
+}
+
+// ---------------------------------------------------------------------------
+// 15. Meal
+// ---------------------------------------------------------------------------
+
+model Meal {
+  id        String   @id @default(uuid())
+  menuDayId String   @map("menu_day_id")
+  mealType  MealType @map("meal_type")
+  recipeId  String   @map("recipe_id")
+  isLocked  Boolean  @default(false) @map("is_locked")
+  servings  Int      @db.SmallInt
+
+  menuDay MenuDay @relation(fields: [menuDayId], references: [id], onDelete: Cascade)
+  recipe  Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([menuDayId])
+  @@index([recipeId])
+  @@map("meals")
+}
+
+// ---------------------------------------------------------------------------
+// 16. ShoppingList
+// ---------------------------------------------------------------------------
+
+model ShoppingList {
+  id        String             @id @default(uuid())
+  familyId  String             @map("family_id")
+  menuId    String             @map("menu_id")
+  status    ShoppingListStatus @default(DRAFT)
+  totalCost Decimal?           @map("total_cost") @db.Decimal(8, 2)
+  createdAt DateTime           @default(now()) @map("created_at")
+
+  family Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  menu   WeeklyMenu         @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  items  ShoppingListItem[]
+
+  @@index([familyId])
+  @@index([menuId])
+  @@map("shopping_lists")
+}
+
+// ---------------------------------------------------------------------------
+// 17. ShoppingListItem
+// ---------------------------------------------------------------------------
+
+model ShoppingListItem {
+  id                String                 @id @default(uuid())
+  listId            String                 @map("list_id")
+  ingredientId      String?                @map("ingredient_id")
+  productId         String                 @map("product_id")
+  quantityNeeded    Decimal                @map("quantity_needed") @db.Decimal(8, 2)
+  quantityToBuy     Decimal                @map("quantity_to_buy") @db.Decimal(8, 2)
+  unit              String                 @db.VarChar(20)
+  hasAtHome         Boolean                @default(false) @map("has_at_home")
+  isManual          Boolean                @default(false) @map("is_manual")
+  status            ShoppingListItemStatus @default(PENDING)
+  replacedProductId String?                @map("replaced_product_id")
+
+  list            ShoppingList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  ingredient      Ingredient?  @relation(fields: [ingredientId], references: [id], onDelete: SetNull)
+  product         Product      @relation("ProductItems", fields: [productId], references: [id], onDelete: Cascade)
+  replacedProduct Product?     @relation("ReplacedProductItems", fields: [replacedProductId], references: [id], onDelete: SetNull)
+
+  @@index([listId])
+  @@index([ingredientId])
+  @@index([productId])
+  @@index([replacedProductId])
+  @@map("shopping_list_items")
+}

@@ -46,14 +46,14 @@ MVP включает три основных модуля:
 
 ### 1.4 Технологический стек
 
-| Слой | Технология |
-|------|-----------|
-| Frontend | Next.js 14+ (App Router), TypeScript, shadcn/ui + Tailwind CSS, Zustand/TanStack Query |
-| Backend | Node.js 20 LTS, NestJS/Fastify, TypeScript, Prisma ORM |
-| AI/ML | OpenAI GPT-4o (Structured Outputs), Handlebars (промпт-шаблоны) |
-| Chrome Extension | Manifest V3, React + TypeScript, Vite |
-| БД | PostgreSQL 16 (Neon), Redis (Upstash), Meilisearch |
-| Инфраструктура | Hetzner Cloud (Helsinki), Vercel, Cloudflare, GitHub Actions |
+| Слой             | Технология                                                                             |
+| ---------------- | -------------------------------------------------------------------------------------- |
+| Frontend         | Next.js 14+ (App Router), TypeScript, shadcn/ui + Tailwind CSS, Zustand/TanStack Query |
+| Backend          | Node.js 20 LTS, NestJS/Fastify, TypeScript, Prisma ORM                                 |
+| AI/ML            | OpenAI GPT-4o (Structured Outputs), Handlebars (промпт-шаблоны)                        |
+| Chrome Extension | Manifest V3, React + TypeScript, Vite                                                  |
+| БД               | PostgreSQL 16 (Neon), Redis (Upstash), Meilisearch                                     |
+| Инфраструктура   | Hetzner Cloud (Helsinki), Vercel, Cloudflare, GitHub Actions                           |
 
 ### 1.5 Общая длительность до MVP
 
@@ -63,17 +63,17 @@ MVP включает три основных модуля:
 
 ## 2. Фазы проекта
 
-| Фаза | Название | Длительность | Недели | Описание |
-|------|---------|-------------|--------|----------|
-| 0 | Подготовка и настройка | 1,5 недели | W1-W2 | Инфраструктура, репозиторий, CI/CD, окружения, домен |
-| 1 | MVP Core (Backend) | 3 недели | W2-W5 | Модель данных, Auth, Family API, базовый backend |
-| 2 | AI/ML модуль | 2,5 недели | W4-W7 | Генерация меню, prompt engineering, валидация |
-| 3 | Каталог продуктов | 2 недели | W5-W7 | Парсинг/импорт S-Market, маппинг ингредиентов, Shopping List API |
-| 4 | Frontend (веб-приложение) | 4 недели | W5-W9 | Все экраны: onboarding, dashboard, menu planner, shopping list |
-| 5 | Chrome Extension | 2,5 недели | W8-W11 | Popup UI, background worker, content script для foodie.fi |
-| 6 | Тестирование и QA | 2 недели | W11-W13 | E2E тесты, нагрузочное тестирование, bug fixing |
-| 7 | Beta-запуск | 1,5 недели | W13-W15 | Закрытая бета, сбор обратной связи, исправления |
-| 8 | Post-MVP итерации | ongoing | W15+ | OAuth, расширенный каталог, акции, пользовательские рецепты |
+| Фаза | Название                  | Длительность | Недели  | Описание                                                         |
+| ---- | ------------------------- | ------------ | ------- | ---------------------------------------------------------------- |
+| 0    | Подготовка и настройка    | 1,5 недели   | W1-W2   | Инфраструктура, репозиторий, CI/CD, окружения, домен             |
+| 1    | MVP Core (Backend)        | 3 недели     | W2-W5   | Модель данных, Auth, Family API, базовый backend                 |
+| 2    | AI/ML модуль              | 2,5 недели   | W4-W7   | Генерация меню, prompt engineering, валидация                    |
+| 3    | Каталог продуктов         | 2 недели     | W5-W7   | Парсинг/импорт S-Market, маппинг ингредиентов, Shopping List API |
+| 4    | Frontend (веб-приложение) | 4 недели     | W5-W9   | Все экраны: onboarding, dashboard, menu planner, shopping list   |
+| 5    | Chrome Extension          | 2,5 недели   | W8-W11  | Popup UI, background worker, content script для foodie.fi        |
+| 6    | Тестирование и QA         | 2 недели     | W11-W13 | E2E тесты, нагрузочное тестирование, bug fixing                  |
+| 7    | Beta-запуск               | 1,5 недели   | W13-W15 | Закрытая бета, сбор обратной связи, исправления                  |
+| 8    | Post-MVP итерации         | ongoing      | W15+    | OAuth, расширенный каталог, акции, пользовательские рецепты      |
 
 **Примечание:** фазы 1-4 частично параллельны -- фронтенд начинается, как только backend API готов на 60-70%.
 
@@ -83,22 +83,22 @@ MVP включает три основных модуля:
 
 ### Фаза 0: Подготовка и настройка
 
-| # | Задача | Описание | Зависимости | Приоритет | Трудоёмкость | Роль |
-|---|--------|----------|-------------|-----------|-------------|------|
-| 0.1 | Регистрация домена foodops.fi | Регистрация домена через Namecheap/Cloudflare Registrar. Домен .fi ~25 EUR/год. | -- | P0 | 0,25 дн | DevOps |
-| 0.2 | Настройка Cloudflare DNS и CDN | Перенос DNS на Cloudflare, настройка SSL (Full Strict), базовые Page Rules. | 0.1 | P0 | 0,5 дн | DevOps |
-| 0.3 | Создание GitHub-репозитория (монорепо) | Инициализация монорепо с Turborepo: apps/web, apps/api, apps/ai, apps/extension, packages/shared, packages/database. | -- | P0 | 0,5 дн | DevOps |
-| 0.4 | Настройка CI/CD (GitHub Actions) | Пайплайны: lint, type-check, test, build, deploy staging, deploy production (manual). Включая кэширование node_modules и Docker layers. | 0.3 | P0 | 1,5 дн | DevOps |
-| 0.5 | Аренда и настройка Hetzner CX22 | Аренда сервера в helsinki1. Установка Ubuntu 24.04 LTS, Docker, Docker Compose. Настройка firewall, SSH-ключи. | -- | P0 | 1 дн | DevOps |
-| 0.6 | Настройка Docker Compose (dev/staging/prod) | Конфигурация docker-compose.yml со всеми сервисами: backend-api, ai-service, meilisearch, redis, nginx, worker. | 0.5 | P0 | 1 дн | DevOps |
-| 0.7 | Создание проекта Neon (PostgreSQL) | Регистрация, создание проекта, настройка branching (main -> staging), connection pooling. | -- | P0 | 0,5 дн | DevOps |
-| 0.8 | Настройка Upstash Redis | Создание инстанса в EU-регионе. Настройка connection string для кэша и BullMQ. | -- | P0 | 0,25 дн | DevOps |
-| 0.9 | Настройка Vercel для фронтенда | Подключение репозитория, настройка preview deploys для PR, переменные окружения. | 0.3 | P0 | 0,5 дн | DevOps |
-| 0.10 | Настройка Cloudflare R2 | Создание bucket для изображений, настройка CORS, публичный доступ через CDN. | 0.2 | P1 | 0,25 дн | DevOps |
-| 0.11 | Настройка мониторинга (Sentry + Betterstack) | Подключение Sentry для error tracking (frontend + backend). Betterstack для uptime monitoring (/health endpoints). | 0.5 | P1 | 0,5 дн | DevOps |
-| 0.12 | Настройка Clerk (аутентификация) | Регистрация, настройка провайдеров (email+password для MVP), JWT-шаблоны, CORS для домена. | -- | P0 | 0,5 дн | Backend-dev |
-| 0.13 | Настройка Nginx reverse proxy | Конфигурация проксирования запросов к backend и ai-service. Cloudflare Origin Certificate для SSL. | 0.5, 0.2 | P0 | 0,5 дн | DevOps |
-| 0.14 | Создание шаблона .env и документации | Файл .env.example со всеми переменными. README с инструкцией по локальной разработке. | 0.3-0.13 | P1 | 0,5 дн | DevOps |
+| #    | Задача                                       | Описание                                                                                                                                | Зависимости | Приоритет | Трудоёмкость | Роль        |
+| ---- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------- | ------------ | ----------- |
+| 0.1  | Регистрация домена foodops.fi                | Регистрация домена через Namecheap/Cloudflare Registrar. Домен .fi ~25 EUR/год.                                                         | --          | P0        | 0,25 дн      | DevOps      |
+| 0.2  | Настройка Cloudflare DNS и CDN               | Перенос DNS на Cloudflare, настройка SSL (Full Strict), базовые Page Rules.                                                             | 0.1         | P0        | 0,5 дн       | DevOps      |
+| 0.3  | Создание GitHub-репозитория (монорепо)       | Инициализация монорепо с Turborepo: apps/web, apps/api, apps/ai, apps/extension, packages/shared, packages/database.                    | --          | P0        | 0,5 дн       | DevOps      |
+| 0.4  | Настройка CI/CD (GitHub Actions)             | Пайплайны: lint, type-check, test, build, deploy staging, deploy production (manual). Включая кэширование node_modules и Docker layers. | 0.3         | P0        | 1,5 дн       | DevOps      |
+| 0.5  | Аренда и настройка Hetzner CX22              | Аренда сервера в helsinki1. Установка Ubuntu 24.04 LTS, Docker, Docker Compose. Настройка firewall, SSH-ключи.                          | --          | P0        | 1 дн         | DevOps      |
+| 0.6  | Настройка Docker Compose (dev/staging/prod)  | Конфигурация docker-compose.yml со всеми сервисами: backend-api, ai-service, meilisearch, redis, nginx, worker.                         | 0.5         | P0        | 1 дн         | DevOps      |
+| 0.7  | Создание проекта Neon (PostgreSQL)           | Регистрация, создание проекта, настройка branching (main -> staging), connection pooling.                                               | --          | P0        | 0,5 дн       | DevOps      |
+| 0.8  | Настройка Upstash Redis                      | Создание инстанса в EU-регионе. Настройка connection string для кэша и BullMQ.                                                          | --          | P0        | 0,25 дн      | DevOps      |
+| 0.9  | Настройка Vercel для фронтенда               | Подключение репозитория, настройка preview deploys для PR, переменные окружения.                                                        | 0.3         | P0        | 0,5 дн       | DevOps      |
+| 0.10 | Настройка Cloudflare R2                      | Создание bucket для изображений, настройка CORS, публичный доступ через CDN.                                                            | 0.2         | P1        | 0,25 дн      | DevOps      |
+| 0.11 | Настройка мониторинга (Sentry + Betterstack) | Подключение Sentry для error tracking (frontend + backend). Betterstack для uptime monitoring (/health endpoints).                      | 0.5         | P1        | 0,5 дн       | DevOps      |
+| 0.12 | Настройка Clerk (аутентификация)             | Регистрация, настройка провайдеров (email+password для MVP), JWT-шаблоны, CORS для домена.                                              | --          | P0        | 0,5 дн       | Backend-dev |
+| 0.13 | Настройка Nginx reverse proxy                | Конфигурация проксирования запросов к backend и ai-service. Cloudflare Origin Certificate для SSL.                                      | 0.5, 0.2    | P0        | 0,5 дн       | DevOps      |
+| 0.14 | Создание шаблона .env и документации         | Файл .env.example со всеми переменными. README с инструкцией по локальной разработке.                                                   | 0.3-0.13    | P1        | 0,5 дн       | DevOps      |
 
 **Итого Фаза 0: ~8 человеко-дней**
 
@@ -106,21 +106,21 @@ MVP включает три основных модуля:
 
 ### Фаза 1: MVP Core (Backend)
 
-| # | Задача | Описание | Зависимости | Приоритет | Трудоёмкость | Роль |
-|---|--------|----------|-------------|-----------|-------------|------|
-| 1.1 | Инициализация backend-проекта | Scaffolding NestJS/Fastify с TypeScript. Настройка ESLint, Prettier, Jest. Структура модулей: auth, family, menu, shopping-list, catalog, extension-api. | 0.3 | P0 | 1 дн | Backend-dev |
-| 1.2 | Настройка Prisma ORM и миграции | Подключение Prisma к Neon PostgreSQL. Создание schema.prisma со всеми сущностями из модели данных ТЗ (User, Family, FamilyMember, DietaryRestriction, MedicalRestriction, Preference, Recipe, Ingredient, Product, WeeklyMenu, MenuDay, Meal, ShoppingList, ShoppingListItem, Store, IngredientMap). | 0.7, 1.1 | P0 | 2 дн | Backend-dev |
-| 1.3 | Seed-данные | Скрипт seed для начальных данных: базовые ингредиенты (~200), категории продуктов, тестовый магазин S-Market. | 1.2 | P1 | 1 дн | Backend-dev |
-| 1.4 | Auth модуль (Clerk integration) | Интеграция Clerk SDK. Middleware для проверки JWT. Эндпоинты: POST /auth/register, POST /auth/login, POST /auth/refresh (FR-300). Rate limiting: 100 req/min (NFR-023). | 0.12, 1.1 | P0 | 2 дн | Backend-dev |
-| 1.5 | Family API | CRUD для профиля семьи (US-002). Эндпоинты: POST/GET/PUT /family, POST/PUT/DELETE /family/members/{id}. Включая dietary/medical restrictions (US-003, US-004) и preferences (US-005, US-006, US-007). | 1.4 | P0 | 2,5 дн | Backend-dev |
-| 1.6 | Recipe модуль (базовый) | Модель Recipe и RecipeIngredient. GET /recipes/search (полнотекстовый поиск), GET /recipes/{id}. Интеграция с Meilisearch для поиска рецептов. | 1.2 | P1 | 1,5 дн | Backend-dev |
-| 1.7 | Menu API (каркас) | Эндпоинты: POST /menu/generate, GET /menu/{id}, POST /menu/{id}/regenerate-meal, PUT /menu/{id}/meals/{mealId}, PUT /menu/{id}/meals/{mealId}/lock, PUT /menu/{id}/approve, GET /menu/history. Без реальной AI-генерации (mock-данные). | 1.5 | P0 | 2 дн | Backend-dev |
-| 1.8 | Shopping List API | Эндпоинты: POST /shopping-list/generate (FR-200, FR-201, FR-202), GET /shopping-list/{id}, PUT /shopping-list/{id}/items/{itemId} (FR-220-FR-224), DELETE /shopping-list/{id}/items/{itemId}, POST /shopping-list/{id}/items, PUT /shopping-list/{id}/ready. Логика консолидации ингредиентов и расчёта упаковок (FR-211). | 1.7, 3.1 | P0 | 3 дн | Backend-dev |
-| 1.9 | Extension API | GET /extension/shopping-list (оптимизированный формат для Chrome Extension с search_query_fi, EAN, fallback queries). POST /extension/shopping-list/{id}/report (приём отчёта о добавлении). | 1.8 | P0 | 1 дн | Backend-dev |
-| 1.10 | Валидация запросов (Zod) | Zod-схемы для всех API-эндпоинтов. Единый формат ошибок. | 1.4-1.9 | P0 | 1 дн | Backend-dev |
-| 1.11 | Rate Limiting и security | Middleware rate limiting (100 req/min auth, 20 req/min anon, 10 req/hour генерация меню -- NFR-023). CORS whitelist. Helmet headers. | 1.4 | P0 | 1 дн | Backend-dev |
-| 1.12 | Health endpoints | GET /health, GET /health/db, GET /health/redis. Для мониторинга (Betterstack) и load balancer health checks. | 1.1 | P1 | 0,5 дн | Backend-dev |
-| 1.13 | Unit-тесты для backend | Покрытие минимум 70% для бизнес-логики: консолидация ингредиентов, расчёт упаковок, валидация профиля семьи. | 1.4-1.12 | P1 | 2 дн | Backend-dev |
+| #    | Задача                          | Описание                                                                                                                                                                                                                                                                                                                   | Зависимости | Приоритет | Трудоёмкость | Роль        |
+| ---- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------- | ------------ | ----------- |
+| 1.1  | Инициализация backend-проекта   | Scaffolding NestJS/Fastify с TypeScript. Настройка ESLint, Prettier, Jest. Структура модулей: auth, family, menu, shopping-list, catalog, extension-api.                                                                                                                                                                   | 0.3         | P0        | 1 дн         | Backend-dev |
+| 1.2  | Настройка Prisma ORM и миграции | Подключение Prisma к Neon PostgreSQL. Создание schema.prisma со всеми сущностями из модели данных ТЗ (User, Family, FamilyMember, DietaryRestriction, MedicalRestriction, Preference, Recipe, Ingredient, Product, WeeklyMenu, MenuDay, Meal, ShoppingList, ShoppingListItem, Store, IngredientMap).                       | 0.7, 1.1    | P0        | 2 дн         | Backend-dev |
+| 1.3  | Seed-данные                     | Скрипт seed для начальных данных: базовые ингредиенты (~200), категории продуктов, тестовый магазин S-Market.                                                                                                                                                                                                              | 1.2         | P1        | 1 дн         | Backend-dev |
+| 1.4  | Auth модуль (Clerk integration) | Интеграция Clerk SDK. Middleware для проверки JWT. Эндпоинты: POST /auth/register, POST /auth/login, POST /auth/refresh (FR-300). Rate limiting: 100 req/min (NFR-023).                                                                                                                                                    | 0.12, 1.1   | P0        | 2 дн         | Backend-dev |
+| 1.5  | Family API                      | CRUD для профиля семьи (US-002). Эндпоинты: POST/GET/PUT /family, POST/PUT/DELETE /family/members/{id}. Включая dietary/medical restrictions (US-003, US-004) и preferences (US-005, US-006, US-007).                                                                                                                      | 1.4         | P0        | 2,5 дн       | Backend-dev |
+| 1.6  | Recipe модуль (базовый)         | Модель Recipe и RecipeIngredient. GET /recipes/search (полнотекстовый поиск), GET /recipes/{id}. Интеграция с Meilisearch для поиска рецептов.                                                                                                                                                                             | 1.2         | P1        | 1,5 дн       | Backend-dev |
+| 1.7  | Menu API (каркас)               | Эндпоинты: POST /menu/generate, GET /menu/{id}, POST /menu/{id}/regenerate-meal, PUT /menu/{id}/meals/{mealId}, PUT /menu/{id}/meals/{mealId}/lock, PUT /menu/{id}/approve, GET /menu/history. Без реальной AI-генерации (mock-данные).                                                                                    | 1.5         | P0        | 2 дн         | Backend-dev |
+| 1.8  | Shopping List API               | Эндпоинты: POST /shopping-list/generate (FR-200, FR-201, FR-202), GET /shopping-list/{id}, PUT /shopping-list/{id}/items/{itemId} (FR-220-FR-224), DELETE /shopping-list/{id}/items/{itemId}, POST /shopping-list/{id}/items, PUT /shopping-list/{id}/ready. Логика консолидации ингредиентов и расчёта упаковок (FR-211). | 1.7, 3.1    | P0        | 3 дн         | Backend-dev |
+| 1.9  | Extension API                   | GET /extension/shopping-list (оптимизированный формат для Chrome Extension с search_query_fi, EAN, fallback queries). POST /extension/shopping-list/{id}/report (приём отчёта о добавлении).                                                                                                                               | 1.8         | P0        | 1 дн         | Backend-dev |
+| 1.10 | Валидация запросов (Zod)        | Zod-схемы для всех API-эндпоинтов. Единый формат ошибок.                                                                                                                                                                                                                                                                   | 1.4-1.9     | P0        | 1 дн         | Backend-dev |
+| 1.11 | Rate Limiting и security        | Middleware rate limiting (100 req/min auth, 20 req/min anon, 10 req/hour генерация меню -- NFR-023). CORS whitelist. Helmet headers.                                                                                                                                                                                       | 1.4         | P0        | 1 дн         | Backend-dev |
+| 1.12 | Health endpoints                | GET /health, GET /health/db, GET /health/redis. Для мониторинга (Betterstack) и load balancer health checks.                                                                                                                                                                                                               | 1.1         | P1        | 0,5 дн       | Backend-dev |
+| 1.13 | Unit-тесты для backend          | Покрытие минимум 70% для бизнес-логики: консолидация ингредиентов, расчёт упаковок, валидация профиля семьи.                                                                                                                                                                                                               | 1.4-1.12    | P1        | 2 дн         | Backend-dev |
 
 **Итого Фаза 1: ~20,5 человеко-дней**
 
@@ -128,18 +128,18 @@ MVP включает три основных модуля:
 
 ### Фаза 2: AI/ML модуль
 
-| # | Задача | Описание | Зависимости | Приоритет | Трудоёмкость | Роль |
-|---|--------|----------|-------------|-----------|-------------|------|
-| 2.1 | Настройка AI-сервиса | Инициализация FastAPI-контейнера (или модуля в NestJS). Подключение OpenAI SDK. Конфигурация API-ключей. | 0.6 | P0 | 0,5 дн | AI-engineer |
-| 2.2 | Разработка System Prompt | Создание system prompt для роли нутрициолога-повара. Определение JSON-схемы выходных данных (Structured Outputs). Правила: ограничения, разнообразие, калорийность, бюджет (FR-100--FR-103). | -- | P0 | 2 дн | AI-engineer |
-| 2.3 | Разработка User Prompt Builder | Модуль, собирающий динамический user prompt из профиля семьи: состав, возраст, ограничения, предпочтения, бюджет, закреплённые блюда (FR-101, FR-102, FR-113). | 2.2 | P0 | 1,5 дн | AI-engineer |
-| 2.4 | Интеграция с OpenAI Structured Outputs | Вызов GPT-4o с JSON-схемой. Обработка streaming (SSE для фронтенда). Retry-логика (до 3 попыток при невалидном ответе). | 2.1, 2.3 | P0 | 2 дн | AI-engineer |
-| 2.5 | Валидация выходных данных AI | Проверки: структура JSON (7 дней, правильное число приёмов пищи), отсутствие исключённых ингредиентов/аллергенов, калорийность в пределах +-20%, разнообразие (нет повторов), полнота (название, описание, ингредиенты с количеством). | 2.4 | P0 | 1,5 дн | AI-engineer |
-| 2.6 | Генерация альтернатив для замены блюда | При запросе замены (FR-112) -- генерация 3-5 альтернатив, соответствующих тем же ограничениям. Отдельный промпт с контекстом текущего меню. | 2.4 | P0 | 1 дн | AI-engineer |
-| 2.7 | Fallback на шаблонные меню | Подготовка 10-15 шаблонных меню (JSON-файлы) для случаев недоступности OpenAI API (NFR-032). Логика выбора шаблона по параметрам семьи. | 2.4 | P1 | 1,5 дн | AI-engineer |
-| 2.8 | Кэширование AI-результатов | Кэширование сгенерированных меню в Redis (TTL 24h). Кэш-ключ: hash(family_profile + week_start + locked_meals). Экономия до 60-80% вызовов API. | 2.4, 0.8 | P1 | 1 дн | AI-engineer |
-| 2.9 | Тестирование качества генерации | Набор из 20+ тестовых профилей семей (разные ограничения, бюджеты, предпочтения). Автоматическая проверка выходных данных. Метрика: >80% валидных генераций с первой попытки. | 2.5 | P1 | 1,5 дн | AI-engineer |
-| 2.10 | Интеграция AI-модуля с Menu API | Подключение реальной генерации к POST /menu/generate и POST /menu/{id}/regenerate-meal (замена mock-данных из задачи 1.7). | 1.7, 2.4 | P0 | 1 дн | Backend-dev |
+| #    | Задача                                 | Описание                                                                                                                                                                                                                               | Зависимости | Приоритет | Трудоёмкость | Роль        |
+| ---- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------- | ------------ | ----------- |
+| 2.1  | Настройка AI-сервиса                   | Инициализация FastAPI-контейнера (или модуля в NestJS). Подключение OpenAI SDK. Конфигурация API-ключей.                                                                                                                               | 0.6         | P0        | 0,5 дн       | AI-engineer |
+| 2.2  | Разработка System Prompt               | Создание system prompt для роли нутрициолога-повара. Определение JSON-схемы выходных данных (Structured Outputs). Правила: ограничения, разнообразие, калорийность, бюджет (FR-100--FR-103).                                           | --          | P0        | 2 дн         | AI-engineer |
+| 2.3  | Разработка User Prompt Builder         | Модуль, собирающий динамический user prompt из профиля семьи: состав, возраст, ограничения, предпочтения, бюджет, закреплённые блюда (FR-101, FR-102, FR-113).                                                                         | 2.2         | P0        | 1,5 дн       | AI-engineer |
+| 2.4  | Интеграция с OpenAI Structured Outputs | Вызов GPT-4o с JSON-схемой. Обработка streaming (SSE для фронтенда). Retry-логика (до 3 попыток при невалидном ответе).                                                                                                                | 2.1, 2.3    | P0        | 2 дн         | AI-engineer |
+| 2.5  | Валидация выходных данных AI           | Проверки: структура JSON (7 дней, правильное число приёмов пищи), отсутствие исключённых ингредиентов/аллергенов, калорийность в пределах +-20%, разнообразие (нет повторов), полнота (название, описание, ингредиенты с количеством). | 2.4         | P0        | 1,5 дн       | AI-engineer |
+| 2.6  | Генерация альтернатив для замены блюда | При запросе замены (FR-112) -- генерация 3-5 альтернатив, соответствующих тем же ограничениям. Отдельный промпт с контекстом текущего меню.                                                                                            | 2.4         | P0        | 1 дн         | AI-engineer |
+| 2.7  | Fallback на шаблонные меню             | Подготовка 10-15 шаблонных меню (JSON-файлы) для случаев недоступности OpenAI API (NFR-032). Логика выбора шаблона по параметрам семьи.                                                                                                | 2.4         | P1        | 1,5 дн       | AI-engineer |
+| 2.8  | Кэширование AI-результатов             | Кэширование сгенерированных меню в Redis (TTL 24h). Кэш-ключ: hash(family_profile + week_start + locked_meals). Экономия до 60-80% вызовов API.                                                                                        | 2.4, 0.8    | P1        | 1 дн         | AI-engineer |
+| 2.9  | Тестирование качества генерации        | Набор из 20+ тестовых профилей семей (разные ограничения, бюджеты, предпочтения). Автоматическая проверка выходных данных. Метрика: >80% валидных генераций с первой попытки.                                                          | 2.5         | P1        | 1,5 дн       | AI-engineer |
+| 2.10 | Интеграция AI-модуля с Menu API        | Подключение реальной генерации к POST /menu/generate и POST /menu/{id}/regenerate-meal (замена mock-данных из задачи 1.7).                                                                                                             | 1.7, 2.4    | P0        | 1 дн         | Backend-dev |
 
 **Итого Фаза 2: ~13,5 человеко-дней**
 
@@ -147,16 +147,16 @@ MVP включает три основных модуля:
 
 ### Фаза 3: Каталог продуктов и интеграция с S-Market
 
-| # | Задача | Описание | Зависимости | Приоритет | Трудоёмкость | Роль |
-|---|--------|----------|-------------|-----------|-------------|------|
-| 3.1 | Проектирование каталога и модели Product | Таблица Product со всеми полями из ТЗ: EAN, name_fi, brand, price, promo_price, unit_size, unit_type, category, image_url, in_stock, foodie_product_id. Таблица IngredientMap для маппинга ингредиент -> продукт. | 1.2 | P0 | 1 дн | Backend-dev |
-| 3.2 | Парсер каталога foodie.fi / S-kaupat.fi | Скрипт парсинга каталога товаров. Извлечение: название (фин.), EAN, бренд, цена, размер упаковки, категория, изображение, наличие. Соблюдение robots.txt, задержки между запросами. BullMQ job для периодического обновления. | 0.8, 3.1 | P0 | 3 дн | Backend-dev |
-| 3.3 | Ручная курация top-500 товаров | Ввод и верификация 500 основных товаров S-Market (Хельсинки): молочные, мясо, овощи, фрукты, бакалея, заморозка. Приоритет -- товары, наиболее часто встречающиеся в рецептах. | 3.1 | P0 | 3 дн | Backend-dev |
-| 3.4 | Маппинг ингредиентов на товары | Создание начального маппинга IngredientMap: сопоставление ~200 базовых ингредиентов с товарами S-Market. Поле confidence для оценки точности. Алгоритм fuzzy matching (pg_trgm). | 3.3, 1.6 | P0 | 2 дн | Backend-dev |
-| 3.5 | Product Catalog API | GET /products/search (полнотекстовый поиск по Meilisearch, финский + английский), GET /products/{id}, GET /products/promotions. Индексация в Meilisearch. | 3.1, 0.6 | P0 | 1,5 дн | Backend-dev |
-| 3.6 | Логика расчёта количества упаковок | Алгоритм: ингредиент (450г лука) -> товар (сетка 1кг) -> 1 упаковка к покупке. Учёт разных единиц измерения (г, кг, мл, л, шт). Нормализация единиц (FR-201, FR-211). | 3.4 | P0 | 1,5 дн | Backend-dev |
-| 3.7 | Фоновое обновление каталога | BullMQ-задача: ежедневное обновление цен и наличия (ночью). Еженедельное обновление базового каталога (новые товары). Инвалидация кэша Redis при обновлении. | 3.2, 0.8 | P1 | 1 дн | Backend-dev |
-| 3.8 | Тестирование маппинга | Валидация: >85% ингредиентов из тестовых рецептов корректно маппятся на товары S-Market (критерий готовности MVP). | 3.4, 3.6 | P1 | 1 дн | Backend-dev |
+| #   | Задача                                   | Описание                                                                                                                                                                                                                      | Зависимости | Приоритет | Трудоёмкость | Роль        |
+| --- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------- | ------------ | ----------- |
+| 3.1 | Проектирование каталога и модели Product | Таблица Product со всеми полями из ТЗ: EAN, name_fi, brand, price, promo_price, unit_size, unit_type, category, image_url, in_stock, foodie_product_id. Таблица IngredientMap для маппинга ингредиент -> продукт.             | 1.2         | P0        | 1 дн         | Backend-dev |
+| 3.2 | Парсер каталога foodie.fi / S-kaupat.fi  | Скрипт парсинга каталога товаров. Извлечение: название (фин.), EAN, бренд, цена, размер упаковки, категория, изображение, наличие. Соблюдение robots.txt, задержки между запросами. BullMQ job для периодического обновления. | 0.8, 3.1    | P0        | 3 дн         | Backend-dev |
+| 3.3 | Ручная курация top-500 товаров           | Ввод и верификация 500 основных товаров S-Market (Хельсинки): молочные, мясо, овощи, фрукты, бакалея, заморозка. Приоритет -- товары, наиболее часто встречающиеся в рецептах.                                                | 3.1         | P0        | 3 дн         | Backend-dev |
+| 3.4 | Маппинг ингредиентов на товары           | Создание начального маппинга IngredientMap: сопоставление ~200 базовых ингредиентов с товарами S-Market. Поле confidence для оценки точности. Алгоритм fuzzy matching (pg_trgm).                                              | 3.3, 1.6    | P0        | 2 дн         | Backend-dev |
+| 3.5 | Product Catalog API                      | GET /products/search (полнотекстовый поиск по Meilisearch, финский + английский), GET /products/{id}, GET /products/promotions. Индексация в Meilisearch.                                                                     | 3.1, 0.6    | P0        | 1,5 дн       | Backend-dev |
+| 3.6 | Логика расчёта количества упаковок       | Алгоритм: ингредиент (450г лука) -> товар (сетка 1кг) -> 1 упаковка к покупке. Учёт разных единиц измерения (г, кг, мл, л, шт). Нормализация единиц (FR-201, FR-211).                                                         | 3.4         | P0        | 1,5 дн       | Backend-dev |
+| 3.7 | Фоновое обновление каталога              | BullMQ-задача: ежедневное обновление цен и наличия (ночью). Еженедельное обновление базового каталога (новые товары). Инвалидация кэша Redis при обновлении.                                                                  | 3.2, 0.8    | P1        | 1 дн         | Backend-dev |
+| 3.8 | Тестирование маппинга                    | Валидация: >85% ингредиентов из тестовых рецептов корректно маппятся на товары S-Market (критерий готовности MVP).                                                                                                            | 3.4, 3.6    | P1        | 1 дн         | Backend-dev |
 
 **Итого Фаза 3: ~14 человеко-дней**
 
@@ -164,24 +164,24 @@ MVP включает три основных модуля:
 
 ### Фаза 4: Frontend (веб-приложение)
 
-| # | Задача | Описание | Зависимости | Приоритет | Трудоёмкость | Роль |
-|---|--------|----------|-------------|-----------|-------------|------|
-| 4.1 | Инициализация Next.js проекта | Scaffolding Next.js 14 (App Router) с TypeScript. Настройка shadcn/ui, Tailwind CSS, Zustand, TanStack Query, React Hook Form + Zod. | 0.3, 0.9 | P0 | 1 дн | Frontend-dev |
-| 4.2 | Дизайн-система и UI-kit | Настройка theme (цвета, типографика, breakpoints). Базовые компоненты: Button, Input, Card, Modal, Toast, Skeleton, Badge. Responsive layout (от 375px -- NFR-052). | 4.1 | P0 | 2 дн | Frontend-dev / Designer |
-| 4.3 | Экран регистрации и входа | Интеграция Clerk Components (SignIn/SignUp). Email + password для MVP (US-001). Обработка ошибок. Redirect после входа. | 4.1, 0.12 | P0 | 1 дн | Frontend-dev |
-| 4.4 | Onboarding Flow | Пошаговый мастер: (1) создание профиля семьи, (2) добавление членов семьи (имя, возраст, роль), (3) диетические ограничения, (4) медицинские ограничения, (5) предпочтения кухни, (6) бюджет. Валидация на каждом шаге. (US-002 -- US-007, FR-101, FR-102). | 4.3, 1.5 | P0 | 3 дн | Frontend-dev |
-| 4.5 | Dashboard | Главная страница после входа: текущее меню на неделю (если есть), быстрые действия (сгенерировать меню, открыть список, начать покупку), история заказов. | 4.3, 1.7 | P0 | 2 дн | Frontend-dev |
-| 4.6 | Menu Planner -- генерация и отображение | Кнопка "Сгенерировать меню" (US-010). Отображение календарной сетки 7 дней x 2-3 приёма пищи. Индикатор загрузки (NFR-001: <15 сек). SSE для стриминга результата. | 4.5, 2.10 | P0 | 3 дн | Frontend-dev |
-| 4.7 | Menu Planner -- карточки блюд | Для каждого блюда: название (en/fi), описание, список ингредиентов, калорийность, примерная стоимость (FR-110, US-011). Боковая панель с деталями рецепта. | 4.6 | P0 | 2 дн | Frontend-dev |
-| 4.8 | Menu Planner -- замена и фиксация блюд | Кнопка замены -> модальное окно с 3-5 альтернативами (FR-112, US-012). Кнопка "закрепить" (FR-113, US-013). Кнопка "утвердить меню". Сводная информация: калории, стоимость (FR-120, FR-121, US-015). | 4.7, 2.6 | P0 | 2 дн | Frontend-dev |
-| 4.9 | Shopping List -- отображение | Список продуктов, сгруппированный по категориям (FR-202). Маппинг на товары S-Market с ценами (FR-212, US-021). Итоговая стоимость корзины (US-022). | 4.8, 1.8 | P0 | 2 дн | Frontend-dev |
-| 4.10 | Shopping List -- редактирование | Удаление позиции (FR-220), изменение количества (FR-221), добавление продукта через поиск по каталогу (FR-222), пометка "есть дома" (FR-223, US-024). Выбор альтернативного товара (FR-224). | 4.9, 3.5 | P0 | 2 дн | Frontend-dev |
-| 4.11 | Shopping List -- отправка в Extension | Кнопка "Отправить в Chrome Extension" / "Готово к покупке". PUT /shopping-list/{id}/ready. UI-подсказка: "Откройте Chrome Extension для добавления в корзину". | 4.10, 1.9 | P0 | 0,5 дн | Frontend-dev |
-| 4.12 | Settings (настройки) | Страница настроек: редактирование профиля семьи, ограничений, предпочтений. Переключение языка (en/fi -- NFR-040). Удаление аккаунта (GDPR, NFR-022). | 4.3, 1.5 | P1 | 1,5 дн | Frontend-dev |
-| 4.13 | Локализация (i18n) | Настройка next-intl или аналога. Перевод интерфейса на финский (NFR-040, NFR-041). Минимум 2 языка: English, Suomi. | 4.1 | P1 | 2 дн | Frontend-dev |
-| 4.14 | Адаптивная вёрстка | Тестирование и исправление responsive layout на ключевых breakpoints: 375px (mobile), 768px (tablet), 1024px+ (desktop) -- NFR-052. | 4.3-4.12 | P1 | 1,5 дн | Frontend-dev |
-| 4.15 | Error handling и состояния загрузки | Skeleton-компоненты для загрузки. Сообщения об ошибках. Graceful degradation при недоступности AI (NFR-032). Offline-индикатор. | 4.3-4.12 | P1 | 1 дн | Frontend-dev |
-| 4.16 | Privacy Policy и Cookie consent | Страница Privacy Policy (en/fi). Cookie consent banner (opt-in, GDPR -- NFR-022). | 4.1 | P0 | 1 дн | Frontend-dev |
+| #    | Задача                                  | Описание                                                                                                                                                                                                                                                    | Зависимости | Приоритет | Трудоёмкость | Роль                    |
+| ---- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------- | ------------ | ----------------------- |
+| 4.1  | Инициализация Next.js проекта           | Scaffolding Next.js 14 (App Router) с TypeScript. Настройка shadcn/ui, Tailwind CSS, Zustand, TanStack Query, React Hook Form + Zod.                                                                                                                        | 0.3, 0.9    | P0        | 1 дн         | Frontend-dev            |
+| 4.2  | Дизайн-система и UI-kit                 | Настройка theme (цвета, типографика, breakpoints). Базовые компоненты: Button, Input, Card, Modal, Toast, Skeleton, Badge. Responsive layout (от 375px -- NFR-052).                                                                                         | 4.1         | P0        | 2 дн         | Frontend-dev / Designer |
+| 4.3  | Экран регистрации и входа               | Интеграция Clerk Components (SignIn/SignUp). Email + password для MVP (US-001). Обработка ошибок. Redirect после входа.                                                                                                                                     | 4.1, 0.12   | P0        | 1 дн         | Frontend-dev            |
+| 4.4  | Onboarding Flow                         | Пошаговый мастер: (1) создание профиля семьи, (2) добавление членов семьи (имя, возраст, роль), (3) диетические ограничения, (4) медицинские ограничения, (5) предпочтения кухни, (6) бюджет. Валидация на каждом шаге. (US-002 -- US-007, FR-101, FR-102). | 4.3, 1.5    | P0        | 3 дн         | Frontend-dev            |
+| 4.5  | Dashboard                               | Главная страница после входа: текущее меню на неделю (если есть), быстрые действия (сгенерировать меню, открыть список, начать покупку), история заказов.                                                                                                   | 4.3, 1.7    | P0        | 2 дн         | Frontend-dev            |
+| 4.6  | Menu Planner -- генерация и отображение | Кнопка "Сгенерировать меню" (US-010). Отображение календарной сетки 7 дней x 2-3 приёма пищи. Индикатор загрузки (NFR-001: <15 сек). SSE для стриминга результата.                                                                                          | 4.5, 2.10   | P0        | 3 дн         | Frontend-dev            |
+| 4.7  | Menu Planner -- карточки блюд           | Для каждого блюда: название (en/fi), описание, список ингредиентов, калорийность, примерная стоимость (FR-110, US-011). Боковая панель с деталями рецепта.                                                                                                  | 4.6         | P0        | 2 дн         | Frontend-dev            |
+| 4.8  | Menu Planner -- замена и фиксация блюд  | Кнопка замены -> модальное окно с 3-5 альтернативами (FR-112, US-012). Кнопка "закрепить" (FR-113, US-013). Кнопка "утвердить меню". Сводная информация: калории, стоимость (FR-120, FR-121, US-015).                                                       | 4.7, 2.6    | P0        | 2 дн         | Frontend-dev            |
+| 4.9  | Shopping List -- отображение            | Список продуктов, сгруппированный по категориям (FR-202). Маппинг на товары S-Market с ценами (FR-212, US-021). Итоговая стоимость корзины (US-022).                                                                                                        | 4.8, 1.8    | P0        | 2 дн         | Frontend-dev            |
+| 4.10 | Shopping List -- редактирование         | Удаление позиции (FR-220), изменение количества (FR-221), добавление продукта через поиск по каталогу (FR-222), пометка "есть дома" (FR-223, US-024). Выбор альтернативного товара (FR-224).                                                                | 4.9, 3.5    | P0        | 2 дн         | Frontend-dev            |
+| 4.11 | Shopping List -- отправка в Extension   | Кнопка "Отправить в Chrome Extension" / "Готово к покупке". PUT /shopping-list/{id}/ready. UI-подсказка: "Откройте Chrome Extension для добавления в корзину".                                                                                              | 4.10, 1.9   | P0        | 0,5 дн       | Frontend-dev            |
+| 4.12 | Settings (настройки)                    | Страница настроек: редактирование профиля семьи, ограничений, предпочтений. Переключение языка (en/fi -- NFR-040). Удаление аккаунта (GDPR, NFR-022).                                                                                                       | 4.3, 1.5    | P1        | 1,5 дн       | Frontend-dev            |
+| 4.13 | Локализация (i18n)                      | Настройка next-intl или аналога. Перевод интерфейса на финский (NFR-040, NFR-041). Минимум 2 языка: English, Suomi.                                                                                                                                         | 4.1         | P1        | 2 дн         | Frontend-dev            |
+| 4.14 | Адаптивная вёрстка                      | Тестирование и исправление responsive layout на ключевых breakpoints: 375px (mobile), 768px (tablet), 1024px+ (desktop) -- NFR-052.                                                                                                                         | 4.3-4.12    | P1        | 1,5 дн       | Frontend-dev            |
+| 4.15 | Error handling и состояния загрузки     | Skeleton-компоненты для загрузки. Сообщения об ошибках. Graceful degradation при недоступности AI (NFR-032). Offline-индикатор.                                                                                                                             | 4.3-4.12    | P1        | 1 дн         | Frontend-dev            |
+| 4.16 | Privacy Policy и Cookie consent         | Страница Privacy Policy (en/fi). Cookie consent banner (opt-in, GDPR -- NFR-022).                                                                                                                                                                           | 4.1         | P0        | 1 дн         | Frontend-dev            |
 
 **Итого Фаза 4: ~26,5 человеко-дней**
 
@@ -189,17 +189,17 @@ MVP включает три основных модуля:
 
 ### Фаза 5: Chrome Extension
 
-| # | Задача | Описание | Зависимости | Приоритет | Трудоёмкость | Роль |
-|---|--------|----------|-------------|-----------|-------------|------|
-| 5.1 | Инициализация Extension проекта | Scaffolding Manifest V3 с React + TypeScript + Vite (crxjs/vite-plugin). Настройка permissions: storage, activeTab, tabs. Host permissions: foodie.fi, api.foodops.fi (FR-300). | 0.3 | P0 | 1 дн | Frontend-dev |
-| 5.2 | Popup UI -- авторизация | OAuth2 flow: popup открывает окно авторизации FoodOps, получает токен, сохраняет в chrome.storage.local (FR-300, US-030). | 5.1, 1.4 | P0 | 1,5 дн | Frontend-dev |
-| 5.3 | Popup UI -- отображение списка | Получение списка покупок из Extension API (FR-301, FR-302, US-030). Отображение: товары с количеством и стоимостью. Кнопка "Добавить в корзину". | 5.2, 1.9 | P0 | 1,5 дн | Frontend-dev |
-| 5.4 | Background Service Worker | Обмен сообщениями между popup и content script. Хранение состояния процесса добавления. Получение списка из backend API. Управление flow добавления товаров. | 5.1 | P0 | 2 дн | Frontend-dev |
-| 5.5 | Content Script -- DOM-взаимодействие с foodie.fi | Анализ DOM foodie.fi: поле поиска, результаты поиска, кнопка "Добавить в корзину", счётчик количества. Абстрагирование DOM-селекторов в конфигурационный файл (для быстрого обновления при изменении DOM). | 5.4 | P0 | 3 дн | Frontend-dev |
-| 5.6 | Content Script -- поиск и добавление товаров | Логика: (1) ввод search_query_fi в поиск, (2) ожидание результатов, (3) поиск совпадения по EAN/названию/бренду/фасовке (FR-314), (4) клик "Добавить в корзину" (FR-312), (5) установка количества (FR-315). Задержки 2-5 сек между действиями. Таймаут 30 сек на товар (FR-323). | 5.5 | P0 | 3 дн | Frontend-dev |
-| 5.7 | Popup UI -- прогресс и отчёт | Прогресс-бар: "Добавлено X из Y товаров" (FR-316, US-032). Отчёт: успешно добавлено, не найдено, заменено (FR-320, US-033). Отправка отчёта в backend (POST /extension/shopping-list/{id}/report). | 5.6, 5.3 | P0 | 1,5 дн | Frontend-dev |
-| 5.8 | Fallback-поиск | При неудаче основного поиска -- повторные попытки с fallback_search_queries (упрощённые запросы). Возможность ручного выбора через переход на foodie.fi (FR-321, FR-322). | 5.6 | P1 | 1 дн | Frontend-dev |
-| 5.9 | Тестирование на foodie.fi | E2E тесты взаимодействия с реальным DOM foodie.fi. Проверка: поиск, добавление, количество, прогресс, отчёт. Тестирование с разными товарами (молочные, мясо, овощи, бакалея). | 5.6-5.8 | P0 | 2 дн | Frontend-dev |
+| #   | Задача                                           | Описание                                                                                                                                                                                                                                                                          | Зависимости | Приоритет | Трудоёмкость | Роль         |
+| --- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------- | ------------ | ------------ |
+| 5.1 | Инициализация Extension проекта                  | Scaffolding Manifest V3 с React + TypeScript + Vite (crxjs/vite-plugin). Настройка permissions: storage, activeTab, tabs. Host permissions: foodie.fi, api.foodops.fi (FR-300).                                                                                                   | 0.3         | P0        | 1 дн         | Frontend-dev |
+| 5.2 | Popup UI -- авторизация                          | OAuth2 flow: popup открывает окно авторизации FoodOps, получает токен, сохраняет в chrome.storage.local (FR-300, US-030).                                                                                                                                                         | 5.1, 1.4    | P0        | 1,5 дн       | Frontend-dev |
+| 5.3 | Popup UI -- отображение списка                   | Получение списка покупок из Extension API (FR-301, FR-302, US-030). Отображение: товары с количеством и стоимостью. Кнопка "Добавить в корзину".                                                                                                                                  | 5.2, 1.9    | P0        | 1,5 дн       | Frontend-dev |
+| 5.4 | Background Service Worker                        | Обмен сообщениями между popup и content script. Хранение состояния процесса добавления. Получение списка из backend API. Управление flow добавления товаров.                                                                                                                      | 5.1         | P0        | 2 дн         | Frontend-dev |
+| 5.5 | Content Script -- DOM-взаимодействие с foodie.fi | Анализ DOM foodie.fi: поле поиска, результаты поиска, кнопка "Добавить в корзину", счётчик количества. Абстрагирование DOM-селекторов в конфигурационный файл (для быстрого обновления при изменении DOM).                                                                        | 5.4         | P0        | 3 дн         | Frontend-dev |
+| 5.6 | Content Script -- поиск и добавление товаров     | Логика: (1) ввод search_query_fi в поиск, (2) ожидание результатов, (3) поиск совпадения по EAN/названию/бренду/фасовке (FR-314), (4) клик "Добавить в корзину" (FR-312), (5) установка количества (FR-315). Задержки 2-5 сек между действиями. Таймаут 30 сек на товар (FR-323). | 5.5         | P0        | 3 дн         | Frontend-dev |
+| 5.7 | Popup UI -- прогресс и отчёт                     | Прогресс-бар: "Добавлено X из Y товаров" (FR-316, US-032). Отчёт: успешно добавлено, не найдено, заменено (FR-320, US-033). Отправка отчёта в backend (POST /extension/shopping-list/{id}/report).                                                                                | 5.6, 5.3    | P0        | 1,5 дн       | Frontend-dev |
+| 5.8 | Fallback-поиск                                   | При неудаче основного поиска -- повторные попытки с fallback_search_queries (упрощённые запросы). Возможность ручного выбора через переход на foodie.fi (FR-321, FR-322).                                                                                                         | 5.6         | P1        | 1 дн         | Frontend-dev |
+| 5.9 | Тестирование на foodie.fi                        | E2E тесты взаимодействия с реальным DOM foodie.fi. Проверка: поиск, добавление, количество, прогресс, отчёт. Тестирование с разными товарами (молочные, мясо, овощи, бакалея).                                                                                                    | 5.6-5.8     | P0        | 2 дн         | Frontend-dev |
 
 **Итого Фаза 5: ~16,5 человеко-дней**
 
@@ -207,15 +207,15 @@ MVP включает три основных модуля:
 
 ### Фаза 6: Тестирование и QA
 
-| # | Задача | Описание | Зависимости | Приоритет | Трудоёмкость | Роль |
-|---|--------|----------|-------------|-----------|-------------|------|
-| 6.1 | E2E тесты (Playwright) | End-to-end тесты основного пользовательского потока: регистрация -> onboarding -> генерация меню -> утверждение -> список покупок -> готов к покупке. | 4.11 | P0 | 2 дн | Frontend-dev |
-| 6.2 | Интеграционные тесты API | Тестирование API-контрактов из ТЗ (раздел 7). Покрытие всех endpoint-ов. Тестирование с Neon branch (изолированная БД). | 1.13 | P0 | 2 дн | Backend-dev |
-| 6.3 | Нагрузочное тестирование | Тестирование с k6/Artillery: 50-100 concurrent users, целевой RPS 10-50 (NFR-010). Проверка latency: API p95 < 500ms (NFR-005), генерация меню < 15s (NFR-001). | 6.1, 6.2 | P1 | 1,5 дн | DevOps |
-| 6.4 | Тестирование безопасности | Проверка: JWT-валидация, rate limiting, CORS, XSS, SQL injection (через Prisma). Проверка Chrome Extension permissions. Тестирование GDPR-функций (экспорт/удаление данных). | 6.2 | P1 | 1 дн | Backend-dev |
-| 6.5 | Cross-browser тестирование | Тестирование веб-приложения: Chrome 90+, Firefox 90+, Safari 15+, Edge 90+ (NFR-050). Chrome Extension: Chrome 90+ (NFR-051). Мобильная адаптация: iPhone SE, iPhone 14, Samsung Galaxy S21. | 4.14 | P1 | 1 дн | Frontend-dev |
-| 6.6 | Bug fixing и стабилизация | Исправление найденных багов по результатам тестирования. Критерий: 0 critical/blocker, <5 major, error rate <1%. | 6.1-6.5 | P0 | 3 дн | Backend-dev / Frontend-dev |
-| 6.7 | Performance оптимизация | FCP < 2s, TTI < 4s (NFR-004). Оптимизация: lazy loading, code splitting, image optimization. Проверка Lighthouse score > 80. | 6.3 | P1 | 1,5 дн | Frontend-dev |
+| #   | Задача                     | Описание                                                                                                                                                                                     | Зависимости | Приоритет | Трудоёмкость | Роль                       |
+| --- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------- | ------------ | -------------------------- |
+| 6.1 | E2E тесты (Playwright)     | End-to-end тесты основного пользовательского потока: регистрация -> onboarding -> генерация меню -> утверждение -> список покупок -> готов к покупке.                                        | 4.11        | P0        | 2 дн         | Frontend-dev               |
+| 6.2 | Интеграционные тесты API   | Тестирование API-контрактов из ТЗ (раздел 7). Покрытие всех endpoint-ов. Тестирование с Neon branch (изолированная БД).                                                                      | 1.13        | P0        | 2 дн         | Backend-dev                |
+| 6.3 | Нагрузочное тестирование   | Тестирование с k6/Artillery: 50-100 concurrent users, целевой RPS 10-50 (NFR-010). Проверка latency: API p95 < 500ms (NFR-005), генерация меню < 15s (NFR-001).                              | 6.1, 6.2    | P1        | 1,5 дн       | DevOps                     |
+| 6.4 | Тестирование безопасности  | Проверка: JWT-валидация, rate limiting, CORS, XSS, SQL injection (через Prisma). Проверка Chrome Extension permissions. Тестирование GDPR-функций (экспорт/удаление данных).                 | 6.2         | P1        | 1 дн         | Backend-dev                |
+| 6.5 | Cross-browser тестирование | Тестирование веб-приложения: Chrome 90+, Firefox 90+, Safari 15+, Edge 90+ (NFR-050). Chrome Extension: Chrome 90+ (NFR-051). Мобильная адаптация: iPhone SE, iPhone 14, Samsung Galaxy S21. | 4.14        | P1        | 1 дн         | Frontend-dev               |
+| 6.6 | Bug fixing и стабилизация  | Исправление найденных багов по результатам тестирования. Критерий: 0 critical/blocker, <5 major, error rate <1%.                                                                             | 6.1-6.5     | P0        | 3 дн         | Backend-dev / Frontend-dev |
+| 6.7 | Performance оптимизация    | FCP < 2s, TTI < 4s (NFR-004). Оптимизация: lazy loading, code splitting, image optimization. Проверка Lighthouse score > 80.                                                                 | 6.3         | P1        | 1,5 дн       | Frontend-dev               |
 
 **Итого Фаза 6: ~12 человеко-дней**
 
@@ -223,14 +223,14 @@ MVP включает три основных модуля:
 
 ### Фаза 7: Beta-запуск
 
-| # | Задача | Описание | Зависимости | Приоритет | Трудоёмкость | Роль |
-|---|--------|----------|-------------|-----------|-------------|------|
-| 7.1 | Подготовка к бета-запуску | Чеклист: все critical bugs исправлены, мониторинг работает, backup настроен, Privacy Policy опубликована, status page (status.foodops.fi) активна. | 6.6 | P0 | 1 дн | DevOps |
-| 7.2 | Набор бета-тестеров | Рекрутинг 20-50 семей в Хельсинки. Каналы: Facebook groups для родителей, Reddit r/Finland, прямые контакты. Инструкция по установке Extension. | 7.1 | P0 | 1 дн | Product Owner |
-| 7.3 | Закрытая бета (1-2 недели) | Мониторинг использования: Sentry errors, user flows, completion rates. Сбор обратной связи через встроенную форму и интервью. | 7.2 | P0 | 2 дн | Backend-dev / Frontend-dev |
-| 7.4 | Анализ обратной связи и метрик | Анализ: (1) качество меню (>80% удовлетворены?), (2) точность маппинга (>85%?), (3) успешность добавления в корзину (>90%?), (4) error rate (<1%?). NPS опрос. | 7.3 | P0 | 1 дн | Product Owner |
-| 7.5 | Исправления по результатам бета | Hotfixes по критическим проблемам. Обновление промптов AI при плохом качестве меню. Обновление DOM-селекторов Extension при проблемах с foodie.fi. | 7.4 | P0 | 3 дн | Backend-dev / Frontend-dev |
-| 7.6 | Публикация Chrome Extension | Подготовка описания, скриншотов, Privacy Policy. Публикация в Chrome Web Store. Время ревью: 1-3 дня. | 7.5 | P0 | 1 дн | Frontend-dev |
+| #   | Задача                          | Описание                                                                                                                                                       | Зависимости | Приоритет | Трудоёмкость | Роль                       |
+| --- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------- | ------------ | -------------------------- |
+| 7.1 | Подготовка к бета-запуску       | Чеклист: все critical bugs исправлены, мониторинг работает, backup настроен, Privacy Policy опубликована, status page (status.foodops.fi) активна.             | 6.6         | P0        | 1 дн         | DevOps                     |
+| 7.2 | Набор бета-тестеров             | Рекрутинг 20-50 семей в Хельсинки. Каналы: Facebook groups для родителей, Reddit r/Finland, прямые контакты. Инструкция по установке Extension.                | 7.1         | P0        | 1 дн         | Product Owner              |
+| 7.3 | Закрытая бета (1-2 недели)      | Мониторинг использования: Sentry errors, user flows, completion rates. Сбор обратной связи через встроенную форму и интервью.                                  | 7.2         | P0        | 2 дн         | Backend-dev / Frontend-dev |
+| 7.4 | Анализ обратной связи и метрик  | Анализ: (1) качество меню (>80% удовлетворены?), (2) точность маппинга (>85%?), (3) успешность добавления в корзину (>90%?), (4) error rate (<1%?). NPS опрос. | 7.3         | P0        | 1 дн         | Product Owner              |
+| 7.5 | Исправления по результатам бета | Hotfixes по критическим проблемам. Обновление промптов AI при плохом качестве меню. Обновление DOM-селекторов Extension при проблемах с foodie.fi.             | 7.4         | P0        | 3 дн         | Backend-dev / Frontend-dev |
+| 7.6 | Публикация Chrome Extension     | Подготовка описания, скриншотов, Privacy Policy. Публикация в Chrome Web Store. Время ревью: 1-3 дня.                                                          | 7.5         | P0        | 1 дн         | Frontend-dev               |
 
 **Итого Фаза 7: ~9 человеко-дней**
 
@@ -238,16 +238,16 @@ MVP включает три основных модуля:
 
 ### Фаза 8: Post-MVP итерации (v1.1+)
 
-| # | Задача | Описание | Зависимости | Приоритет | Трудоёмкость | Роль |
-|---|--------|----------|-------------|-----------|-------------|------|
-| 8.1 | OAuth авторизация (Google, Apple) | Добавление OAuth-провайдеров в Clerk. Обновление UI авторизации (US-001 -- v1.1). | 1.4, 4.3 | P1 | 2 дн | Backend-dev |
-| 8.2 | Пользовательские рецепты | POST /recipes, PUT /recipes/{id}, DELETE /recipes/{id}. UI для добавления рецепта (FR-114, US-017 -- v1.1). | 1.6, 4.7 | P1 | 3 дн | Backend-dev / Frontend-dev |
-| 8.3 | Расширение каталога до 5000+ SKU | Автоматизация парсинга полного каталога. Еженедельное обновление. Масштабирование Meilisearch. | 3.2 | P1 | 3 дн | Backend-dev |
-| 8.4 | Акции и спецпредложения | Подсветка товаров с promo_price (FR-213, US-026 -- v1.1). Предложение замены на акционный аналог. | 3.5, 4.9 | P1 | 2 дн | Backend-dev / Frontend-dev |
-| 8.5 | Интеллектуальные замены при отсутствии | При in_stock=false автоматический подбор 1-3 альтернатив с пояснением различий (FR-214, US-025 -- v1.1). | 3.4 | P1 | 2 дн | Backend-dev |
-| 8.6 | Нутриентный баланс | Отображение белки/жиры/углеводы в сводке по дням и неделе (FR-122 -- v1.2). | 4.8 | P2 | 2 дн | Frontend-dev |
-| 8.7 | Бюджет-оптимизация | AI учитывает бюджет при генерации меню: подбор более дешёвых ингредиентов, учёт акций (v1.2). | 2.2, 3.5 | P2 | 3 дн | AI-engineer |
-| 8.8 | Второй магазин (Prisma / K-Market) | Абстракция магазина, парсинг каталога второй сети, сравнение цен (v2.0). | 3.1 | P2 | 5 дн | Backend-dev |
+| #   | Задача                                 | Описание                                                                                                    | Зависимости | Приоритет | Трудоёмкость | Роль                       |
+| --- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------- | --------- | ------------ | -------------------------- |
+| 8.1 | OAuth авторизация (Google, Apple)      | Добавление OAuth-провайдеров в Clerk. Обновление UI авторизации (US-001 -- v1.1).                           | 1.4, 4.3    | P1        | 2 дн         | Backend-dev                |
+| 8.2 | Пользовательские рецепты               | POST /recipes, PUT /recipes/{id}, DELETE /recipes/{id}. UI для добавления рецепта (FR-114, US-017 -- v1.1). | 1.6, 4.7    | P1        | 3 дн         | Backend-dev / Frontend-dev |
+| 8.3 | Расширение каталога до 5000+ SKU       | Автоматизация парсинга полного каталога. Еженедельное обновление. Масштабирование Meilisearch.              | 3.2         | P1        | 3 дн         | Backend-dev                |
+| 8.4 | Акции и спецпредложения                | Подсветка товаров с promo_price (FR-213, US-026 -- v1.1). Предложение замены на акционный аналог.           | 3.5, 4.9    | P1        | 2 дн         | Backend-dev / Frontend-dev |
+| 8.5 | Интеллектуальные замены при отсутствии | При in_stock=false автоматический подбор 1-3 альтернатив с пояснением различий (FR-214, US-025 -- v1.1).    | 3.4         | P1        | 2 дн         | Backend-dev                |
+| 8.6 | Нутриентный баланс                     | Отображение белки/жиры/углеводы в сводке по дням и неделе (FR-122 -- v1.2).                                 | 4.8         | P2        | 2 дн         | Frontend-dev               |
+| 8.7 | Бюджет-оптимизация                     | AI учитывает бюджет при генерации меню: подбор более дешёвых ингредиентов, учёт акций (v1.2).               | 2.2, 3.5    | P2        | 3 дн         | AI-engineer                |
+| 8.8 | Второй магазин (Prisma / K-Market)     | Абстракция магазина, парсинг каталога второй сети, сравнение цен (v2.0).                                    | 3.1         | P2        | 5 дн         | Backend-dev                |
 
 **Итого Фаза 8 (выборочно): ~22 человеко-дня**
 
@@ -287,29 +287,29 @@ MVP включает три основных модуля:
 
 ### Задачи на критическом пути (блокеры)
 
-| Задача | Почему критична | Если задерживается |
-|--------|----------------|-------------------|
-| 1.2 Prisma + миграции | Все API зависят от модели данных | Блокирует весь backend |
-| 2.4 OpenAI Structured Outputs | Ядро AI-генерации | Блокирует Menu Planner (frontend) |
-| 3.3 Курация top-500 товаров | Без каталога нет маппинга, нет Shopping List | Блокирует Shopping List и Extension |
-| 3.4 Маппинг ингредиентов | Без маппинга Shopping List не формируется | Блокирует весь flow покупки |
-| 5.5 Content Script DOM | Ключевой модуль взаимодействия с foodie.fi | Блокирует весь Extension |
-| 6.6 Bug fixing | Стабилизация перед бета | Задерживает запуск |
+| Задача                        | Почему критична                              | Если задерживается                  |
+| ----------------------------- | -------------------------------------------- | ----------------------------------- |
+| 1.2 Prisma + миграции         | Все API зависят от модели данных             | Блокирует весь backend              |
+| 2.4 OpenAI Structured Outputs | Ядро AI-генерации                            | Блокирует Menu Planner (frontend)   |
+| 3.3 Курация top-500 товаров   | Без каталога нет маппинга, нет Shopping List | Блокирует Shopping List и Extension |
+| 3.4 Маппинг ингредиентов      | Без маппинга Shopping List не формируется    | Блокирует весь flow покупки         |
+| 5.5 Content Script DOM        | Ключевой модуль взаимодействия с foodie.fi   | Блокирует весь Extension            |
+| 6.6 Bug fixing                | Стабилизация перед бета                      | Задерживает запуск                  |
 
 ---
 
 ## 5. Milestones (ключевые вехи)
 
-| # | Milestone | Описание | Целевая неделя | Спринт | Критерий завершения |
-|---|-----------|----------|---------------|--------|-------------------|
-| M1 | Инфраструктура готова | Сервер, БД, CI/CD, домен, мониторинг настроены. Код деплоится автоматически. | W2 | Sprint 1 | Deploy pipeline проходит, /health возвращает 200 |
-| M2 | Backend API работает | Auth, Family, Menu, Shopping List, Catalog, Extension API -- все эндпоинты отвечают (с mock-данными для AI). | W5 | Sprint 2-3 | Все API-контракты из ТЗ (раздел 7) реализованы, unit-тесты проходят |
-| M3 | AI генерирует меню | GPT-4o генерирует валидное недельное меню по профилю семьи. Валидация проходит в >80% случаев. | W7 | Sprint 3-4 | POST /menu/generate возвращает валидное меню за <15 сек |
-| M4 | Каталог продуктов загружен | Top-500 товаров S-Market в БД. Маппинг ингредиентов работает. Поиск по каталогу работает. | W7 | Sprint 3-4 | >85% ингредиентов из тестовых рецептов корректно маппятся |
-| M5 | Frontend работает end-to-end | Полный пользовательский путь в веб-приложении: регистрация -> onboarding -> меню -> список -> "готов к покупке". | W9 | Sprint 5 | E2E тест проходит, FCP <2s, TTI <4s |
-| M6 | Chrome Extension добавляет товары в корзину | Extension ищет товары на foodie.fi и добавляет их в корзину с отчётом. | W11 | Sprint 6 | >90% товаров из тестового списка успешно добавлены |
-| M7 | MVP ready for beta | Все модули интегрированы, E2E тесты проходят, error rate <1%, 0 critical bugs. | W13 | Sprint 7 | Полный цикл от регистрации до добавления в корзину на foodie.fi работает |
-| M8 | Public launch (open beta) | Закрытая бета завершена, критические исправления внесены, Extension в Chrome Web Store. | W15 | Sprint 8 | >80% удовлетворённость бета-тестеров, Extension опубликован |
+| #   | Milestone                                   | Описание                                                                                                         | Целевая неделя | Спринт     | Критерий завершения                                                      |
+| --- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | -------------- | ---------- | ------------------------------------------------------------------------ |
+| M1  | Инфраструктура готова                       | Сервер, БД, CI/CD, домен, мониторинг настроены. Код деплоится автоматически.                                     | W2             | Sprint 1   | Deploy pipeline проходит, /health возвращает 200                         |
+| M2  | Backend API работает                        | Auth, Family, Menu, Shopping List, Catalog, Extension API -- все эндпоинты отвечают (с mock-данными для AI).     | W5             | Sprint 2-3 | Все API-контракты из ТЗ (раздел 7) реализованы, unit-тесты проходят      |
+| M3  | AI генерирует меню                          | GPT-4o генерирует валидное недельное меню по профилю семьи. Валидация проходит в >80% случаев.                   | W7             | Sprint 3-4 | POST /menu/generate возвращает валидное меню за <15 сек                  |
+| M4  | Каталог продуктов загружен                  | Top-500 товаров S-Market в БД. Маппинг ингредиентов работает. Поиск по каталогу работает.                        | W7             | Sprint 3-4 | >85% ингредиентов из тестовых рецептов корректно маппятся                |
+| M5  | Frontend работает end-to-end                | Полный пользовательский путь в веб-приложении: регистрация -> onboarding -> меню -> список -> "готов к покупке". | W9             | Sprint 5   | E2E тест проходит, FCP <2s, TTI <4s                                      |
+| M6  | Chrome Extension добавляет товары в корзину | Extension ищет товары на foodie.fi и добавляет их в корзину с отчётом.                                           | W11            | Sprint 6   | >90% товаров из тестового списка успешно добавлены                       |
+| M7  | MVP ready for beta                          | Все модули интегрированы, E2E тесты проходят, error rate <1%, 0 critical bugs.                                   | W13            | Sprint 7   | Полный цикл от регистрации до добавления в корзину на foodie.fi работает |
+| M8  | Public launch (open beta)                   | Закрытая бета завершена, критические исправления внесены, Extension в Chrome Web Store.                          | W15            | Sprint 8   | >80% удовлетворённость бета-тестеров, Extension опубликован              |
 
 ---
 
@@ -317,34 +317,34 @@ MVP включает три основных модуля:
 
 ### 6.1 Минимальная команда для MVP (3 человека)
 
-| Роль | Описание | Загрузка | Ключевые задачи |
-|------|----------|---------|----------------|
-| **Full-stack Developer / Tech Lead** | Backend + DevOps + частично AI. Основной разработчик серверной части. | 100% | Фаза 0 (DevOps), Фаза 1 (Backend), Фаза 3 (Каталог), Фаза 6 (тесты) |
-| **Frontend Developer** | Web-приложение + Chrome Extension. | 100% | Фаза 4 (Frontend), Фаза 5 (Extension), Фаза 6 (E2E тесты) |
-| **AI Engineer / Product Owner** | Prompt engineering, качество генерации, продуктовые решения. | 80% | Фаза 2 (AI/ML), Фаза 7 (бета), курация каталога (3.3), бизнес-решения |
+| Роль                                 | Описание                                                              | Загрузка | Ключевые задачи                                                       |
+| ------------------------------------ | --------------------------------------------------------------------- | -------- | --------------------------------------------------------------------- |
+| **Full-stack Developer / Tech Lead** | Backend + DevOps + частично AI. Основной разработчик серверной части. | 100%     | Фаза 0 (DevOps), Фаза 1 (Backend), Фаза 3 (Каталог), Фаза 6 (тесты)   |
+| **Frontend Developer**               | Web-приложение + Chrome Extension.                                    | 100%     | Фаза 4 (Frontend), Фаза 5 (Extension), Фаза 6 (E2E тесты)             |
+| **AI Engineer / Product Owner**      | Prompt engineering, качество генерации, продуктовые решения.          | 80%      | Фаза 2 (AI/ML), Фаза 7 (бета), курация каталога (3.3), бизнес-решения |
 
 ### 6.2 Оптимальная команда (5 человек)
 
-| Роль | Описание | Загрузка |
-|------|----------|---------|
-| **Backend Developer** | API, бизнес-логика, интеграции | 100% |
-| **Frontend Developer** | Web-приложение, responsive, i18n | 100% |
-| **Extension Developer** | Chrome Extension, взаимодействие с foodie.fi | 100% (Фазы 5-6), 50% (остальное время -- помогает Frontend) |
-| **AI Engineer** | Prompt engineering, валидация, качество генерации | 80% |
-| **DevOps / QA** | Инфраструктура, CI/CD, тестирование, мониторинг | 70% |
+| Роль                    | Описание                                          | Загрузка                                                    |
+| ----------------------- | ------------------------------------------------- | ----------------------------------------------------------- |
+| **Backend Developer**   | API, бизнес-логика, интеграции                    | 100%                                                        |
+| **Frontend Developer**  | Web-приложение, responsive, i18n                  | 100%                                                        |
+| **Extension Developer** | Chrome Extension, взаимодействие с foodie.fi      | 100% (Фазы 5-6), 50% (остальное время -- помогает Frontend) |
+| **AI Engineer**         | Prompt engineering, валидация, качество генерации | 80%                                                         |
+| **DevOps / QA**         | Инфраструктура, CI/CD, тестирование, мониторинг   | 70%                                                         |
 
 ### 6.3 Необходимые компетенции
 
-| Компетенция | Критичность | Для каких задач |
-|-------------|------------|----------------|
-| TypeScript / Node.js | Критичная | Backend, Frontend, Extension |
-| React / Next.js | Критичная | Frontend (Фаза 4) |
-| PostgreSQL / Prisma | Критичная | Модель данных, миграции, запросы |
-| OpenAI API / Prompt Engineering | Критичная | Фаза 2 -- качество AI-генерации |
-| Chrome Extension (Manifest V3) | Критичная | Фаза 5 -- ключевой дифференциатор продукта |
-| Docker / Linux / CI-CD | Высокая | Фаза 0, поддержка инфраструктуры |
-| Web Scraping | Высокая | Парсинг каталога foodie.fi (3.2) |
-| Finnish language (базовый) | Средняя | Верификация рецептов, каталога, маппинга |
+| Компетенция                     | Критичность | Для каких задач                            |
+| ------------------------------- | ----------- | ------------------------------------------ |
+| TypeScript / Node.js            | Критичная   | Backend, Frontend, Extension               |
+| React / Next.js                 | Критичная   | Frontend (Фаза 4)                          |
+| PostgreSQL / Prisma             | Критичная   | Модель данных, миграции, запросы           |
+| OpenAI API / Prompt Engineering | Критичная   | Фаза 2 -- качество AI-генерации            |
+| Chrome Extension (Manifest V3)  | Критичная   | Фаза 5 -- ключевой дифференциатор продукта |
+| Docker / Linux / CI-CD          | Высокая     | Фаза 0, поддержка инфраструктуры           |
+| Web Scraping                    | Высокая     | Парсинг каталога foodie.fi (3.2)           |
+| Finnish language (базовый)      | Средняя     | Верификация рецептов, каталога, маппинга   |
 
 ---
 
@@ -352,18 +352,18 @@ MVP включает три основных модуля:
 
 ### Топ-10 рисков проекта
 
-| # | Риск | Вероятность | Влияние | Фаза | Митигация |
-|---|------|-----------|---------|------|-----------|
-| R1 | **Изменение DOM foodie.fi** -- структура страниц меняется, ломая Content Script | Высокая | Критическое | 5, 7, 8 | Абстрагировать DOM-селекторы в конфиг-файл (задача 5.5). Мониторинг работоспособности Extension (алерт при error rate >10%). Автоматические smoke-тесты против foodie.fi еженедельно. Fast release pipeline для обновления Extension (<24 часа). |
-| R2 | **Блокировка автоматизации foodie.fi** -- CAPTCHA, rate limiting, IP-бан при обнаружении бота | Средняя | Критическое | 5 | Реалистичные задержки 2-5 сек между действиями (5.6). Ограничение: не более 50 товаров за сеанс. Расширение действует от лица пользователя (его cookie/сессия). Исследование партнёрства с S-Group (долгосрочно). |
-| R3 | **Низкое качество AI-генерации** -- некорректные рецепты, нереалистичные сочетания, неточная калорийность | Средняя | Высокое | 2 | Многоуровневая валидация (2.5). Retry до 3 попыток. Fallback на шаблонные меню (2.7). Обратная связь от пользователей для итеративного улучшения промптов. Тестирование на 20+ профилях (2.9). |
-| R4 | **Неполнота каталога** -- 500 товаров не покрывают все ингредиенты из AI-рецептов | Высокая | Среднее | 3 | Передавать в AI-промпт список доступных категорий продуктов (ограничить генерацию). UI "товар не найден -- добавьте вручную" (FR-222). Итеративное расширение каталога (8.3). |
-| R5 | **Неточный маппинг ингредиентов на товары** -- "молоко" маппится на неправильный товар | Средняя | Среднее | 3 | Ручная курация top-500 маппингов (3.3, 3.4). Fuzzy matching с pg_trgm. Возможность ручной коррекции пользователем (FR-224). Постепенное улучшение на основе данных о покупках. |
-| R6 | **Юридические риски парсинга foodie.fi** -- нарушение ToS, претензии от S-Group | Средняя | Высокое | 3, 5 | Приоритет 1 -- поиск официального API или партнёрства. Если парсинг: соблюдение robots.txt, минимальная частота запросов. Юридическая консультация до запуска. Готовность к переходу на другой источник данных. |
-| R7 | **GDPR-нарушения** -- утечка персональных данных (аллергии, медицинские ограничения) | Низкая | Критическое | 1, 7 | Все данные в EU-юрисдикции (Neon eu-north-1, Upstash EU). Privacy Policy. Consent management. Endpoint-ы для экспорта/удаления данных. DPA с OpenAI. Анонимизация данных в AI-запросах. Шифрование sensitive fields. |
-| R8 | **Latency генерации меню > 15 сек** -- пользователи уходят, не дождавшись результата | Средняя | Среднее | 2, 4 | SSE-стриминг ответа (показывать частичные результаты). Кэширование (2.8). Оптимизация промптов. UX: skeleton-загрузка + интересные факты о рецептах во время ожидания. |
-| R9 | **Низкий retention** -- пользователи пробуют, но не возвращаются через неделю | Средняя | Критическое | 7, 8 | Качественный onboarding (4.4). Email-напоминания "Пора планировать меню на следующую неделю". Персонализация: учёт обратной связи. Аналитика: funnel-анализ, где пользователи "отваливаются". |
-| R10 | **Конкуренция от K-Ruoka** -- K-Group запускает аналогичную AI-функцию планирования | Средняя | Высокое | ongoing | Первый выход на рынок с кросс-сетевой оптимизацией. Фокус на фичах, которые K-Ruoka не может предложить: интеграция с S-Market, сравнение цен между сетями (v2.0). Быстрая итерация. |
+| #   | Риск                                                                                                      | Вероятность | Влияние     | Фаза    | Митигация                                                                                                                                                                                                                                        |
+| --- | --------------------------------------------------------------------------------------------------------- | ----------- | ----------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| R1  | **Изменение DOM foodie.fi** -- структура страниц меняется, ломая Content Script                           | Высокая     | Критическое | 5, 7, 8 | Абстрагировать DOM-селекторы в конфиг-файл (задача 5.5). Мониторинг работоспособности Extension (алерт при error rate >10%). Автоматические smoke-тесты против foodie.fi еженедельно. Fast release pipeline для обновления Extension (<24 часа). |
+| R2  | **Блокировка автоматизации foodie.fi** -- CAPTCHA, rate limiting, IP-бан при обнаружении бота             | Средняя     | Критическое | 5       | Реалистичные задержки 2-5 сек между действиями (5.6). Ограничение: не более 50 товаров за сеанс. Расширение действует от лица пользователя (его cookie/сессия). Исследование партнёрства с S-Group (долгосрочно).                                |
+| R3  | **Низкое качество AI-генерации** -- некорректные рецепты, нереалистичные сочетания, неточная калорийность | Средняя     | Высокое     | 2       | Многоуровневая валидация (2.5). Retry до 3 попыток. Fallback на шаблонные меню (2.7). Обратная связь от пользователей для итеративного улучшения промптов. Тестирование на 20+ профилях (2.9).                                                   |
+| R4  | **Неполнота каталога** -- 500 товаров не покрывают все ингредиенты из AI-рецептов                         | Высокая     | Среднее     | 3       | Передавать в AI-промпт список доступных категорий продуктов (ограничить генерацию). UI "товар не найден -- добавьте вручную" (FR-222). Итеративное расширение каталога (8.3).                                                                    |
+| R5  | **Неточный маппинг ингредиентов на товары** -- "молоко" маппится на неправильный товар                    | Средняя     | Среднее     | 3       | Ручная курация top-500 маппингов (3.3, 3.4). Fuzzy matching с pg_trgm. Возможность ручной коррекции пользователем (FR-224). Постепенное улучшение на основе данных о покупках.                                                                   |
+| R6  | **Юридические риски парсинга foodie.fi** -- нарушение ToS, претензии от S-Group                           | Средняя     | Высокое     | 3, 5    | Приоритет 1 -- поиск официального API или партнёрства. Если парсинг: соблюдение robots.txt, минимальная частота запросов. Юридическая консультация до запуска. Готовность к переходу на другой источник данных.                                  |
+| R7  | **GDPR-нарушения** -- утечка персональных данных (аллергии, медицинские ограничения)                      | Низкая      | Критическое | 1, 7    | Все данные в EU-юрисдикции (Neon eu-north-1, Upstash EU). Privacy Policy. Consent management. Endpoint-ы для экспорта/удаления данных. DPA с OpenAI. Анонимизация данных в AI-запросах. Шифрование sensitive fields.                             |
+| R8  | **Latency генерации меню > 15 сек** -- пользователи уходят, не дождавшись результата                      | Средняя     | Среднее     | 2, 4    | SSE-стриминг ответа (показывать частичные результаты). Кэширование (2.8). Оптимизация промптов. UX: skeleton-загрузка + интересные факты о рецептах во время ожидания.                                                                           |
+| R9  | **Низкий retention** -- пользователи пробуют, но не возвращаются через неделю                             | Средняя     | Критическое | 7, 8    | Качественный onboarding (4.4). Email-напоминания "Пора планировать меню на следующую неделю". Персонализация: учёт обратной связи. Аналитика: funnel-анализ, где пользователи "отваливаются".                                                    |
+| R10 | **Конкуренция от K-Ruoka** -- K-Group запускает аналогичную AI-функцию планирования                       | Средняя     | Высокое     | ongoing | Первый выход на рынок с кросс-сетевой оптимизацией. Фокус на фичах, которые K-Ruoka не может предложить: интеграция с S-Market, сравнение цен между сетями (v2.0). Быстрая итерация.                                                             |
 
 ---
 
@@ -375,51 +375,51 @@ MVP включает три основных модуля:
 
 #### Фаза MVP (месяцы 1-4, до запуска)
 
-| Компонент | Сервис | Стоимость/мес |
-|-----------|--------|---------------|
-| Frontend | Vercel Hobby | $0 |
-| Backend Server | Hetzner CX22 (2 vCPU, 4 GB) | $4,50 |
-| PostgreSQL | Neon Free/Launch | $0-19 |
-| Redis | Upstash Free | $0 |
-| Поиск | Meilisearch (Docker на сервере) | $0 |
-| Файлы | Cloudflare R2 Free | $0 |
-| CDN + DNS | Cloudflare Free | $0 |
-| AI (OpenAI) | Pay-as-you-go (GPT-4o) | $20-50 |
-| Auth | Clerk Free (<10K MAU) | $0 |
-| Мониторинг | Sentry + Betterstack Free | $0 |
-| Домен | foodops.fi | $2 (~$25/год) |
-| Email | Resend Free | $0 |
-| **ИТОГО MVP** | | **$27-76/мес** |
+| Компонент      | Сервис                          | Стоимость/мес  |
+| -------------- | ------------------------------- | -------------- |
+| Frontend       | Vercel Hobby                    | $0             |
+| Backend Server | Hetzner CX22 (2 vCPU, 4 GB)     | $4,50          |
+| PostgreSQL     | Neon Free/Launch                | $0-19          |
+| Redis          | Upstash Free                    | $0             |
+| Поиск          | Meilisearch (Docker на сервере) | $0             |
+| Файлы          | Cloudflare R2 Free              | $0             |
+| CDN + DNS      | Cloudflare Free                 | $0             |
+| AI (OpenAI)    | Pay-as-you-go (GPT-4o)          | $20-50         |
+| Auth           | Clerk Free (<10K MAU)           | $0             |
+| Мониторинг     | Sentry + Betterstack Free       | $0             |
+| Домен          | foodops.fi                      | $2 (~$25/год)  |
+| Email          | Resend Free                     | $0             |
+| **ИТОГО MVP**  |                                 | **$27-76/мес** |
 
 **На 4 месяца разработки: $108-304**
 
 #### Фаза Early Growth (месяцы 5-9, 1000-10000 пользователей)
 
-| Компонент | Стоимость/мес |
-|-----------|---------------|
-| Vercel Pro | $20 |
-| Hetzner CX32 x2 + LB | $30 |
-| Hetzner CX22 (Worker) | $4,50 |
-| Neon Scale | $69 |
-| Upstash Pro | $30 |
-| Meilisearch Cloud | $30 |
-| Cloudflare Pro | $20 |
-| AI (OpenAI) | $100-300 |
-| Clerk Pro | $25 |
-| Мониторинг | $74 |
-| Прочее | $22,50 |
+| Компонент              | Стоимость/мес    |
+| ---------------------- | ---------------- |
+| Vercel Pro             | $20              |
+| Hetzner CX32 x2 + LB   | $30              |
+| Hetzner CX22 (Worker)  | $4,50            |
+| Neon Scale             | $69              |
+| Upstash Pro            | $30              |
+| Meilisearch Cloud      | $30              |
+| Cloudflare Pro         | $20              |
+| AI (OpenAI)            | $100-300         |
+| Clerk Pro              | $25              |
+| Мониторинг             | $74              |
+| Прочее                 | $22,50           |
 | **ИТОГО Early Growth** | **$426-626/мес** |
 
 ### 8.2 Разработка (оценка затрат на команду)
 
 **Допущения:** ставки для Финляндии / удалённая работа в Восточной Европе
 
-| Роль | Ставка (EUR/мес) | Месяцев до MVP | Стоимость |
-|------|-----------------|---------------|-----------|
-| Full-stack / Tech Lead | 5 000 - 8 000 | 4 | 20 000 - 32 000 |
-| Frontend Developer | 4 000 - 7 000 | 4 | 16 000 - 28 000 |
-| AI Engineer (80%) | 4 000 - 7 000 | 3,2 | 12 800 - 22 400 |
-| **ИТОГО (мин. команда)** | | | **48 800 - 82 400 EUR** |
+| Роль                     | Ставка (EUR/мес) | Месяцев до MVP | Стоимость               |
+| ------------------------ | ---------------- | -------------- | ----------------------- |
+| Full-stack / Tech Lead   | 5 000 - 8 000    | 4              | 20 000 - 32 000         |
+| Frontend Developer       | 4 000 - 7 000    | 4              | 16 000 - 28 000         |
+| AI Engineer (80%)        | 4 000 - 7 000    | 3,2            | 12 800 - 22 400         |
+| **ИТОГО (мин. команда)** |                  |                | **48 800 - 82 400 EUR** |
 
 **При оптимальной команде (5 чел):** дополнительно Extension Developer и DevOps/QA -- ориентировочно +25 000 - 45 000 EUR за 4 месяца.
 
@@ -427,16 +427,17 @@ MVP включает три основных модуля:
 
 **Источник: technical-specification.md, раздел 8.2.3; infrastructure-specification.md, раздел 3.2**
 
-| Сценарий | Вызовов/день (1000 юзеров) | Стоимость/мес |
-|----------|---------------------------|---------------|
-| Генерация недельного меню | ~200 | ~$15 |
-| Подбор продуктов/замены | ~500 | ~$10 |
-| Персонализация | ~300 | ~$8 |
-| **ИТОГО (1000 юзеров)** | **~1000** | **~$33/мес** |
+| Сценарий                  | Вызовов/день (1000 юзеров) | Стоимость/мес |
+| ------------------------- | -------------------------- | ------------- |
+| Генерация недельного меню | ~200                       | ~$15          |
+| Подбор продуктов/замены   | ~500                       | ~$10          |
+| Персонализация            | ~300                       | ~$8           |
+| **ИТОГО (1000 юзеров)**   | **~1000**                  | **~$33/мес**  |
 
 **Стоимость на 1 пользователя:** ~$0,03/мес при кэшировании.
 
 **Масштабирование:**
+
 - 100 пользователей (MVP): ~$5-10/мес
 - 1 000 пользователей: ~$33/мес
 - 10 000 пользователей: ~$200-330/мес
@@ -444,25 +445,25 @@ MVP включает три основных модуля:
 
 ### 8.4 Прочие затраты
 
-| Статья | Стоимость | Период |
-|--------|-----------|--------|
-| Домен foodops.fi | $25/год | Ежегодно |
-| SSL-сертификаты | $0 (Cloudflare + Let's Encrypt) | -- |
-| Chrome Web Store регистрация | $5 (разовая) | Разово |
-| Юридическая консультация (GDPR, ToS) | $500-2 000 | До запуска |
-| Дизайн (логотип, иконки, брендинг) | $300-1 000 | Разово |
-| Инструменты разработки (Figma, etc.) | $0-50/мес | Ежемесячно |
-| **ИТОГО прочее** | **$830-3 080** | -- |
+| Статья                               | Стоимость                       | Период     |
+| ------------------------------------ | ------------------------------- | ---------- |
+| Домен foodops.fi                     | $25/год                         | Ежегодно   |
+| SSL-сертификаты                      | $0 (Cloudflare + Let's Encrypt) | --         |
+| Chrome Web Store регистрация         | $5 (разовая)                    | Разово     |
+| Юридическая консультация (GDPR, ToS) | $500-2 000                      | До запуска |
+| Дизайн (логотип, иконки, брендинг)   | $300-1 000                      | Разово     |
+| Инструменты разработки (Figma, etc.) | $0-50/мес                       | Ежемесячно |
+| **ИТОГО прочее**                     | **$830-3 080**                  | --         |
 
 ### 8.5 Сводный бюджет до MVP
 
-| Статья | Минимум (EUR) | Максимум (EUR) |
-|--------|--------------|----------------|
-| Инфраструктура (4 мес) | 100 | 280 |
-| Разработка (мин. команда, 4 мес) | 48 800 | 82 400 |
-| AI API (4 мес) | 20 | 200 |
-| Прочие затраты | 830 | 3 080 |
-| **ИТОГО до MVP** | **~49 750** | **~85 960** |
+| Статья                           | Минимум (EUR) | Максимум (EUR) |
+| -------------------------------- | ------------- | -------------- |
+| Инфраструктура (4 мес)           | 100           | 280            |
+| Разработка (мин. команда, 4 мес) | 48 800        | 82 400         |
+| AI API (4 мес)                   | 20            | 200            |
+| Прочие затраты                   | 830           | 3 080          |
+| **ИТОГО до MVP**                 | **~49 750**   | **~85 960**    |
 
 **Примечание:** если основатели являются разработчиками и работают без зарплаты на стадии MVP, затраты на разработку сводятся к нулю, и бюджет составляет ~$950-3 560 EUR на инфраструктуру и прочее.
 
@@ -472,37 +473,37 @@ MVP включает три основных модуля:
 
 ### 9.1 Продуктовые KPI (из ТЗ, раздел 9.3)
 
-| Метрика | Целевое значение | Как измерять |
-|---------|-----------------|-------------|
-| **Полный цикл** | Пользователь проходит путь от регистрации до добавления в корзину foodie.fi | E2E тест, аналитика funnel |
-| **Качество меню** | >80% удовлетворены первой генерацией (< 3 замен) | Опрос, подсчёт замен на пользователя |
-| **Точность маппинга** | >85% ингредиентов корректно маппятся на товары S-Market | Автоматический тест на тестовых рецептах |
-| **Успешность добавления в корзину** | >90% товаров из списка успешно добавляются на foodie.fi | Отчёт Extension (FR-320) |
-| **Стабильность** | Error rate <1% для API, 0 critical bugs | Sentry, Betterstack |
+| Метрика                             | Целевое значение                                                            | Как измерять                             |
+| ----------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------- |
+| **Полный цикл**                     | Пользователь проходит путь от регистрации до добавления в корзину foodie.fi | E2E тест, аналитика funnel               |
+| **Качество меню**                   | >80% удовлетворены первой генерацией (< 3 замен)                            | Опрос, подсчёт замен на пользователя     |
+| **Точность маппинга**               | >85% ингредиентов корректно маппятся на товары S-Market                     | Автоматический тест на тестовых рецептах |
+| **Успешность добавления в корзину** | >90% товаров из списка успешно добавляются на foodie.fi                     | Отчёт Extension (FR-320)                 |
+| **Стабильность**                    | Error rate <1% для API, 0 critical bugs                                     | Sentry, Betterstack                      |
 
 ### 9.2 Бизнес-KPI (из ТЗ, раздел 1.5 + маркетинговое исследование)
 
-| Метрика | Целевое значение (6 мес.) | Как измерять |
-|---------|---------------------------|-------------|
-| Время планирования меню | < 10 минут/неделю (с текущих 20-60 мин) | Опрос пользователей |
-| Время онлайн-покупки | < 5 минут/неделю (с текущих 30-60 мин) | Аналитика: время от "готов к покупке" до завершения Extension |
-| Экономия на продуктах | 10-15% за счёт оптимизации | Сравнение стоимости AI-корзины vs средний чек |
-| NPS | > 40 | Опрос |
-| Monthly Retention | > 60% | PostHog / аналитика |
-| Активные пользователи (бета, месяц 4) | 50-100 семей | Регистрации + WAU |
-| Активные пользователи (месяц 6) | 300-500 семей | Регистрации + MAU |
+| Метрика                               | Целевое значение (6 мес.)               | Как измерять                                                  |
+| ------------------------------------- | --------------------------------------- | ------------------------------------------------------------- |
+| Время планирования меню               | < 10 минут/неделю (с текущих 20-60 мин) | Опрос пользователей                                           |
+| Время онлайн-покупки                  | < 5 минут/неделю (с текущих 30-60 мин)  | Аналитика: время от "готов к покупке" до завершения Extension |
+| Экономия на продуктах                 | 10-15% за счёт оптимизации              | Сравнение стоимости AI-корзины vs средний чек                 |
+| NPS                                   | > 40                                    | Опрос                                                         |
+| Monthly Retention                     | > 60%                                   | PostHog / аналитика                                           |
+| Активные пользователи (бета, месяц 4) | 50-100 семей                            | Регистрации + WAU                                             |
+| Активные пользователи (месяц 6)       | 300-500 семей                           | Регистрации + MAU                                             |
 
 ### 9.3 Технические KPI (из ТЗ, раздел 4)
 
-| Метрика | Целевое значение | Ссылка |
-|---------|-----------------|--------|
-| Генерация меню | < 15 секунд | NFR-001 |
-| Формирование списка продуктов | < 5 секунд | NFR-002 |
-| Добавление одного товара в корзину | < 10 секунд | NFR-003 |
-| First Contentful Paint | < 2 секунды | NFR-004 |
-| Time to Interactive | < 4 секунды | NFR-004 |
-| API p95 latency | < 500 мс | NFR-005 |
-| Uptime | > 99,5% | NFR-030 |
+| Метрика                            | Целевое значение | Ссылка  |
+| ---------------------------------- | ---------------- | ------- |
+| Генерация меню                     | < 15 секунд      | NFR-001 |
+| Формирование списка продуктов      | < 5 секунд       | NFR-002 |
+| Добавление одного товара в корзину | < 10 секунд      | NFR-003 |
+| First Contentful Paint             | < 2 секунды      | NFR-004 |
+| Time to Interactive                | < 4 секунды      | NFR-004 |
+| API p95 latency                    | < 500 мс         | NFR-005 |
+| Uptime                             | > 99,5%          | NFR-030 |
 
 ---
 
@@ -543,88 +544,88 @@ Beta                                                                            
 
 ### Табличная диаграмма Ганта
 
-| Фаза / Задача | W1 | W2 | W3 | W4 | W5 | W6 | W7 | W8 | W9 | W10 | W11 | W12 | W13 | W14 | W15 |
-|---------------|----|----|----|----|----|----|----|----|----|----|-----|-----|-----|-----|-----|
-| **Ф0: Подготовка** | ## | ## | | | | | | | | | | | | | |
-| 0.1-0.5 Инфра | ## | # | | | | | | | | | | | | | |
-| 0.6-0.14 CI/CD | | ## | | | | | | | | | | | | | |
-| **M1** | | **V** | | | | | | | | | | | | | |
-| **Ф1: Backend** | | ## | ## | ## | ## | | | | | | | | | | |
-| 1.1-1.2 Init+DB | | ## | ## | | | | | | | | | | | | |
-| 1.4-1.5 Auth+Family | | | ## | ## | | | | | | | | | | | |
-| 1.7-1.9 Menu+Shop+Ext API | | | | ## | ## | | | | | | | | | | |
-| 1.10-1.13 Validation+Tests | | | | | ## | | | | | | | | | | |
-| **M2** | | | | | **V** | | | | | | | | | | |
-| **Ф2: AI/ML** | | | | ## | ## | ## | ## | | | | | | | | |
-| 2.1-2.3 Prompts | | | | ## | ## | | | | | | | | | | |
-| 2.4-2.5 OpenAI+Validation | | | | | ## | ## | | | | | | | | | |
-| 2.6-2.10 Alternatives+Cache | | | | | | ## | ## | | | | | | | | |
-| **M3** | | | | | | | **V** | | | | | | | | |
-| **Ф3: Каталог** | | | | | ## | ## | ## | | | | | | | | |
-| 3.1-3.2 Модель+Парсер | | | | | ## | ## | | | | | | | | | |
-| 3.3-3.4 Курация+Маппинг | | | | | | ## | ## | | | | | | | | |
-| 3.5-3.8 API+Тесты | | | | | | | ## | | | | | | | | |
-| **M4** | | | | | | | **V** | | | | | | | | |
-| **Ф4: Frontend** | | | | | ## | ## | ## | ## | ## | | | | | | |
-| 4.1-4.3 Init+Auth | | | | | ## | | | | | | | | | | |
-| 4.4-4.5 Onboarding+Dash | | | | | | ## | ## | | | | | | | | |
-| 4.6-4.8 Menu Planner | | | | | | | ## | ## | | | | | | | |
-| 4.9-4.11 Shopping List | | | | | | | | ## | ## | | | | | | |
-| 4.12-4.16 Settings+i18n | | | | | | | | | ## | | | | | | |
-| **M5** | | | | | | | | | **V** | | | | | | |
-| **Ф5: Extension** | | | | | | | | ## | ## | ## | ## | | | | |
-| 5.1-5.3 Init+Popup | | | | | | | | ## | | | | | | | |
-| 5.4-5.6 SW+Content Script | | | | | | | | ## | ## | ## | | | | | |
-| 5.7-5.9 Отчёт+Тесты | | | | | | | | | | ## | ## | | | | |
-| **M6** | | | | | | | | | | | **V** | | | | |
-| **Ф6: QA** | | | | | | | | | | | ## | ## | ## | | |
-| 6.1-6.2 E2E+Integration | | | | | | | | | | | ## | ## | | | |
-| 6.3-6.5 Load+Security | | | | | | | | | | | | ## | | | |
-| 6.6-6.7 Bug fixing+Perf | | | | | | | | | | | | ## | ## | | |
-| **M7** | | | | | | | | | | | | | **V** | | |
-| **Ф7: Beta** | | | | | | | | | | | | | ## | ## | ## |
-| 7.1-7.2 Подготовка | | | | | | | | | | | | | ## | | |
-| 7.3-7.4 Тестирование | | | | | | | | | | | | | | ## | |
-| 7.5-7.6 Фиксы+Публикация | | | | | | | | | | | | | | ## | ## |
-| **M8** | | | | | | | | | | | | | | | **V** |
+| Фаза / Задача               | W1  | W2    | W3  | W4  | W5    | W6  | W7    | W8  | W9    | W10 | W11   | W12 | W13   | W14 | W15   |
+| --------------------------- | --- | ----- | --- | --- | ----- | --- | ----- | --- | ----- | --- | ----- | --- | ----- | --- | ----- |
+| **Ф0: Подготовка**          | ##  | ##    |     |     |       |     |       |     |       |     |       |     |       |     |       |
+| 0.1-0.5 Инфра               | ##  | #     |     |     |       |     |       |     |       |     |       |     |       |     |       |
+| 0.6-0.14 CI/CD              |     | ##    |     |     |       |     |       |     |       |     |       |     |       |     |       |
+| **M1**                      |     | **V** |     |     |       |     |       |     |       |     |       |     |       |     |       |
+| **Ф1: Backend**             |     | ##    | ##  | ##  | ##    |     |       |     |       |     |       |     |       |     |       |
+| 1.1-1.2 Init+DB             |     | ##    | ##  |     |       |     |       |     |       |     |       |     |       |     |       |
+| 1.4-1.5 Auth+Family         |     |       | ##  | ##  |       |     |       |     |       |     |       |     |       |     |       |
+| 1.7-1.9 Menu+Shop+Ext API   |     |       |     | ##  | ##    |     |       |     |       |     |       |     |       |     |       |
+| 1.10-1.13 Validation+Tests  |     |       |     |     | ##    |     |       |     |       |     |       |     |       |     |       |
+| **M2**                      |     |       |     |     | **V** |     |       |     |       |     |       |     |       |     |       |
+| **Ф2: AI/ML**               |     |       |     | ##  | ##    | ##  | ##    |     |       |     |       |     |       |     |       |
+| 2.1-2.3 Prompts             |     |       |     | ##  | ##    |     |       |     |       |     |       |     |       |     |       |
+| 2.4-2.5 OpenAI+Validation   |     |       |     |     | ##    | ##  |       |     |       |     |       |     |       |     |       |
+| 2.6-2.10 Alternatives+Cache |     |       |     |     |       | ##  | ##    |     |       |     |       |     |       |     |       |
+| **M3**                      |     |       |     |     |       |     | **V** |     |       |     |       |     |       |     |       |
+| **Ф3: Каталог**             |     |       |     |     | ##    | ##  | ##    |     |       |     |       |     |       |     |       |
+| 3.1-3.2 Модель+Парсер       |     |       |     |     | ##    | ##  |       |     |       |     |       |     |       |     |       |
+| 3.3-3.4 Курация+Маппинг     |     |       |     |     |       | ##  | ##    |     |       |     |       |     |       |     |       |
+| 3.5-3.8 API+Тесты           |     |       |     |     |       |     | ##    |     |       |     |       |     |       |     |       |
+| **M4**                      |     |       |     |     |       |     | **V** |     |       |     |       |     |       |     |       |
+| **Ф4: Frontend**            |     |       |     |     | ##    | ##  | ##    | ##  | ##    |     |       |     |       |     |       |
+| 4.1-4.3 Init+Auth           |     |       |     |     | ##    |     |       |     |       |     |       |     |       |     |       |
+| 4.4-4.5 Onboarding+Dash     |     |       |     |     |       | ##  | ##    |     |       |     |       |     |       |     |       |
+| 4.6-4.8 Menu Planner        |     |       |     |     |       |     | ##    | ##  |       |     |       |     |       |     |       |
+| 4.9-4.11 Shopping List      |     |       |     |     |       |     |       | ##  | ##    |     |       |     |       |     |       |
+| 4.12-4.16 Settings+i18n     |     |       |     |     |       |     |       |     | ##    |     |       |     |       |     |       |
+| **M5**                      |     |       |     |     |       |     |       |     | **V** |     |       |     |       |     |       |
+| **Ф5: Extension**           |     |       |     |     |       |     |       | ##  | ##    | ##  | ##    |     |       |     |       |
+| 5.1-5.3 Init+Popup          |     |       |     |     |       |     |       | ##  |       |     |       |     |       |     |       |
+| 5.4-5.6 SW+Content Script   |     |       |     |     |       |     |       | ##  | ##    | ##  |       |     |       |     |       |
+| 5.7-5.9 Отчёт+Тесты         |     |       |     |     |       |     |       |     |       | ##  | ##    |     |       |     |       |
+| **M6**                      |     |       |     |     |       |     |       |     |       |     | **V** |     |       |     |       |
+| **Ф6: QA**                  |     |       |     |     |       |     |       |     |       |     | ##    | ##  | ##    |     |       |
+| 6.1-6.2 E2E+Integration     |     |       |     |     |       |     |       |     |       |     | ##    | ##  |       |     |       |
+| 6.3-6.5 Load+Security       |     |       |     |     |       |     |       |     |       |     |       | ##  |       |     |       |
+| 6.6-6.7 Bug fixing+Perf     |     |       |     |     |       |     |       |     |       |     |       | ##  | ##    |     |       |
+| **M7**                      |     |       |     |     |       |     |       |     |       |     |       |     | **V** |     |       |
+| **Ф7: Beta**                |     |       |     |     |       |     |       |     |       |     |       |     | ##    | ##  | ##    |
+| 7.1-7.2 Подготовка          |     |       |     |     |       |     |       |     |       |     |       |     | ##    |     |       |
+| 7.3-7.4 Тестирование        |     |       |     |     |       |     |       |     |       |     |       |     |       | ##  |       |
+| 7.5-7.6 Фиксы+Публикация    |     |       |     |     |       |     |       |     |       |     |       |     |       | ##  | ##    |
+| **M8**                      |     |       |     |     |       |     |       |     |       |     |       |     |       |     | **V** |
 
 **Легенда:** `##` -- работа идёт, `V` -- milestone достигнут
 
 ### Распределение загрузки по ролям и неделям
 
-| Роль | W1-W2 | W3-W4 | W5-W7 | W8-W9 | W10-W11 | W12-W13 | W14-W15 |
-|------|-------|-------|-------|-------|---------|---------|---------|
-| **Backend / Tech Lead** | Ф0 (инфра) | Ф1 (Auth, Family) | Ф1 (Menu, Shop) + Ф3 (каталог) | Ф3 (маппинг) | Ф6 (тесты) | Ф6 (bug fix) | Ф7 (бета) |
-| **Frontend Developer** | Ф0 (Vercel) | -- | Ф4 (init, onboarding) | Ф4 (menu, list) + Ф5 (init) | Ф5 (content script) | Ф6 (E2E, bug fix) | Ф7 (фиксы) |
-| **AI Engineer** | -- | Ф2 (prompts) | Ф2 (OpenAI, validation) | Ф2 (fallback, cache) | Ф2 (тесты качества) | Ф7 (подготовка) | Ф7 (анализ) |
+| Роль                    | W1-W2       | W3-W4             | W5-W7                          | W8-W9                       | W10-W11             | W12-W13           | W14-W15     |
+| ----------------------- | ----------- | ----------------- | ------------------------------ | --------------------------- | ------------------- | ----------------- | ----------- |
+| **Backend / Tech Lead** | Ф0 (инфра)  | Ф1 (Auth, Family) | Ф1 (Menu, Shop) + Ф3 (каталог) | Ф3 (маппинг)                | Ф6 (тесты)          | Ф6 (bug fix)      | Ф7 (бета)   |
+| **Frontend Developer**  | Ф0 (Vercel) | --                | Ф4 (init, onboarding)          | Ф4 (menu, list) + Ф5 (init) | Ф5 (content script) | Ф6 (E2E, bug fix) | Ф7 (фиксы)  |
+| **AI Engineer**         | --          | Ф2 (prompts)      | Ф2 (OpenAI, validation)        | Ф2 (fallback, cache)        | Ф2 (тесты качества) | Ф7 (подготовка)   | Ф7 (анализ) |
 
 ---
 
 ## Приложение A: Маппинг требований ТЗ на задачи
 
-| Требование ТЗ | Задача WBS | Фаза |
-|---------------|-----------|------|
-| US-001 (регистрация) | 1.4, 4.3 | 1, 4 |
-| US-002 -- US-007 (профиль семьи) | 1.5, 4.4 | 1, 4 |
-| US-010 -- US-016 (планирование меню) | 2.2-2.6, 4.6-4.8 | 2, 4 |
-| US-020 -- US-026 (список продуктов) | 1.8, 3.4-3.6, 4.9-4.10 | 1, 3, 4 |
-| US-030 -- US-035 (Chrome Extension) | 5.1-5.9 | 5 |
-| FR-100 -- FR-103 (генерация меню) | 2.2-2.5 | 2 |
-| FR-110 -- FR-114 (рецепты и блюда) | 1.6, 2.2, 4.7 | 1, 2, 4 |
-| FR-120 -- FR-122 (сводная информация) | 4.8 | 4 |
-| FR-200 -- FR-202 (консолидация) | 1.8 | 1 |
-| FR-210 -- FR-214 (маппинг на магазин) | 3.4-3.6 | 3 |
-| FR-220 -- FR-224 (редактирование списка) | 1.8, 4.10 | 1, 4 |
-| FR-300 -- FR-302 (Extension авторизация) | 5.2-5.3 | 5 |
-| FR-310 -- FR-316 (добавление в корзину) | 5.5-5.6 | 5 |
-| FR-320 -- FR-323 (отчёт Extension) | 5.7-5.8 | 5 |
-| NFR-001 -- NFR-005 (производительность) | 6.3, 6.7 | 6 |
-| NFR-020 -- NFR-024 (безопасность) | 1.4, 1.11, 6.4 | 1, 6 |
-| NFR-022 (GDPR) | 4.12, 4.16, 6.4 | 4, 6 |
-| NFR-030 -- NFR-032 (надёжность) | 0.11, 2.7, 7.1 | 0, 2, 7 |
-| NFR-040 -- NFR-042 (локализация) | 4.13 | 4 |
-| NFR-050 -- NFR-052 (совместимость) | 4.14, 6.5 | 4, 6 |
+| Требование ТЗ                            | Задача WBS             | Фаза    |
+| ---------------------------------------- | ---------------------- | ------- |
+| US-001 (регистрация)                     | 1.4, 4.3               | 1, 4    |
+| US-002 -- US-007 (профиль семьи)         | 1.5, 4.4               | 1, 4    |
+| US-010 -- US-016 (планирование меню)     | 2.2-2.6, 4.6-4.8       | 2, 4    |
+| US-020 -- US-026 (список продуктов)      | 1.8, 3.4-3.6, 4.9-4.10 | 1, 3, 4 |
+| US-030 -- US-035 (Chrome Extension)      | 5.1-5.9                | 5       |
+| FR-100 -- FR-103 (генерация меню)        | 2.2-2.5                | 2       |
+| FR-110 -- FR-114 (рецепты и блюда)       | 1.6, 2.2, 4.7          | 1, 2, 4 |
+| FR-120 -- FR-122 (сводная информация)    | 4.8                    | 4       |
+| FR-200 -- FR-202 (консолидация)          | 1.8                    | 1       |
+| FR-210 -- FR-214 (маппинг на магазин)    | 3.4-3.6                | 3       |
+| FR-220 -- FR-224 (редактирование списка) | 1.8, 4.10              | 1, 4    |
+| FR-300 -- FR-302 (Extension авторизация) | 5.2-5.3                | 5       |
+| FR-310 -- FR-316 (добавление в корзину)  | 5.5-5.6                | 5       |
+| FR-320 -- FR-323 (отчёт Extension)       | 5.7-5.8                | 5       |
+| NFR-001 -- NFR-005 (производительность)  | 6.3, 6.7               | 6       |
+| NFR-020 -- NFR-024 (безопасность)        | 1.4, 1.11, 6.4         | 1, 6    |
+| NFR-022 (GDPR)                           | 4.12, 4.16, 6.4        | 4, 6    |
+| NFR-030 -- NFR-032 (надёжность)          | 0.11, 2.7, 7.1         | 0, 2, 7 |
+| NFR-040 -- NFR-042 (локализация)         | 4.13                   | 4       |
+| NFR-050 -- NFR-052 (совместимость)       | 4.14, 6.5              | 4, 6    |
 
 ---
 
-*Документ подлежит обновлению по результатам каждого спринта и при изменении scope проекта.*
+_Документ подлежит обновлению по результатам каждого спринта и при изменении scope проекта._

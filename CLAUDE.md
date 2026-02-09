@@ -7,11 +7,13 @@
 **One-liner:** FoodOps — AI-приложение для семей: планирование меню на неделю, автоформирование списка продуктов и автозаказ в S-Market (foodie.fi) через Chrome Extension.
 
 **Current focus:**
+
 1. Фаза 0 — Инициализация проекта (repo, структура, tooling, CI)
 2. Фаза 1 — Backend Core (модель данных, Prisma, базовый API)
 3. Фаза 2 — AI модуль генерации меню
 
 **Repo map:**
+
 ```
 FoodOps/
 ├── CLAUDE.md                  # <-- вы здесь
@@ -33,6 +35,7 @@ FoodOps/
 ```
 
 **Non-negotiables:**
+
 - TypeScript everywhere (strict mode)
 - Monorepo (npm workspaces или turborepo)
 - PostgreSQL на Neon (serverless)
@@ -57,6 +60,7 @@ FoodOps/
 | Hosting (MVP) | Hetzner Cloud (Helsinki) |
 
 **Local run:**
+
 ```bash
 # Установка зависимостей
 npm install
@@ -107,6 +111,7 @@ npm run build --workspace=extensions/chrome
 > Храним последние 20 записей. Старее — удаляем.
 
 ### 2026-02-09
+
 - **Done:** Создана документация проекта (ТЗ архитектора, маркетинговое исследование, ТЗ инфраструктуры, план работ). Создан CLAUDE.md.
 - **Changed:** —
 - **Notes:** Проект на стадии pre-code. Следующий шаг — Фаза 0 (инициализация repo).
@@ -129,6 +134,7 @@ npm run build --workspace=extensions/chrome
 ## Workflow Rules (для Claude)
 
 ### В начале сессии (3 мин):
+
 1. Прочитать Quick Context (one-liner, current focus, repo map, non-negotiables)
 2. Открыть Work — Now, выбрать задачу ближе к Current focus с понятным DoD
 3. Если задача про extension — открыть `extensions/chrome/README.md` (source of truth)
@@ -136,11 +142,13 @@ npm run build --workspace=extensions/chrome
 5. Сформулировать план на 3-6 пунктов (файлы, критерий готовности, риски)
 
 ### Во время сессии:
+
 - **Правило A:** Документы НЕ обновляем каждые 10 минут — только в конце сессии
 - **Правило B:** Изменения контракта (API payload/endpoint/error codes) фиксируем сразу
 - **Правило C:** Extension детали (regex, selectors, SPA wait, troubleshooting) — только в extension doc
 
 ### В конце сессии:
+
 1. Work — Now: отметить выполненное, скорректировать следующий шаг
 2. Progress Log: добавить 1 запись (Done / Changed / Notes)
 3. Backlog: добавить новые задачи если появились

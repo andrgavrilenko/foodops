@@ -1,0 +1,23 @@
+{
+  "name": "@foodops/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc --project tsconfig.build.json",
+    "start": "node dist/index.js",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"No tests yet\"",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@foodops/shared": "*",
+    "@foodops/db": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "tsx": "^4.21.0",
+    "@types/node": "^22.0.0"
+  }
+}

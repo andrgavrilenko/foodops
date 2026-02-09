@@ -1,0 +1,38 @@
+{
+  "name": "foodops",
+  "version": "0.0.1",
+  "private": true,
+  "description": "FoodOps - AI meal planning, grocery list generation, and auto-ordering for families in Finland",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "extensions/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rimraf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "^2.8.3",
+    "typescript": "^5.9.3",
+    "prettier": "^3.8.1",
+    "eslint": "^9.39.2",
+    "@eslint/js": "^9.0.0",
+    "typescript-eslint": "^8.55.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.3.0",
+    "@types/node": "^22.0.0",
+    "rimraf": "^6.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "npm@11.6.2"
+}

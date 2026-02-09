@@ -1,0 +1,17 @@
+{
+  "name": "@foodops/chrome-extension",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"Extension dev mode not yet configured\"",
+    "build": "tsc --project tsconfig.build.json",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"No tests yet\"",
+    "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "@types/chrome": "^0.0.300"
+  }
+}

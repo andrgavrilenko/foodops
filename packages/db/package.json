@@ -1,0 +1,24 @@
+{
+  "name": "@foodops/db",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "dev": "tsc --project tsconfig.build.json --watch",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"No tests yet\"",
+    "clean": "rimraf dist",
+    "db:generate": "echo \"Prisma schema not yet configured (Phase 0.2)\"",
+    "db:push": "echo \"Prisma schema not yet configured (Phase 0.2)\"",
+    "db:migrate": "echo \"Prisma schema not yet configured (Phase 0.2)\""
+  },
+  "dependencies": {
+    "@foodops/shared": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

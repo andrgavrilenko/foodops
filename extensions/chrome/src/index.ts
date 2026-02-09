@@ -1,6 +1,6 @@
 /**
  * @foodops/chrome-extension
- * Chrome Extension for automated grocery ordering on foodie.fi.
+ * Chrome Extension for automated grocery ordering on S-kaupat.fi.
  * Manifest V3 / TypeScript.
  * Full details: see README.md (source of truth for extension).
  */

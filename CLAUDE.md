@@ -4,7 +4,7 @@
 
 ## Quick Context
 
-**One-liner:** FoodOps — AI-приложение для семей: планирование меню на неделю, автоформирование списка продуктов и автозаказ в S-Market (foodie.fi) через Chrome Extension.
+**One-liner:** FoodOps — AI-приложение для семей: планирование меню на неделю, автоформирование списка продуктов и автозаказ в S-Market (S-kaupat.fi) через Chrome Extension.
 
 **Current focus:**
 
@@ -84,7 +84,7 @@ npm run build --workspace=extensions/chrome
 
 - [x] **Фаза 0.1** — Инициализация monorepo (Turborepo, TypeScript, ESLint, Prettier)
 - [x] **Фаза 0.2** — Настройка Neon PostgreSQL, Prisma schema (модель данных из ТЗ)
-- [ ] **Фаза 0.3** — Базовый Fastify сервер с healthcheck
+- [x] **Фаза 0.3** — Базовый Fastify сервер с healthcheck
 - [ ] **Фаза 0.4** — CI pipeline (GitHub Actions: lint, typecheck, test)
 
 ---
@@ -94,12 +94,12 @@ npm run build --workspace=extensions/chrome
 - [feat] Фаза 1: CRUD API для пользователей и семей — DoD: POST/GET/PATCH/DELETE /api/users, /api/families работают с тестами
 - [feat] Фаза 1: CRUD API для рецептов — DoD: endpoints по FR-100..FR-110
 - [feat] Фаза 2: AI генерация меню — DoD: POST /api/menu/generate возвращает меню на неделю (US-001..US-005)
-- [feat] Фаза 3: Парсер каталога S-Market (foodie.fi) — DoD: скрипт загружает товары в БД
+- [feat] Фаза 3: Парсер каталога S-Market (S-kaupat.fi) — DoD: скрипт загружает товары в БД
 - [feat] Фаза 3: Маппинг ингредиентов на товары — DoD: FR-200..FR-210
 - [feat] Фаза 4: Frontend — регистрация и профиль семьи — DoD: US-001, US-002
 - [feat] Фаза 4: Frontend — экран меню на неделю — DoD: US-003..US-008
 - [feat] Фаза 4: Frontend — список продуктов — DoD: US-020..US-026
-- [feat] Фаза 5: Chrome Extension — автодобавление товаров в корзину foodie.fi — DoD: FR-300..FR-323
+- [feat] Фаза 5: Chrome Extension — автодобавление товаров в корзину S-kaupat.fi — DoD: FR-300..FR-323
 - [infra] Настройка staging окружения на Hetzner
 - [docs] README.md для open source / onboarding
 
@@ -109,6 +109,18 @@ npm run build --workspace=extensions/chrome
 
 > Формат: 1 запись = 1 сессия, max 10 строк. Только milestones и contract changes.
 > Храним последние 20 записей. Старее — удаляем.
+
+### 2026-02-10 (сессия 5)
+
+- **Done:** Фаза 0.3 завершена — Fastify 5 сервер с healthcheck. Endpoints: GET /health, /health/db, /health/ready. Prisma plugin, CORS, Zod config validation, standard error format из ТЗ. Document Architect review создан (docs/document-review.md). Product Manager roadmap для фаз 0.3–1.0.
+- **Changed:** Добавлен "type": "module" в packages/db, packages/shared, apps/api. fastify-plugin (не @fastify/plugin). PORT по умолчанию 3000.
+- **Notes:** Следующий шаг — Фаза 0.4 (CI pipeline GitHub Actions).
+
+### 2026-02-09 (сессия 4)
+
+- **Done:** Создан полный feature backlog (`docs/feature-backlog.md`) — 15 epics, ~100 user stories, traceability matrix к ТЗ. PM-ревью backlog с критикой: MVP слишком большой (227 SP), FE-02a (skip onboarding) конфликтует с value prop, каталог 500 SKU нереалистичен по оценке.
+- **Changed:** **CONTRACT CHANGE** — целевая платформа `foodie.fi` → `S-kaupat.fi` (foodie.fi редиректит). 82 ссылки обновлены в 7 файлах. Extension host_permissions теперь `https://www.s-kaupat.fi/*`.
+- **Notes:** Добавлена story FE-02a (skip settings) + FAM-10 (quick-setup с дефолтами). Следующий шаг — Фаза 0.3 (Fastify сервер). Рекомендация PM: spike по DOM S-kaupat.fi до начала Extension разработки.
 
 ### 2026-02-09 (сессия 3)
 
@@ -138,7 +150,7 @@ npm run build --workspace=extensions/chrome
 - **Рынок:** `docs/market-research.md` — TAM/SAM/SOM, конкуренты, S-Group
 - **Инфраструктура:** `docs/infrastructure-specification.md` — Hetzner/Neon/Upstash
 - **План работ:** `docs/project-plan.md` — WBS, Gantt, бюджет, milestones
-- **foodie.fi:** https://www.foodie.fi — целевой магазин (S-Market Helsinki)
+- **S-kaupat.fi:** https://www.S-kaupat.fi — целевой магазин (S-Market Helsinki)
 - **Neon Console:** https://console.neon.tech — база данных
 - **OpenAI API:** https://platform.openai.com — AI для генерации меню
 

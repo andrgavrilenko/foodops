@@ -21,6 +21,7 @@ import {
 import { z } from 'zod';
 
 const MAX_RETRIES = 3;
+const ALTERNATIVES_MAX_RETRIES = 2;
 
 export interface AiMenuGenerator {
   generateWeeklyMenu(context: FamilyContext): Promise<AiMenuResponse>;
@@ -29,6 +30,10 @@ export interface AiMenuGenerator {
     existingRecipeTitles: string[],
     mealType: string,
   ): Promise<AiRecipe[]>;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
@@ -42,7 +47,7 @@ export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      max_tokens: 4000,
+      max_tokens: 8000,
       temperature: 0.7,
       response_format: { type: 'json_object' },
     });
@@ -57,6 +62,10 @@ export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
       throw new Error('AI response is not valid JSON');
     }
   }
+
+  const alternativesSchema = z.object({
+    alternatives: z.array(aiRecipeSchema).min(1).max(5),
+  });
 
   return {
     async generateWeeklyMenu(context: FamilyContext): Promise<AiMenuResponse> {
@@ -127,26 +136,33 @@ export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
     ): Promise<AiRecipe[]> {
       const systemPrompt = buildAlternativesSystemPrompt();
       const userPrompt = JSON.stringify({
-        family: buildUserPrompt(context),
+        family: context,
         meal_type: mealType,
         existing_recipes_to_avoid: existingRecipeTitles,
       });
 
-      const raw = await callOpenAI(systemPrompt, userPrompt);
-      const parsed = parseJson(raw);
+      let lastError = '';
 
-      const schema = z.object({
-        alternatives: z.array(aiRecipeSchema).min(1).max(5),
-      });
+      for (let attempt = 1; attempt <= ALTERNATIVES_MAX_RETRIES; attempt++) {
+        if (attempt > 1) {
+          await sleep(500 * Math.pow(2, attempt - 2)); // 500ms, 1000ms
+        }
 
-      const result = schema.safeParse(parsed);
-      if (!result.success) {
-        throw new Error(
-          `AI alternatives validation failed: ${result.error.issues.map((i) => i.message).join('; ')}`,
-        );
+        const raw = await callOpenAI(systemPrompt, userPrompt);
+        const parsed = parseJson(raw);
+
+        const result = alternativesSchema.safeParse(parsed);
+        if (!result.success) {
+          lastError = result.error.issues.map((i) => i.message).join('; ');
+          continue;
+        }
+
+        return result.data.alternatives;
       }
 
-      return result.data.alternatives;
+      throw new Error(
+        `AI alternatives generation failed after ${ALTERNATIVES_MAX_RETRIES} attempts: ${lastError}`,
+      );
     },
   };
 }

@@ -107,6 +107,34 @@ describe('Menu Validator', () => {
       const result = validateRestrictionCompliance(makeMenu(), [{ value: 'peanut' }]);
       expect(result.valid).toBe(true);
     });
+
+    it('should not false-positive on substring (nut vs nutmeg)', () => {
+      const menu = makeMenu();
+      menu.days[0]!.meals[0]!.recipe.ingredients[0] = {
+        name_en: 'Nutmeg',
+        name_fi: 'Muskottipähkinä',
+        quantity: 5,
+        unit: 'g',
+        category: 'spice',
+        is_optional: false,
+      };
+      const result = validateRestrictionCompliance(menu, [{ value: 'nut' }]);
+      expect(result.valid).toBe(true);
+    });
+
+    it('should match exact word in multi-word ingredient', () => {
+      const menu = makeMenu();
+      menu.days[0]!.meals[0]!.recipe.ingredients[0] = {
+        name_en: 'Pine nut',
+        name_fi: 'Pinjansiemen',
+        quantity: 20,
+        unit: 'g',
+        category: 'nuts',
+        is_optional: false,
+      };
+      const result = validateRestrictionCompliance(menu, [{ value: 'nut' }]);
+      expect(result.valid).toBe(false);
+    });
   });
 
   describe('validateUniqueness', () => {

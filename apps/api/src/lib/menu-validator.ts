@@ -14,17 +14,19 @@ export function validateRestrictionCompliance(
 ): ValidationResult {
   if (strictRestrictions.length === 0) return { valid: true, errors: [] };
 
-  const forbidden = strictRestrictions.map((r) => r.value.toLowerCase());
+  const forbiddenPatterns = strictRestrictions.map((r) => ({
+    value: r.value,
+    regex: new RegExp(`\\b${r.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'),
+  }));
   const errors: string[] = [];
 
   for (const day of menu.days) {
     for (const meal of day.meals) {
       for (const ingredient of meal.recipe.ingredients) {
-        const nameLower = ingredient.name_en.toLowerCase();
-        for (const f of forbidden) {
-          if (nameLower.includes(f)) {
+        for (const f of forbiddenPatterns) {
+          if (f.regex.test(ingredient.name_en)) {
             errors.push(
-              `Day ${day.day_of_week} ${meal.meal_type}: "${meal.recipe.title_en}" contains forbidden ingredient "${ingredient.name_en}" (matches restriction "${f}")`,
+              `Day ${day.day_of_week} ${meal.meal_type}: "${meal.recipe.title_en}" contains forbidden ingredient "${ingredient.name_en}" (matches restriction "${f.value}")`,
             );
           }
         }

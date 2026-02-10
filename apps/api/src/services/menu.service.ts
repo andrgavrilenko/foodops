@@ -4,12 +4,16 @@ import type { AiMenuGenerator } from './ai-menu-generator.js';
 import type { FamilyContext } from '../lib/prompt-builder.js';
 import type { AiRecipe } from '../schemas/ai-output.schemas.js';
 import { AppError, ErrorCodes } from '../lib/errors.js';
-
-// In-memory rate limit: userId -> timestamps of recent generations
-const generationTimestamps = new Map<string, number[]>();
+import { LRUCache } from 'lru-cache';
 
 const GENERATION_RATE_LIMIT = 10;
 const GENERATION_RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
+// LRU cache: auto-evicts least-recently-used users, TTL matches rate window
+const generationTimestamps = new LRUCache<string, number[]>({
+  max: 10_000,
+  ttl: GENERATION_RATE_WINDOW_MS,
+});
 
 function checkGenerationRateLimit(userId: string) {
   const now = Date.now();
@@ -30,8 +34,8 @@ function checkGenerationRateLimit(userId: string) {
 
 function getNextMonday(): Date {
   const now = new Date();
-  const day = now.getDay();
-  const daysUntilMonday = day === 0 ? 1 : 8 - day;
+  const day = now.getDay(); // 0=Sun, 1=Mon, ...
+  const daysUntilMonday = day === 1 ? 0 : (8 - day) % 7 || 7;
   const monday = new Date(now);
   monday.setDate(monday.getDate() + daysUntilMonday);
   monday.setHours(0, 0, 0, 0);
@@ -161,58 +165,65 @@ const menuInclude = {
 } as const;
 
 async function upsertRecipeFromAi(prisma: PrismaClient, aiRecipe: AiRecipe): Promise<string> {
-  // Try to find by exact English title match
+  // Try to find by exact title match
   const existing = await prisma.recipe.findFirst({
     where: { titleEn: aiRecipe.title_en, titleFi: aiRecipe.title_fi },
   });
   if (existing) return existing.id;
 
-  const recipe = await prisma.recipe.create({
-    data: {
-      titleEn: aiRecipe.title_en,
-      titleFi: aiRecipe.title_fi,
-      descriptionEn: aiRecipe.description_en || null,
-      descriptionFi: aiRecipe.description_fi || null,
-      cuisineType: aiRecipe.cuisine_type || null,
-      prepTimeMin: aiRecipe.prep_time_min,
-      caloriesPerServing: aiRecipe.calories_per_serving,
-      proteinPerServing: aiRecipe.protein_per_serving,
-      carbsPerServing: aiRecipe.carbs_per_serving,
-      fatPerServing: aiRecipe.fat_per_serving,
-      tags: aiRecipe.tags,
-      isCustom: false,
-    },
-  });
-
-  // Create ingredients and link them
-  for (const ing of aiRecipe.ingredients) {
-    let ingredient = await prisma.ingredient.findFirst({
-      where: { nameEn: ing.name_en },
+  return prisma.$transaction(async (tx) => {
+    const recipe = await tx.recipe.create({
+      data: {
+        titleEn: aiRecipe.title_en,
+        titleFi: aiRecipe.title_fi,
+        descriptionEn: aiRecipe.description_en || null,
+        descriptionFi: aiRecipe.description_fi || null,
+        cuisineType: aiRecipe.cuisine_type || null,
+        prepTimeMin: aiRecipe.prep_time_min,
+        caloriesPerServing: aiRecipe.calories_per_serving,
+        proteinPerServing: aiRecipe.protein_per_serving,
+        carbsPerServing: aiRecipe.carbs_per_serving,
+        fatPerServing: aiRecipe.fat_per_serving,
+        tags: aiRecipe.tags,
+        isCustom: false,
+      },
     });
 
-    if (!ingredient) {
-      ingredient = await prisma.ingredient.create({
-        data: {
-          nameEn: ing.name_en,
-          nameFi: ing.name_fi,
-          category: ing.category,
-          defaultUnit: ing.unit,
-        },
-      });
+    // Batch lookup: find all existing ingredients in one query
+    const ingredientNames = aiRecipe.ingredients.map((ing) => ing.name_en);
+    const existingIngredients = await tx.ingredient.findMany({
+      where: { nameEn: { in: ingredientNames } },
+    });
+    const ingredientMap = new Map(existingIngredients.map((ing) => [ing.nameEn, ing]));
+
+    // Create missing ingredients
+    for (const ing of aiRecipe.ingredients) {
+      if (!ingredientMap.has(ing.name_en)) {
+        const created = await tx.ingredient.create({
+          data: {
+            nameEn: ing.name_en,
+            nameFi: ing.name_fi,
+            category: ing.category,
+            defaultUnit: ing.unit,
+          },
+        });
+        ingredientMap.set(ing.name_en, created);
+      }
     }
 
-    await prisma.recipeIngredient.create({
-      data: {
+    // Batch create all recipe-ingredient links
+    await tx.recipeIngredient.createMany({
+      data: aiRecipe.ingredients.map((ing) => ({
         recipeId: recipe.id,
-        ingredientId: ingredient.id,
+        ingredientId: ingredientMap.get(ing.name_en)!.id,
         quantity: ing.quantity,
         unit: ing.unit,
         isOptional: ing.is_optional,
-      },
+      })),
     });
-  }
 
-  return recipe.id;
+    return recipe.id;
+  });
 }
 
 export function createMenuService(
@@ -248,11 +259,19 @@ export function createMenuService(
     return family;
   }
 
-  async function verifyMenuOwnership(userId: string, menuId: string) {
-    const family = await prisma.family.findUnique({ where: { userId } });
+  async function getFamilyId(userId: string) {
+    const family = await prisma.family.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
     if (!family) {
       throw new AppError('Family not found', 404, ErrorCodes.MENU_FAMILY_NOT_FOUND);
     }
+    return family.id;
+  }
+
+  async function verifyMenuOwnership(userId: string, menuId: string) {
+    const familyId = await getFamilyId(userId);
 
     const menu = await prisma.weeklyMenu.findUnique({
       where: { id: menuId },
@@ -262,11 +281,11 @@ export function createMenuService(
     if (!menu) {
       throw new AppError('Menu not found', 404, ErrorCodes.MENU_NOT_FOUND);
     }
-    if (menu.familyId !== family.id) {
+    if (menu.familyId !== familyId) {
       throw new AppError('Menu does not belong to your family', 403, ErrorCodes.MENU_ACCESS_DENIED);
     }
 
-    return { menu, family };
+    return { menu, familyId };
   }
 
   function buildFamilyContext(
@@ -428,13 +447,10 @@ export function createMenuService(
     },
 
     async getCurrent(userId: string) {
-      const family = await prisma.family.findUnique({ where: { userId } });
-      if (!family) {
-        throw new AppError('Family not found', 404, ErrorCodes.MENU_FAMILY_NOT_FOUND);
-      }
+      const familyId = await getFamilyId(userId);
 
       const menu = await prisma.weeklyMenu.findFirst({
-        where: { familyId: family.id },
+        where: { familyId },
         orderBy: { createdAt: 'desc' },
         include: menuInclude,
       });
@@ -452,12 +468,8 @@ export function createMenuService(
     },
 
     async getHistory(userId: string, query: { page: number; limit: number }) {
-      const family = await prisma.family.findUnique({ where: { userId } });
-      if (!family) {
-        throw new AppError('Family not found', 404, ErrorCodes.MENU_FAMILY_NOT_FOUND);
-      }
-
-      const where = { familyId: family.id };
+      const familyId = await getFamilyId(userId);
+      const where = { familyId };
 
       const [menus, total] = await Promise.all([
         prisma.weeklyMenu.findMany({
@@ -546,7 +558,24 @@ export function createMenuService(
     },
 
     async getAlternatives(userId: string, menuId: string, mealId: string) {
-      const { menu } = await verifyMenuOwnership(userId, menuId);
+      // Load family with full context (for AI prompt) — single DB call
+      const family = await getFamily(userId);
+
+      // Verify menu belongs to this family
+      const menu = await prisma.weeklyMenu.findUnique({
+        where: { id: menuId },
+        include: menuInclude,
+      });
+      if (!menu) {
+        throw new AppError('Menu not found', 404, ErrorCodes.MENU_NOT_FOUND);
+      }
+      if (menu.familyId !== family.id) {
+        throw new AppError(
+          'Menu does not belong to your family',
+          403,
+          ErrorCodes.MENU_ACCESS_DENIED,
+        );
+      }
 
       checkGenerationRateLimit(userId);
 
@@ -555,7 +584,6 @@ export function createMenuService(
         throw new AppError('Meal not found in this menu', 404, ErrorCodes.MEAL_NOT_FOUND);
       }
 
-      const family = await getFamily(userId);
       const context = buildFamilyContext(family, []);
 
       const existingTitles = menu.menuDays.flatMap((d) => d.meals).map((m) => m.recipe.titleEn);
@@ -591,7 +619,7 @@ export function createMenuService(
     },
 
     async approve(userId: string, menuId: string) {
-      const { menu, family } = await verifyMenuOwnership(userId, menuId);
+      const { menu, familyId } = await verifyMenuOwnership(userId, menuId);
 
       if (menu.status === 'APPROVED') {
         throw new AppError('Menu is already approved', 400, ErrorCodes.MENU_ALREADY_APPROVED);
@@ -606,7 +634,7 @@ export function createMenuService(
 
       // Archive any previously approved menu
       await prisma.weeklyMenu.updateMany({
-        where: { familyId: family.id, status: 'APPROVED' },
+        where: { familyId, status: 'APPROVED' },
         data: { status: 'ARCHIVED' },
       });
 

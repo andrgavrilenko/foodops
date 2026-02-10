@@ -27,19 +27,25 @@ declare module 'fastify' {
 }
 
 const authPlugin: FastifyPluginAsync = async (fastify) => {
-  const { JWT_SECRET, JWT_ACCESS_EXPIRY_SECONDS, JWT_REFRESH_EXPIRY_DAYS } = fastify.config;
+  const {
+    JWT_ACCESS_SECRET,
+    JWT_REFRESH_SECRET,
+    JWT_ACCESS_EXPIRY_SECONDS,
+    JWT_REFRESH_EXPIRY_DAYS,
+  } = fastify.config;
 
   const accessSigner = createSigner({
-    key: JWT_SECRET,
+    key: JWT_ACCESS_SECRET,
     expiresIn: JWT_ACCESS_EXPIRY_SECONDS * 1000,
   });
 
   const refreshSigner = createSigner({
-    key: JWT_SECRET,
+    key: JWT_REFRESH_SECRET,
     expiresIn: JWT_REFRESH_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
   });
 
-  const verifier = createVerifier({ key: JWT_SECRET });
+  const accessVerifier = createVerifier({ key: JWT_ACCESS_SECRET });
+  const refreshVerifier = createVerifier({ key: JWT_REFRESH_SECRET });
 
   const jwtService: JwtService = {
     signAccess(payload) {
@@ -50,7 +56,7 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
     },
     verifyAccess(token) {
       try {
-        const decoded = verifier(token) as JwtPayload;
+        const decoded = accessVerifier(token) as JwtPayload;
         if (decoded.type !== 'access') {
           throw new AppError('Invalid token type', 401, ErrorCodes.AUTH_INVALID_TOKEN);
         }
@@ -62,7 +68,7 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
     },
     verifyRefresh(token) {
       try {
-        const decoded = verifier(token) as JwtPayload;
+        const decoded = refreshVerifier(token) as JwtPayload;
         if (decoded.type !== 'refresh') {
           throw new AppError('Invalid token type', 401, ErrorCodes.AUTH_REFRESH_TOKEN_INVALID);
         }

@@ -6,6 +6,7 @@ import corsPlugin from './plugins/cors.js';
 import rateLimitPlugin from './plugins/rate-limit.js';
 import prismaPlugin from './plugins/prisma.js';
 import authPlugin from './plugins/auth.js';
+import aiPlugin from './plugins/ai.js';
 import swaggerPlugin from './plugins/swagger.js';
 import healthRoutes from './routes/health.js';
 import authRoutes from './routes/auth.js';
@@ -54,7 +55,10 @@ export function buildApp(config: AppConfig) {
   app.register(rateLimitPlugin);
   app.register(prismaPlugin);
   app.register(authPlugin);
-  app.register(swaggerPlugin);
+  app.register(aiPlugin);
+  if (!isProduction) {
+    app.register(swaggerPlugin);
+  }
 
   // Register routes
   app.register(healthRoutes, { prefix: '/health' });

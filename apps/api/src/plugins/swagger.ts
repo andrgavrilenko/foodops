@@ -1,7 +1,11 @@
+import { createRequire } from 'node:module';
 import fp from 'fastify-plugin';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import type { FastifyPluginAsync } from 'fastify';
+
+const require = createRequire(import.meta.url);
+const pkg = require('../../package.json') as { version: string };
 
 const swaggerPlugin: FastifyPluginAsync = async (fastify) => {
   await fastify.register(swagger, {
@@ -9,7 +13,7 @@ const swaggerPlugin: FastifyPluginAsync = async (fastify) => {
       info: {
         title: 'FoodOps API',
         description: 'AI-powered family meal planning and grocery ordering',
-        version: '0.0.1',
+        version: pkg.version,
       },
       components: {
         securitySchemes: {

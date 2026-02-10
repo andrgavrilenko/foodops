@@ -91,10 +91,12 @@ export function createRecipeService(prisma: PrismaClient) {
       return toRecipeResponse(recipe);
     },
 
-    async list(query: { page: number; limit: number; cuisine_type?: string }) {
-      const where: Prisma.RecipeWhereInput = {};
+    async list(userId: string, query: { page: number; limit: number; cuisine_type?: string }) {
+      const where: Prisma.RecipeWhereInput = {
+        OR: [{ isCustom: false }, { userId }],
+      };
       if (query.cuisine_type) {
-        where.cuisineType = query.cuisine_type;
+        where.AND = [{ cuisineType: query.cuisine_type }];
       }
 
       const [recipes, total] = await Promise.all([
@@ -174,6 +176,15 @@ export function createRecipeService(prisma: PrismaClient) {
       }
       if (recipe.userId !== userId) {
         throw new AppError('Not the recipe owner', 403, ErrorCodes.RECIPE_NOT_OWNER);
+      }
+
+      const activeMealCount = await prisma.meal.count({ where: { recipeId } });
+      if (activeMealCount > 0) {
+        throw new AppError(
+          'Cannot delete recipe that is used in active menus',
+          409,
+          ErrorCodes.RECIPE_IN_USE,
+        );
       }
 
       await prisma.recipe.delete({ where: { id: recipeId } });

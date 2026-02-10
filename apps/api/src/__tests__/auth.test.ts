@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { mockPrisma } from './helpers/setup.js';
 import type { FastifyInstance } from 'fastify';
 
@@ -57,7 +57,7 @@ describe('Auth endpoints', () => {
       expect(body.user.id).toBe('user-1');
       expect(body.access_token).toBeDefined();
       expect(body.refresh_token).toBeDefined();
-      expect(body.expires_in).toBe(900);
+      expect(body.expires_in).toBe(300);
     });
 
     it('should return 409 if email already exists', async () => {
@@ -134,7 +134,7 @@ describe('Auth endpoints', () => {
       expect(body.user.email).toBe('login@test.com');
       expect(body.access_token).toBeDefined();
       expect(body.refresh_token).toBeDefined();
-      expect(body.expires_in).toBe(900);
+      expect(body.expires_in).toBe(300);
     });
 
     it('should return 401 for non-existent user', async () => {
@@ -209,7 +209,7 @@ describe('Auth endpoints', () => {
       const body = response.json();
       expect(body.access_token).toBeDefined();
       expect(body.refresh_token).toBeDefined();
-      expect(body.expires_in).toBe(900);
+      expect(body.expires_in).toBe(300);
     });
 
     it('should return 400 for missing refresh_token', async () => {

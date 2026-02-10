@@ -4,7 +4,8 @@ import { vi } from 'vitest';
 process.env['DATABASE_URL'] = 'postgresql://test:test@localhost:5432/testdb';
 process.env['NODE_ENV'] = 'test';
 process.env['LOG_LEVEL'] = 'fatal';
-process.env['JWT_SECRET'] = 'test-secret-must-be-at-least-32-characters-long';
+process.env['JWT_ACCESS_SECRET'] = 'test-access-secret-must-be-at-least-32-characters-long';
+process.env['JWT_REFRESH_SECRET'] = 'test-refresh-secret-must-be-at-least-32-characters-long';
 process.env['OPENAI_API_KEY'] = 'test-openai-key';
 process.env['OPENAI_MODEL'] = 'gpt-4o-mini';
 
@@ -62,6 +63,7 @@ export function createMockPrisma() {
     },
     recipe: {
       findUnique: vi.fn(),
+      findFirst: vi.fn(),
       findMany: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
@@ -101,6 +103,7 @@ export function createMockPrisma() {
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      count: vi.fn(),
     },
   };
 }

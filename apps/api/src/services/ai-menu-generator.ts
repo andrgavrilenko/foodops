@@ -37,20 +37,25 @@ function sleep(ms: number): Promise<void> {
 }
 
 export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
-  const openai = new OpenAI({ apiKey: config.OPENAI_API_KEY });
+  const openai = new OpenAI({ apiKey: config.OPENAI_API_KEY, maxRetries: 2 });
   const model = config.OPENAI_MODEL;
 
   async function callOpenAI(systemPrompt: string, userPrompt: string): Promise<string> {
-    const response = await openai.chat.completions.create({
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      max_tokens: 8000,
-      temperature: 0.7,
-      response_format: { type: 'json_object' },
-    });
+    const response = await openai.chat.completions.create(
+      {
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        max_tokens: 8000,
+        temperature: 0.7,
+        response_format: { type: 'json_object' },
+      },
+      {
+        signal: AbortSignal.timeout(30_000),
+      },
+    );
 
     return response.choices[0]?.message?.content ?? '';
   }

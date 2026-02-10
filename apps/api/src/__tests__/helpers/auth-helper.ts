@@ -1,12 +1,11 @@
+import { randomUUID } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import { mockPrisma } from './setup.js';
 
-let userCounter = 0;
-
 export async function registerUser(app: FastifyInstance, overrides?: { email?: string }) {
-  userCounter++;
-  const email = overrides?.email ?? `user${userCounter}@test.com`;
-  const userId = `user-id-${userCounter}`;
+  const id = randomUUID();
+  const email = overrides?.email ?? `user-${id}@test.com`;
+  const userId = `user-id-${id}`;
 
   const now = new Date();
 

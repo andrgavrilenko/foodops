@@ -1,25 +1,6 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type { FastifyInstance } from 'fastify';
-
-// Mock @foodops/db before importing app — prevents real DB connection
-vi.mock('@foodops/db', () => {
-  const mockPrisma = {
-    $connect: vi.fn(),
-    $disconnect: vi.fn(),
-    $queryRaw: vi.fn().mockResolvedValue([{ '?column?': 1 }]),
-  };
-  return {
-    prisma: mockPrisma,
-    db: mockPrisma,
-    PrismaClient: vi.fn(() => mockPrisma),
-  };
-});
-
-// Set required env vars before loading config
-process.env['DATABASE_URL'] = 'postgresql://test:test@localhost:5432/testdb';
-process.env['NODE_ENV'] = 'test';
-process.env['LOG_LEVEL'] = 'fatal';
-process.env['JWT_SECRET'] = 'test-secret-must-be-at-least-32-characters-long';
+import './helpers/setup.js';
 
 const { buildApp } = await import('../app.js');
 const { loadConfig } = await import('../config.js');

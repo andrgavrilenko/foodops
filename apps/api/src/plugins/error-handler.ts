@@ -78,10 +78,17 @@ const errorHandlerPlugin: FastifyPluginAsync = async (fastify) => {
         ? (error as { statusCode: number }).statusCode
         : 500;
 
+    const message =
+      errStatusCode >= 500
+        ? 'An unexpected error occurred'
+        : isProduction
+          ? 'An unexpected error occurred'
+          : errMessage;
+
     const response: ErrorResponse = {
       error: {
         code: ErrorCodes.INTERNAL_ERROR,
-        message: isProduction ? 'An unexpected error occurred' : errMessage,
+        message,
       },
     };
 

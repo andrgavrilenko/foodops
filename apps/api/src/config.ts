@@ -12,10 +12,11 @@ const envSchema = z.object({
       message: 'DATABASE_URL must start with postgresql:// or postgres://',
     }),
   CORS_ORIGIN: z.string().default('http://localhost:3001'),
-  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
-  JWT_ACCESS_EXPIRY_SECONDS: z.coerce.number().int().positive().default(900),
+  JWT_ACCESS_SECRET: z.string().min(32, 'JWT_ACCESS_SECRET must be at least 32 characters'),
+  JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 characters'),
+  JWT_ACCESS_EXPIRY_SECONDS: z.coerce.number().int().positive().default(300),
   JWT_REFRESH_EXPIRY_DAYS: z.coerce.number().int().positive().default(7),
-  OPENAI_API_KEY: z.string().min(1, 'OPENAI_API_KEY is required').default('test-key'),
+  OPENAI_API_KEY: z.string().min(1, 'OPENAI_API_KEY is required'),
   OPENAI_MODEL: z.string().default('gpt-4o-mini'),
 });
 
@@ -28,6 +29,18 @@ export function loadConfig(): AppConfig {
     const formatted = result.error.format();
     console.error('Invalid environment variables:', formatted);
     throw new Error('Invalid environment configuration');
+  }
+
+  if (result.data.NODE_ENV === 'production') {
+    const weakPatterns = ['test', 'development', 'secret', 'changeme', 'password'];
+    for (const key of ['JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'] as const) {
+      const val = result.data[key].toLowerCase();
+      if (weakPatterns.some((p) => val.includes(p))) {
+        throw new Error(
+          `${key} appears to be a weak/default secret. Use a strong random value in production.`,
+        );
+      }
+    }
   }
 
   return result.data;

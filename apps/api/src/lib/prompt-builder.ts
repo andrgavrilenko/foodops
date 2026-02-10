@@ -1,3 +1,9 @@
+function sanitizeUserInput(input: string): string {
+  // eslint-disable-next-line no-control-regex
+  const controlChars = /[\x00-\x1f\x7f]/g;
+  return input.replace(controlChars, '').replace(/[<>]/g, '').slice(0, 500);
+}
+
 export interface FamilyContext {
   members: { role: string; age: number }[];
   servings: number;
@@ -78,19 +84,19 @@ export function buildUserPrompt(context: FamilyContext): string {
     },
     restrictions: {
       dietary: context.dietary_restrictions.map((r) => ({
-        member: r.member_label,
-        type: r.type,
-        value: r.value,
+        member: sanitizeUserInput(r.member_label),
+        type: sanitizeUserInput(r.type),
+        value: sanitizeUserInput(r.value),
         severity: r.severity,
       })),
       medical: context.medical_restrictions.map((r) => ({
-        member: r.member_label,
-        condition: r.condition,
+        member: sanitizeUserInput(r.member_label),
+        condition: sanitizeUserInput(r.condition),
       })),
     },
     preferences: {
-      cuisines: context.cuisines,
-      excluded_ingredients: context.excluded_ingredients,
+      cuisines: context.cuisines.map(sanitizeUserInput),
+      excluded_ingredients: context.excluded_ingredients.map(sanitizeUserInput),
     },
   };
 

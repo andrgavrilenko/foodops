@@ -1,4 +1,9 @@
+import { createRequire } from 'node:module';
 import type { FastifyPluginAsync } from 'fastify';
+
+const require = createRequire(import.meta.url);
+const pkg = require('../../package.json') as { version: string };
+const APP_VERSION = pkg.version;
 
 const healthRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /health — basic health check
@@ -6,7 +11,7 @@ const healthRoutes: FastifyPluginAsync = async (fastify) => {
     return reply.send({
       status: 'ok',
       timestamp: new Date().toISOString(),
-      version: '0.0.1',
+      version: APP_VERSION,
       uptime: process.uptime(),
     });
   });

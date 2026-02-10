@@ -6,13 +6,11 @@ import {
   menuHistoryQuerySchema,
 } from '../schemas/menu.schemas.js';
 import { createMenuService } from '../services/menu.service.js';
-import { createAiMenuGenerator } from '../services/ai-menu-generator.js';
 import { uuidSchema } from '../schemas/common.js';
 import { zodToFastify } from '../lib/schema-utils.js';
 
 const menuRoutes: FastifyPluginAsync = async (fastify) => {
-  const aiGenerator = createAiMenuGenerator(fastify.config);
-  const menuService = createMenuService(fastify.prisma, fastify.config, aiGenerator);
+  const menuService = createMenuService(fastify.prisma, fastify.config, fastify.ai);
 
   // All menu routes require authentication
   fastify.addHook('preHandler', fastify.authenticate);

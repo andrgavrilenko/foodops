@@ -92,6 +92,7 @@ npm run build --workspace=extensions/chrome
 - [x] **Фаза 1.0** — CRUD API для пользователей и семей (auth, family profile, preferences)
 - [x] **Фаза 1.1** — CRUD API для рецептов (FR-100..FR-110)
 - [x] **Фаза 2.0** — AI генерация меню (US-010..US-016)
+- [x] **Tech Debt Sprint** — 29/38 items fixed (security, performance, DRY, testing)
 - [ ] **Фаза 3.0** — Парсер каталога S-Market + маппинг ингредиентов на товары
 
 ---
@@ -116,6 +117,12 @@ npm run build --workspace=extensions/chrome
 
 > Формат: 1 запись = 1 сессия, max 10 строк. Только milestones и contract changes.
 > Храним последние 20 записей. Старее — удаляем.
+
+### 2026-02-10 (сессия 12)
+
+- **Done:** Tech Debt Sprint — 29/38 items fixed. 3 parallel agents (security, backend, infra). Critical: separate JWT secrets, 5min access TTL, OPENAI_API_KEY fail-fast, menu $transaction, in-memory rate limit documented. High: recipe privacy, prompt sanitization, OpenAI 30s timeout. Medium+Low: CORS multi-origin, Swagger prod guard, UTC dates, bcryptjs, CI Node 22, .env.test, AI plugin extraction, etc. Code review #2 (9 items) also completed: LRU cache, N+1 fix, DRY, word-boundary regex.
+- **Changed:** bcrypt→bcryptjs. JWT_SECRET→JWT_ACCESS_SECRET+JWT_REFRESH_SECRET. OPENAI_API_KEY no default. Redis removed from docker-compose. AI generator→Fastify plugin. Ingredient @@unique([nameEn]). New files: plugins/ai.ts, .nvmrc, .env.test.
+- **Notes:** 94 tests pass. 9 items deferred: TD-006,007,008,009,013,014,015,016,029 (ownership, mappers, AI tests, integration tests, logging, type-provider, decompose). Следующий шаг — Фаза 3.0 (каталог S-Market).
 
 ### 2026-02-10 (сессия 11)
 

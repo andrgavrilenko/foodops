@@ -47,6 +47,9 @@ extensions/chrome/dist/
 # Claude Code
 .claude/
 
+# Windows artifacts
+nul
+
 # Misc
 *.tgz
 .cache/

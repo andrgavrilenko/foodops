@@ -250,6 +250,7 @@ model Ingredient {
   ingredientMappings IngredientMapping[]
   shoppingListItems  ShoppingListItem[]
 
+  @@unique([nameEn])
   @@map("ingredients")
 }
 

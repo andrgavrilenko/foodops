@@ -6,39 +6,46 @@ import type { AiRecipe } from '../schemas/ai-output.schemas.js';
 import { AppError, ErrorCodes } from '../lib/errors.js';
 import { LRUCache } from 'lru-cache';
 
-const GENERATION_RATE_LIMIT = 10;
 const GENERATION_RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const GENERATE_RATE_LIMIT = 10; // 10 full generations per hour
+const ALTERNATIVES_RATE_LIMIT = 30; // 30 alternatives requests per hour
 
-// LRU cache: auto-evicts least-recently-used users, TTL matches rate window
-const generationTimestamps = new LRUCache<string, number[]>({
+// NOTE: In-memory rate limiting — lost on restart, not shared across instances.
+// Acceptable for single-instance MVP. Migrate to Redis before multi-instance deployment (Phase 5+).
+const generateTimestamps = new LRUCache<string, number[]>({
+  max: 10_000,
+  ttl: GENERATION_RATE_WINDOW_MS,
+});
+const alternativesTimestamps = new LRUCache<string, number[]>({
   max: 10_000,
   ttl: GENERATION_RATE_WINDOW_MS,
 });
 
-function checkGenerationRateLimit(userId: string) {
+function checkRateLimit(
+  userId: string,
+  cache: LRUCache<string, number[]>,
+  limit: number,
+  label: string,
+) {
   const now = Date.now();
-  const timestamps = generationTimestamps.get(userId) ?? [];
+  const timestamps = cache.get(userId) ?? [];
   const recent = timestamps.filter((t) => now - t < GENERATION_RATE_WINDOW_MS);
 
-  if (recent.length >= GENERATION_RATE_LIMIT) {
-    throw new AppError(
-      'Menu generation rate limit exceeded (10 per hour)',
-      429,
-      ErrorCodes.MENU_GENERATION_RATE_LIMIT,
-    );
+  if (recent.length >= limit) {
+    throw new AppError(`${label} rate limit exceeded`, 429, ErrorCodes.MENU_GENERATION_RATE_LIMIT);
   }
 
   recent.push(now);
-  generationTimestamps.set(userId, recent);
+  cache.set(userId, recent);
 }
 
 function getNextMonday(): Date {
   const now = new Date();
-  const day = now.getDay(); // 0=Sun, 1=Mon, ...
+  const day = now.getUTCDay(); // 0=Sun, 1=Mon, ...
   const daysUntilMonday = day === 1 ? 0 : (8 - day) % 7 || 7;
   const monday = new Date(now);
-  monday.setDate(monday.getDate() + daysUntilMonday);
-  monday.setHours(0, 0, 0, 0);
+  monday.setUTCDate(monday.getUTCDate() + daysUntilMonday);
+  monday.setUTCHours(0, 0, 0, 0);
   return monday;
 }
 
@@ -164,66 +171,81 @@ const menuInclude = {
   },
 } as const;
 
-async function upsertRecipeFromAi(prisma: PrismaClient, aiRecipe: AiRecipe): Promise<string> {
+type PrismaTransactionClient = Omit<
+  PrismaClient,
+  '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+>;
+
+async function upsertRecipeFromAiWithClient(
+  tx: PrismaTransactionClient,
+  aiRecipe: AiRecipe,
+): Promise<string> {
   // Try to find by exact title match
+  const existing = await tx.recipe.findFirst({
+    where: { titleEn: aiRecipe.title_en, titleFi: aiRecipe.title_fi },
+  });
+  if (existing) return existing.id;
+
+  const recipe = await tx.recipe.create({
+    data: {
+      titleEn: aiRecipe.title_en,
+      titleFi: aiRecipe.title_fi,
+      descriptionEn: aiRecipe.description_en || null,
+      descriptionFi: aiRecipe.description_fi || null,
+      cuisineType: aiRecipe.cuisine_type || null,
+      prepTimeMin: aiRecipe.prep_time_min,
+      caloriesPerServing: aiRecipe.calories_per_serving,
+      proteinPerServing: aiRecipe.protein_per_serving,
+      carbsPerServing: aiRecipe.carbs_per_serving,
+      fatPerServing: aiRecipe.fat_per_serving,
+      tags: aiRecipe.tags,
+      isCustom: false,
+    },
+  });
+
+  // Batch lookup: find all existing ingredients in one query
+  const ingredientNames = aiRecipe.ingredients.map((ing) => ing.name_en);
+  const existingIngredients = await tx.ingredient.findMany({
+    where: { nameEn: { in: ingredientNames } },
+  });
+  const ingredientMap = new Map(existingIngredients.map((ing) => [ing.nameEn, ing]));
+
+  // Create missing ingredients
+  for (const ing of aiRecipe.ingredients) {
+    if (!ingredientMap.has(ing.name_en)) {
+      const created = await tx.ingredient.create({
+        data: {
+          nameEn: ing.name_en,
+          nameFi: ing.name_fi,
+          category: ing.category,
+          defaultUnit: ing.unit,
+        },
+      });
+      ingredientMap.set(ing.name_en, created);
+    }
+  }
+
+  // Batch create all recipe-ingredient links
+  await tx.recipeIngredient.createMany({
+    data: aiRecipe.ingredients.map((ing) => ({
+      recipeId: recipe.id,
+      ingredientId: ingredientMap.get(ing.name_en)!.id,
+      quantity: ing.quantity,
+      unit: ing.unit,
+      isOptional: ing.is_optional,
+    })),
+  });
+
+  return recipe.id;
+}
+
+async function upsertRecipeFromAi(prisma: PrismaClient, aiRecipe: AiRecipe): Promise<string> {
   const existing = await prisma.recipe.findFirst({
     where: { titleEn: aiRecipe.title_en, titleFi: aiRecipe.title_fi },
   });
   if (existing) return existing.id;
 
-  return prisma.$transaction(async (tx) => {
-    const recipe = await tx.recipe.create({
-      data: {
-        titleEn: aiRecipe.title_en,
-        titleFi: aiRecipe.title_fi,
-        descriptionEn: aiRecipe.description_en || null,
-        descriptionFi: aiRecipe.description_fi || null,
-        cuisineType: aiRecipe.cuisine_type || null,
-        prepTimeMin: aiRecipe.prep_time_min,
-        caloriesPerServing: aiRecipe.calories_per_serving,
-        proteinPerServing: aiRecipe.protein_per_serving,
-        carbsPerServing: aiRecipe.carbs_per_serving,
-        fatPerServing: aiRecipe.fat_per_serving,
-        tags: aiRecipe.tags,
-        isCustom: false,
-      },
-    });
-
-    // Batch lookup: find all existing ingredients in one query
-    const ingredientNames = aiRecipe.ingredients.map((ing) => ing.name_en);
-    const existingIngredients = await tx.ingredient.findMany({
-      where: { nameEn: { in: ingredientNames } },
-    });
-    const ingredientMap = new Map(existingIngredients.map((ing) => [ing.nameEn, ing]));
-
-    // Create missing ingredients
-    for (const ing of aiRecipe.ingredients) {
-      if (!ingredientMap.has(ing.name_en)) {
-        const created = await tx.ingredient.create({
-          data: {
-            nameEn: ing.name_en,
-            nameFi: ing.name_fi,
-            category: ing.category,
-            defaultUnit: ing.unit,
-          },
-        });
-        ingredientMap.set(ing.name_en, created);
-      }
-    }
-
-    // Batch create all recipe-ingredient links
-    await tx.recipeIngredient.createMany({
-      data: aiRecipe.ingredients.map((ing) => ({
-        recipeId: recipe.id,
-        ingredientId: ingredientMap.get(ing.name_en)!.id,
-        quantity: ing.quantity,
-        unit: ing.unit,
-        isOptional: ing.is_optional,
-      })),
-    });
-
-    return recipe.id;
-  });
+  return prisma.$transaction(async (tx) => upsertRecipeFromAiWithClient(tx, aiRecipe));
 }
 
 export function createMenuService(
@@ -345,7 +367,7 @@ export function createMenuService(
         locked_meals?: { day: number; meal_type: string; recipe_id: string }[];
       },
     ) {
-      checkGenerationRateLimit(userId);
+      checkRateLimit(userId, generateTimestamps, GENERATE_RATE_LIMIT, 'Menu generation');
 
       const family = await getFamily(userId);
       const weekStart = parseWeekStart(data.week_start);
@@ -372,74 +394,76 @@ export function createMenuService(
       const context = buildFamilyContext(family, lockedMeals);
       const aiMenu = await aiGenerator.generateWeeklyMenu(context);
 
-      // Delete existing DRAFT menu for same week
-      await prisma.weeklyMenu.deleteMany({
-        where: { familyId: family.id, weekStart, status: 'DRAFT' },
-      });
-
-      // Create menu
       const servings = Math.max(family.members.filter((m) => m.role !== 'INFANT').length, 1);
 
-      let totalCalories = 0;
+      const menuId = await prisma.$transaction(async (tx) => {
+        // Delete existing DRAFT menu for same week
+        await tx.weeklyMenu.deleteMany({
+          where: { familyId: family.id, weekStart, status: 'DRAFT' },
+        });
 
-      const weeklyMenu = await prisma.weeklyMenu.create({
-        data: {
-          familyId: family.id,
-          weekStart,
-          status: 'DRAFT',
-          totalCostEstimate: aiMenu.total_estimated_cost_eur,
-        },
-      });
+        let totalCalories = 0;
 
-      for (const aiDay of aiMenu.days) {
-        const dayDate = new Date(weekStart);
-        dayDate.setUTCDate(dayDate.getUTCDate() + aiDay.day_of_week - 1);
-
-        const menuDay = await prisma.menuDay.create({
+        const weeklyMenu = await tx.weeklyMenu.create({
           data: {
-            menuId: weeklyMenu.id,
-            dayOfWeek: aiDay.day_of_week,
-            date: dayDate,
+            familyId: family.id,
+            weekStart,
+            status: 'DRAFT',
+            totalCostEstimate: aiMenu.total_estimated_cost_eur,
           },
         });
 
-        for (const aiMeal of aiDay.meals) {
-          const lockedKey = `${aiDay.day_of_week}:${aiMeal.meal_type}`;
-          const lockedRecipeId = lockedMealRecipeIds.get(lockedKey);
+        for (const aiDay of aiMenu.days) {
+          const dayDate = new Date(weekStart);
+          dayDate.setUTCDate(dayDate.getUTCDate() + aiDay.day_of_week - 1);
 
-          let recipeId: string;
-          let isLocked = false;
-
-          if (lockedRecipeId) {
-            recipeId = lockedRecipeId;
-            isLocked = true;
-          } else {
-            recipeId = await upsertRecipeFromAi(prisma, aiMeal.recipe);
-          }
-
-          totalCalories += aiMeal.recipe.calories_per_serving * servings;
-
-          await prisma.meal.create({
+          const menuDay = await tx.menuDay.create({
             data: {
-              menuDayId: menuDay.id,
-              mealType: aiMeal.meal_type.toUpperCase() as 'BREAKFAST' | 'LUNCH' | 'DINNER',
-              recipeId,
-              isLocked,
-              servings,
+              menuId: weeklyMenu.id,
+              dayOfWeek: aiDay.day_of_week,
+              date: dayDate,
             },
           });
-        }
-      }
 
-      // Update total calories
-      await prisma.weeklyMenu.update({
-        where: { id: weeklyMenu.id },
-        data: { totalCalories },
+          for (const aiMeal of aiDay.meals) {
+            const lockedKey = `${aiDay.day_of_week}:${aiMeal.meal_type}`;
+            const lockedRecipeId = lockedMealRecipeIds.get(lockedKey);
+
+            let recipeId: string;
+            let isLocked = false;
+
+            if (lockedRecipeId) {
+              recipeId = lockedRecipeId;
+              isLocked = true;
+            } else {
+              recipeId = await upsertRecipeFromAiWithClient(tx, aiMeal.recipe);
+            }
+
+            totalCalories += aiMeal.recipe.calories_per_serving * servings;
+
+            await tx.meal.create({
+              data: {
+                menuDayId: menuDay.id,
+                mealType: aiMeal.meal_type.toUpperCase() as 'BREAKFAST' | 'LUNCH' | 'DINNER',
+                recipeId,
+                isLocked,
+                servings,
+              },
+            });
+          }
+        }
+
+        await tx.weeklyMenu.update({
+          where: { id: weeklyMenu.id },
+          data: { totalCalories },
+        });
+
+        return weeklyMenu.id;
       });
 
       // Fetch and return full menu
       const fullMenu = await prisma.weeklyMenu.findUniqueOrThrow({
-        where: { id: weeklyMenu.id },
+        where: { id: menuId },
         include: menuInclude,
       });
 
@@ -577,7 +601,7 @@ export function createMenuService(
         );
       }
 
-      checkGenerationRateLimit(userId);
+      checkRateLimit(userId, alternativesTimestamps, ALTERNATIVES_RATE_LIMIT, 'Alternatives');
 
       const meal = menu.menuDays.flatMap((d) => d.meals).find((m) => m.id === mealId);
       if (!meal) {

@@ -24,7 +24,7 @@ export function validateRestrictionCompliance(
     for (const meal of day.meals) {
       for (const ingredient of meal.recipe.ingredients) {
         for (const f of forbiddenPatterns) {
-          if (f.regex.test(ingredient.name_en)) {
+          if (f.regex.test(ingredient.name_en) || f.regex.test(ingredient.name_fi)) {
             errors.push(
               `Day ${day.day_of_week} ${meal.meal_type}: "${meal.recipe.title_en}" contains forbidden ingredient "${ingredient.name_en}" (matches restriction "${f.value}")`,
             );

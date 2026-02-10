@@ -28,7 +28,7 @@ const recipeRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /recipes (list with pagination)
   fastify.get('/', async (request, reply) => {
     const query = listRecipesQuerySchema.parse(request.query);
-    const result = await recipeService.list(query);
+    const result = await recipeService.list(request.user.userId, query);
     return reply.send(result);
   });
 

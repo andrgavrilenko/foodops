@@ -362,6 +362,8 @@ model WeeklyMenu {
   shoppingLists ShoppingList[]
 
   @@index([familyId])
+  @@index([familyId, status])
+  @@index([familyId, weekStart])
   @@map("weekly_menus")
 }
 

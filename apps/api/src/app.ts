@@ -15,6 +15,7 @@ import dietaryRestrictionRoutes from './routes/dietary-restrictions.js';
 import medicalRestrictionRoutes from './routes/medical-restrictions.js';
 import preferenceRoutes from './routes/preferences.js';
 import recipeRoutes from './routes/recipes.js';
+import menuRoutes from './routes/menu.js';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -64,6 +65,7 @@ export function buildApp(config: AppConfig) {
   app.register(medicalRestrictionRoutes, { prefix: '/family/members' });
   app.register(preferenceRoutes, { prefix: '/family/preferences' });
   app.register(recipeRoutes, { prefix: '/recipes' });
+  app.register(menuRoutes, { prefix: '/menu' });
 
   return app;
 }

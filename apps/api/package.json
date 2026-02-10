@@ -25,7 +25,8 @@
     "bcrypt": "^6.0",
     "fast-jwt": "^5.0",
     "zod": "^3.25",
-    "zod-to-json-schema": "^3.24"
+    "zod-to-json-schema": "^3.24",
+    "openai": "^4.0"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

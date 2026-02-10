@@ -15,6 +15,8 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
   JWT_ACCESS_EXPIRY_SECONDS: z.coerce.number().int().positive().default(900),
   JWT_REFRESH_EXPIRY_DAYS: z.coerce.number().int().positive().default(7),
+  OPENAI_API_KEY: z.string().min(1, 'OPENAI_API_KEY is required').default('test-key'),
+  OPENAI_MODEL: z.string().default('gpt-4o-mini'),
 });
 
 export type AppConfig = z.infer<typeof envSchema>;

@@ -88,7 +88,8 @@ npm run build --workspace=extensions/chrome
 - [x] **Фаза 0.2** — Настройка PostgreSQL, Prisma schema (модель данных из ТЗ)
 - [x] **Фаза 0.3** — Базовый Fastify сервер с healthcheck
 - [x] **Фаза 0.4** — CI pipeline (GitHub Actions: lint, typecheck, test)
-- [ ] **Фаза 1.0** — CRUD API для пользователей и семей (auth, family profile, preferences)
+- [x] **Фаза 1.0** — CRUD API для пользователей и семей (auth, family profile, preferences)
+- [ ] **Фаза 1.1** — CRUD API для рецептов (FR-100..FR-110)
 
 ---
 
@@ -112,6 +113,12 @@ npm run build --workspace=extensions/chrome
 
 > Формат: 1 запись = 1 сессия, max 10 строк. Только milestones и contract changes.
 > Храним последние 20 записей. Старее — удаляем.
+
+### 2026-02-10 (сессия 8)
+
+- **Done:** Фаза 1.0 завершена — CRUD API для пользователей и семей. 20 endpoints: auth (register/login/refresh/logout), family (CRUD), family members (create/update/delete), dietary/medical restrictions (create/delete), preferences (create/list/delete). Prisma schema обновлена (RefreshToken, calorieTargetPerPerson, updatedAt, unique constraints). 38 тестов проходят.
+- **Changed:** Добавлены зависимости: bcrypt, fast-jwt, @fastify/rate-limit, @fastify/swagger, @fastify/swagger-ui. JWT auth plugin (fast-jwt). Rate limiting (100 req/min). Swagger UI at /docs. Service factory pattern (no classes).
+- **Notes:** Все проверки проходят (typecheck, lint, test, format). Следующий шаг — Фаза 1.1 (CRUD API для рецептов).
 
 ### 2026-02-10 (сессия 7)
 

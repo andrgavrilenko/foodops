@@ -12,6 +12,9 @@ const envSchema = z.object({
       message: 'DATABASE_URL must start with postgresql:// or postgres://',
     }),
   CORS_ORIGIN: z.string().default('http://localhost:3001'),
+  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
+  JWT_ACCESS_EXPIRY_SECONDS: z.coerce.number().int().positive().default(900),
+  JWT_REFRESH_EXPIRY_DAYS: z.coerce.number().int().positive().default(7),
 });
 
 export type AppConfig = z.infer<typeof envSchema>;

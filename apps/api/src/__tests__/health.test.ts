@@ -19,6 +19,7 @@ vi.mock('@foodops/db', () => {
 process.env['DATABASE_URL'] = 'postgresql://test:test@localhost:5432/testdb';
 process.env['NODE_ENV'] = 'test';
 process.env['LOG_LEVEL'] = 'fatal';
+process.env['JWT_SECRET'] = 'test-secret-must-be-at-least-32-characters-long';
 
 const { buildApp } = await import('../app.js');
 const { loadConfig } = await import('../config.js');

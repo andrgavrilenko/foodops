@@ -17,13 +17,20 @@
 ✅ **N-01 (CLAUDE.md US IDs):** Fixed US-001..005 → US-010..016 for menu generation backlog item
 ✅ **N-02 (Repo Map):** Removed "(будет создан)" annotations for completed workspaces
 
+✅ **C-03 (AI Cost Estimates):** Decided GPT-4o-mini as primary model. All documents updated. Costs recalculated: $0.003/request, $36-54/month for 1000 users.
+✅ **C-04 (calorie_target):** Decided `calorieTargetPerPerson Int?` field on Family model. Phase 1 plan updated.
+✅ **M-04 (Anthropic API references):** Updated to GPT-4o-mini (primary) + DeepSeek V3 (Plan B). Removed Anthropic Claude references.
+✅ **M-05 (MVP Scope):** PM scope reduction done — cut from 227 SP to 166 SP (core flow only + FAM-10). Feature backlog updated.
+✅ **I-06 (GPT Model Version):** Standardized on GPT-4o-mini across all documents.
+✅ **N-02 (Docker services):** docker-compose.yml now includes PostgreSQL 16, Redis 7, Adminer. No longer minimal.
+✅ **N-09 (calorie_target PreferenceType):** Resolved via field on Family model — no enum change needed.
+
 **Still OPEN (require implementation, not just documentation fixes):**
+
 - C-02 (Infra Spec DB Schema) — needs major rewrite of section 4.1
-- C-03 (AI Cost Estimates) — needs decision on GPT-4o vs GPT-4o-mini + recalculation
-- M-02 (Missing Indexes) — needs Prisma schema updates
-- M-03 (Missing updatedAt) — needs Prisma schema updates
-- M-04 (Preference calorie_target) — needs data model decision
-- M-05 (MVP Scope Too Large) — needs PM scope reduction
+- M-02 (Missing Indexes) — will be addressed in Phase 1.0 Prisma migration
+- M-03 (Infra Spec Monorepo Structure) — needs update to match actual structure
+- M-06 (Missing updatedAt) — will be addressed in Phase 1.0 Prisma migration
 
 ---
 
@@ -86,35 +93,15 @@ The infrastructure specification section 4.1 describes a database schema tree wi
 
 ---
 
-### C-03: AI API Cost Estimate Contradiction
+### C-03: AI API Cost Estimate Contradiction — RESOLVED
 
-**Files:**
-
-- `C:\Users\andrg\coding-projects\foodops\docs\technical-specification.md` (lines 1429-1435): Cost per request for GPT-4o = ~$0.03, monthly cost for 1000 users = **$360-540**
-- `C:\Users\andrg\coding-projects\foodops\docs\infrastructure-specification.md` (lines 278-283): Monthly cost for 1000 users = **~$33**
-- `C:\Users\andrg\coding-projects\foodops\docs\project-plan.md` (lines 430-435): Monthly cost for 1000 users = **~$33**
-
-**Impact:** The tech spec estimates AI costs at 10-16x more than the infra spec and project plan. This is a significant discrepancy. The tech spec's $0.03/request with 2-3 requests/user/week = ~$360/month for 1000 users, which is realistic. The infra spec's $33/month is unrealistically low for GPT-4o.
-
-**Root cause:** The infra spec likely used GPT-4o-mini pricing (~$0.003/request) while the tech spec used GPT-4o pricing (~$0.03/request). But the infra spec also says "GPT-4o-mini (main)" at line 270 while the tech spec says "GPT-4o" at line 1377.
-
-**Recommendation:** Decide which model is the primary one (GPT-4o or GPT-4o-mini), update all documents consistently, and recalculate costs. This also affects the budget in project-plan.md section 8.
+**Status:** RESOLVED (2026-02-10). Decision: GPT-4o-mini as primary model. All documents updated consistently. Tech spec costs recalculated: $0.003/request, $36-54/month for 1000 users. DeepSeek V3 as Plan B.
 
 ---
 
-### C-04: Missing `calorie_target` / `calorie_target_per_person` in Data Model
+### C-04: Missing `calorie_target` / `calorie_target_per_person` in Data Model — RESOLVED
 
-**File:** `C:\Users\andrg\coding-projects\foodops\docs\technical-specification.md` (line 924)
-
-The Family Preferences API contract (PUT /family/preferences) accepts `calorie_target_per_person: 2000`, but:
-
-- There is no `calorie_target` field on any Prisma model
-- The `Preference` model uses a type/value pattern, so it could be stored as a Preference with type="calorie_target", but this is not documented
-- The AI prompt builder (section 8.2.2, line 1419) references calorie targets, which must come from somewhere in the data model
-
-**Impact:** The Family API implementation will not know where to store the calorie target.
-
-**Recommendation:** Either add a `calorieTargetPerPerson` field to the Family model, or explicitly document how calorie targets are stored in the Preference model (what PreferenceType value to use).
+**Status:** RESOLVED (2026-02-10). Decision: Add `calorieTargetPerPerson Int?` field to Family model. Documented in `docs/phase-1-plan.md` section 8, Q1.
 
 ---
 
@@ -189,16 +176,9 @@ extensions/
 
 ---
 
-### M-04: Tech Spec Section 5 Mentions "Anthropic API" as Alternative, But CLAUDE.md Says "AI through OpenAI API (not self-hosted)"
+### M-04: Tech Spec Section 5 Mentions "Anthropic API" as Alternative — RESOLVED
 
-**Files:**
-
-- `C:\Users\andrg\coding-projects\foodops\docs\technical-specification.md` (line 452): `OpenAI GPT-4o / Anthropic Claude`
-- `C:\Users\andrg\coding-projects\foodops\docs\technical-specification.md` (line 345): Architecture diagram mentions `Anthropic API`
-- `C:\Users\andrg\coding-projects\foodops\docs\infrastructure-specification.md` (line 273): `Fallback | Claude 3.5 Haiku (Anthropic API)`
-- `C:\Users\andrg\coding-projects\foodops\CLAUDE.md` (line 52): `AI | OpenAI GPT-4o-mini API`
-
-**Impact:** Minor -- having a fallback is fine, but CLAUDE.md says "OpenAI GPT-4o-mini" while the tech spec says "GPT-4o" as primary. The model choice affects cost estimates significantly.
+**Status:** RESOLVED (2026-02-10). All documents updated: GPT-4o-mini as primary, DeepSeek V3 as Plan B. Anthropic Claude references removed from infra-spec fallback. Tech spec updated with GPT-4o-mini tables.
 
 ---
 
@@ -274,13 +254,9 @@ US-001 to US-005 are registration and family profile user stories, not menu gene
 
 ---
 
-### N-02: Docker-compose.yml Is Minimal -- Missing Services Listed in Infra Spec
+### N-02: Docker-compose.yml Is Minimal — RESOLVED
 
-**File:** `C:\Users\andrg\coding-projects\foodops\docker-compose.yml`
-
-The actual docker-compose.yml only contains PostgreSQL. The infrastructure spec (section 3.3, line 299-308) describes these services: backend-api, ai-service, meilisearch, redis, nginx, worker.
-
-This is expected for the current phase (0.2 -- just DB setup), but the comment "docker-compose.yml -- local dev environment" in the review request implies it should be more complete.
+**Status:** RESOLVED (2026-02-10). docker-compose.yml now includes PostgreSQL 16 (port 5433), Redis 7 (port 6379), and Adminer (port 8080). Remaining services (backend-api, meilisearch, nginx) will be added as their phases begin.
 
 ---
 
@@ -346,13 +322,9 @@ Auth provider options include "apple", but Apple Sign-In is deferred to v1.1 (li
 
 ---
 
-### N-09: Preference Model `calorie_target_per_person` Has No PreferenceType Enum Value
+### N-09: Preference Model `calorie_target_per_person` Has No PreferenceType Enum Value — RESOLVED
 
-**File:** `C:\Users\andrg\coding-projects\foodops\packages\db\prisma\schema.prisma` (lines 35-39)
-
-The `PreferenceType` enum only has: `CUISINE`, `EXCLUDED_INGREDIENT`, `FAVORITE_RECIPE`.
-
-The API (PUT /family/preferences) accepts `calorie_target_per_person`, but there is no enum value to store this. Either a new enum value is needed, or the calorie target should be a field on Family.
+**Status:** RESOLVED (2026-02-10). Calorie target will be stored as `calorieTargetPerPerson Int?` field on Family model, not as a PreferenceType enum. See C-04.
 
 ---
 
@@ -414,15 +386,9 @@ The tech spec suggests Railway/Render/Fly.io for backend hosting, while everythi
 
 ---
 
-### I-06: GPT Model Version Inconsistency
+### I-06: GPT Model Version Inconsistency — RESOLVED
 
-| Document                 | Primary Model                                 |
-| ------------------------ | --------------------------------------------- |
-| CLAUDE.md                | GPT-4o-mini                                   |
-| Tech spec section 8.2.1  | GPT-4o                                        |
-| Tech spec section 10     | GPT-4o                                        |
-| Infra spec section 3.2   | GPT-4o-mini (primary), GPT-4o (complex tasks) |
-| Project plan section 1.4 | GPT-4o (Structured Outputs)                   |
+**Status:** RESOLVED (2026-02-10). All documents now consistently reference GPT-4o-mini as primary model. Project plan, tech spec, and infra spec updated.
 
 ---
 
@@ -513,4 +479,4 @@ To be fair, several things are done well:
 
 ---
 
-_End of review. This report should be revisited after the identified issues are resolved and before starting Phase 1._
+_End of review. Last updated: 2026-02-10. Many critical and major issues resolved (C-01, C-03, C-04, M-04, M-05, I-06, N-01, N-02, N-09). Remaining open issues (C-02, M-02, M-03, M-06) will be addressed during Phase 1.0 implementation._

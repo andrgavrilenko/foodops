@@ -22,10 +22,10 @@ npm run dev --workspace=apps/api
 
 ### Services
 
-| Service  | Port  | Container Name    | Purpose                          |
-|----------|-------|-------------------|----------------------------------|
-| postgres | 5433  | foodops-postgres  | PostgreSQL 16 database           |
-| redis    | 6379  | foodops-redis     | Redis 7 (cache + job queues)     |
+| Service  | Port | Container Name   | Purpose                      |
+| -------- | ---- | ---------------- | ---------------------------- |
+| postgres | 5433 | foodops-postgres | PostgreSQL 16 database       |
+| redis    | 6379 | foodops-redis    | Redis 7 (cache + job queues) |
 
 **Note:** PostgreSQL is exposed on port **5433** (not 5432) to avoid conflicts with local PostgreSQL installations.
 
@@ -107,14 +107,14 @@ Expected image size: **~150-200 MB** (compressed)
 
 The Docker container requires these environment variables:
 
-| Variable      | Required | Default           | Description                    |
-|---------------|----------|-------------------|--------------------------------|
-| DATABASE_URL  | ✅       | -                 | PostgreSQL connection string   |
-| PORT          | ❌       | 3000              | Server port                    |
-| HOST          | ❌       | 0.0.0.0           | Server host                    |
-| NODE_ENV      | ❌       | development       | Environment (prod/dev/test)    |
-| LOG_LEVEL     | ❌       | info              | Logging level                  |
-| CORS_ORIGIN   | ❌       | http://localhost:3001 | CORS allowed origin        |
+| Variable     | Required | Default               | Description                  |
+| ------------ | -------- | --------------------- | ---------------------------- |
+| DATABASE_URL | ✅       | -                     | PostgreSQL connection string |
+| PORT         | ❌       | 3000                  | Server port                  |
+| HOST         | ❌       | 0.0.0.0               | Server host                  |
+| NODE_ENV     | ❌       | development           | Environment (prod/dev/test)  |
+| LOG_LEVEL    | ❌       | info                  | Logging level                |
+| CORS_ORIGIN  | ❌       | http://localhost:3001 | CORS allowed origin          |
 
 ## Troubleshooting
 

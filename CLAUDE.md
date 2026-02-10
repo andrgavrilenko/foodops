@@ -113,6 +113,12 @@ npm run build --workspace=extensions/chrome
 > Формат: 1 запись = 1 сессия, max 10 строк. Только milestones и contract changes.
 > Храним последние 20 записей. Старее — удаляем.
 
+### 2026-02-10 (сессия 7)
+
+- **Done:** PM-ревью Phase 0: 15+ несоответствий в документации найдено и исправлено. Создан `docs/phase-1-plan.md` (20 endpoints, 32 SP, 3 недели). Решены 3 открытых вопроса. Docker-инфраструктура: Dockerfile для API (multi-stage), docker-compose обновлён (PostgreSQL 16 + Redis 7 + Adminer), .env.example. MVP scope сокращён с 227 SP до 166 SP.
+- **Changed:** **DECISIONS:** AI модель = GPT-4o-mini (Plan B: DeepSeek V3). Calorie target = поле `calorieTargetPerPerson Int?` на Family. Rate limiting = `@fastify/rate-limit` (in-memory). MVP = core flow only + FAM-10.
+- **Notes:** Все документы обновлены с новыми решениями. Следующий шаг — Фаза 1.0 (CRUD API).
+
 ### 2026-02-10 (сессия 6)
 
 - **Done:** Фаза 0.4 завершена — CI pipeline на GitHub Actions. Workflow `.github/workflows/ci.yml`: lint, typecheck, build, test, format:check. Vitest добавлен в apps/api — 6 тестов health endpoints (inject + mocked Prisma). Prettier fix для 8 файлов. Команда агентов: Architect → Dev-CI + Dev-Backend (параллельно) → QA.
@@ -159,6 +165,8 @@ npm run build --workspace=extensions/chrome
 - **Рынок:** `docs/market-research.md` — TAM/SAM/SOM, конкуренты, S-Group
 - **Инфраструктура:** `docs/infrastructure-specification.md` — Hetzner/Neon/Upstash
 - **План работ:** `docs/project-plan.md` — WBS, Gantt, бюджет, milestones
+- **Phase 1 план:** `docs/phase-1-plan.md` — 20 endpoints, 4 модуля, 32 SP
+- **Feature backlog:** `docs/feature-backlog.md` — 15 epics, MVP=166 SP
 - **S-kaupat.fi:** https://www.S-kaupat.fi — целевой магазин (S-Market Helsinki)
 - **Neon Console:** https://console.neon.tech — база данных
 - **OpenAI API:** https://platform.openai.com — AI для генерации меню

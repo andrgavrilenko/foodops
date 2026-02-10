@@ -309,23 +309,23 @@ Chrome Extension → Авторизация → Добавление в корз
 **Принцип:** Только core flow (регистрация → меню → список → заказ) + FAM-10 (skip onboarding).
 Всё остальное — P1/P2. Цель: быстрый запуск, валидация product-market fit.
 
-| Epic          | Story IDs                          | Total SP    | Notes |
-| ------------- | ---------------------------------- | ----------- | ----- |
-| EPIC-01       | AUTH-01, AUTH-02, AUTH-03           | 7           | Rate limiting → P1 |
-| EPIC-02       | FAM-01, FAM-02, FAM-03, FAM-08, FAM-09, FAM-10 | 15 | FAM-04 (medical) → P1, FAM-10 (skip onboarding) added |
-| EPIC-03       | MENU-01..05, MENU-07, MENU-12      | 28          | Core menu generation |
-| EPIC-04       | REC-01, REC-02, REC-04, REC-06     | 11          | Seed data + basic recipes |
-| EPIC-05       | SHOP-01..06, SHOP-07, SHOP-14      | 16          | SHOP-08, SHOP-09 → P1 |
-| EPIC-06       | CAT-01, CAT-03, CAT-04             | 16          | CAT-02 (500 SKU curation) → P1, CAT-05..08 → P1 |
-| EPIC-07       | EXT-01, EXT-03, EXT-04, EXT-06, EXT-07, EXT-08, EXT-11 | 30 | EXT-02 (popup list), EXT-05 (scoring), EXT-12 → P1 |
-| EPIC-08       | FE-01, FE-02a, FE-03               | 10          | FE-02 (full onboarding) → P1, use FE-02a (skip) instead |
-| EPIC-09       | FE-05, FE-07                        | 13          | FE-06 (card details), FE-08 (lock/approve UI) → P1 |
-| EPIC-10       | FE-11, FE-14                        | 7           | FE-12 (edit list) → P1 |
-| EPIC-11       | I18N-01, I18N-03, I18N-04          | 4           | Minimal i18n |
-| EPIC-12       | GDPR-02, GDPR-05, GDPR-06          | 6           | GDPR-01 (export), GDPR-03/04 (privacy page, cookies) → P1 |
-| EPIC-13       | OPS-01                              | 1           | OPS-04 (CI) уже сделан (Phase 0.4) |
-| EPIC-14       | PERF-02                            | 2           | API latency |
-| **TOTAL MVP** |                                    | **~166 SP** | |
+| Epic          | Story IDs                                              | Total SP    | Notes                                                     |
+| ------------- | ------------------------------------------------------ | ----------- | --------------------------------------------------------- |
+| EPIC-01       | AUTH-01, AUTH-02, AUTH-03                              | 7           | Rate limiting → P1                                        |
+| EPIC-02       | FAM-01, FAM-02, FAM-03, FAM-08, FAM-09, FAM-10         | 15          | FAM-04 (medical) → P1, FAM-10 (skip onboarding) added     |
+| EPIC-03       | MENU-01..05, MENU-07, MENU-12                          | 28          | Core menu generation                                      |
+| EPIC-04       | REC-01, REC-02, REC-04, REC-06                         | 11          | Seed data + basic recipes                                 |
+| EPIC-05       | SHOP-01..06, SHOP-07, SHOP-14                          | 16          | SHOP-08, SHOP-09 → P1                                     |
+| EPIC-06       | CAT-01, CAT-03, CAT-04                                 | 16          | CAT-02 (500 SKU curation) → P1, CAT-05..08 → P1           |
+| EPIC-07       | EXT-01, EXT-03, EXT-04, EXT-06, EXT-07, EXT-08, EXT-11 | 30          | EXT-02 (popup list), EXT-05 (scoring), EXT-12 → P1        |
+| EPIC-08       | FE-01, FE-02a, FE-03                                   | 10          | FE-02 (full onboarding) → P1, use FE-02a (skip) instead   |
+| EPIC-09       | FE-05, FE-07                                           | 13          | FE-06 (card details), FE-08 (lock/approve UI) → P1        |
+| EPIC-10       | FE-11, FE-14                                           | 7           | FE-12 (edit list) → P1                                    |
+| EPIC-11       | I18N-01, I18N-03, I18N-04                              | 4           | Minimal i18n                                              |
+| EPIC-12       | GDPR-02, GDPR-05, GDPR-06                              | 6           | GDPR-01 (export), GDPR-03/04 (privacy page, cookies) → P1 |
+| EPIC-13       | OPS-01                                                 | 1           | OPS-04 (CI) уже сделан (Phase 0.4)                        |
+| EPIC-14       | PERF-02                                                | 2           | API latency                                               |
+| **TOTAL MVP** |                                                        | **~166 SP** |                                                           |
 
 **При velocity ~40 SP/sprint (2 недели) → ~4 спринта → 8 недель dev + 4 недели QA/beta → 12 недель total.**
 Значительно лучше предыдущих 227 SP. Оставляем 2-4 недели буфера до 14-16 week timeline.

@@ -26,6 +26,7 @@ The documentation set is impressively thorough for a pre-MVP project. The techni
 ### C-01: Backend Framework Contradiction Across Documents
 
 **Files:**
+
 - `C:\Users\andrg\coding-projects\foodops\CLAUDE.md` (line 51): `Backend | Node.js / Fastify / TypeScript`
 - `C:\Users\andrg\coding-projects\foodops\docs\infrastructure-specification.md` (line 34): `Backend API | Node.js (NestJS) or Python (FastAPI)`
 - `C:\Users\andrg\coding-projects\foodops\docs\infrastructure-specification.md` (line 72): `Backend API (NestJS/FastAPI)`
@@ -46,18 +47,18 @@ The documentation set is impressively thorough for a pre-MVP project. The techni
 
 The infrastructure specification section 4.1 describes a database schema tree with tables that have no corresponding Prisma models:
 
-| Infra spec table | Prisma model exists? | Notes |
-|---|---|---|
-| `user_settings` | No | No settings model in schema |
-| `dietary_prefs` | No | `Preference` model exists but is different |
-| `recipe_tags` | No | Tags stored as JSON on Recipe model |
-| `recipe_nutrition` | No | Nutrition fields are on Recipe model directly |
-| `product_prices` | No | No price history tracking |
-| `product_categories` | No | Category is a string field on Product |
-| `product_matches` | No | `IngredientMapping` exists instead |
-| `purchase_history` | No | No purchase tracking at all |
-| `store_catalogs` | No | No catalog entity |
-| `menu_meals` | No | Named `meals` in Prisma |
+| Infra spec table     | Prisma model exists? | Notes                                         |
+| -------------------- | -------------------- | --------------------------------------------- |
+| `user_settings`      | No                   | No settings model in schema                   |
+| `dietary_prefs`      | No                   | `Preference` model exists but is different    |
+| `recipe_tags`        | No                   | Tags stored as JSON on Recipe model           |
+| `recipe_nutrition`   | No                   | Nutrition fields are on Recipe model directly |
+| `product_prices`     | No                   | No price history tracking                     |
+| `product_categories` | No                   | Category is a string field on Product         |
+| `product_matches`    | No                   | `IngredientMapping` exists instead            |
+| `purchase_history`   | No                   | No purchase tracking at all                   |
+| `store_catalogs`     | No                   | No catalog entity                             |
+| `menu_meals`         | No                   | Named `meals` in Prisma                       |
 
 **Impact:** The infra spec gives a misleading picture of the data architecture. Anyone reading the infra spec would design a significantly different database than what is actually implemented.
 
@@ -68,6 +69,7 @@ The infrastructure specification section 4.1 describes a database schema tree wi
 ### C-03: AI API Cost Estimate Contradiction
 
 **Files:**
+
 - `C:\Users\andrg\coding-projects\foodops\docs\technical-specification.md` (lines 1429-1435): Cost per request for GPT-4o = ~$0.03, monthly cost for 1000 users = **$360-540**
 - `C:\Users\andrg\coding-projects\foodops\docs\infrastructure-specification.md` (lines 278-283): Monthly cost for 1000 users = **~$33**
 - `C:\Users\andrg\coding-projects\foodops\docs\project-plan.md` (lines 430-435): Monthly cost for 1000 users = **~$33**
@@ -85,6 +87,7 @@ The infrastructure specification section 4.1 describes a database schema tree wi
 **File:** `C:\Users\andrg\coding-projects\foodops\docs\technical-specification.md` (line 924)
 
 The Family Preferences API contract (PUT /family/preferences) accepts `calorie_target_per_person: 2000`, but:
+
 - There is no `calorie_target` field on any Prisma model
 - The `Preference` model uses a type/value pattern, so it could be stored as a Preference with type="calorie_target", but this is not documented
 - The AI prompt builder (section 8.2.2, line 1419) references calorie targets, which must come from somewhere in the data model
@@ -100,6 +103,7 @@ The Family Preferences API contract (PUT /family/preferences) accepts `calorie_t
 ### M-01: Auth Module Architecture Undecided
 
 **Files:**
+
 - `C:\Users\andrg\coding-projects\foodops\docs\infrastructure-specification.md` (lines 1047-1069): Recommends Clerk or Auth.js
 - `C:\Users\andrg\coding-projects\foodops\docs\technical-specification.md` (line 1547): Lists `Passport.js + JWT (jsonwebtoken)`
 - `C:\Users\andrg\coding-projects\foodops\docs\project-plan.md` (lines 99, 114): References Clerk integration
@@ -117,15 +121,15 @@ The Family Preferences API contract (PUT /family/preferences) accepts `calorie_t
 
 Several features described in the tech spec have no data model support:
 
-| Feature | Spec Reference | Missing from Prisma |
-|---|---|---|
-| User role / RBAC | Infra spec section 8.1 (lines 1073-1079) | No `role` field on User model |
-| Refresh token storage | NFR-020, API section 7.2 | No `RefreshToken` model |
-| Shopping list `alternatives` | API response (line 1108) | No alternatives relation on ShoppingListItem |
-| `line_total` on shopping items | API response (line 1107) | Not a stored field (computed?) -- undocumented |
-| Consent/GDPR tracking | NFR-022, infra spec section 8.2 | No consent model |
-| Recipe `servings` default count | FR-111 | No `servings` field on Recipe |
-| API key for extension | Infra spec section 8.1 | No API key model |
+| Feature                         | Spec Reference                           | Missing from Prisma                            |
+| ------------------------------- | ---------------------------------------- | ---------------------------------------------- |
+| User role / RBAC                | Infra spec section 8.1 (lines 1073-1079) | No `role` field on User model                  |
+| Refresh token storage           | NFR-020, API section 7.2                 | No `RefreshToken` model                        |
+| Shopping list `alternatives`    | API response (line 1108)                 | No alternatives relation on ShoppingListItem   |
+| `line_total` on shopping items  | API response (line 1107)                 | Not a stored field (computed?) -- undocumented |
+| Consent/GDPR tracking           | NFR-022, infra spec section 8.2          | No consent model                               |
+| Recipe `servings` default count | FR-111                                   | No `servings` field on Recipe                  |
+| API key for extension           | Infra spec section 8.1                   | No API key model                               |
 
 ---
 
@@ -134,6 +138,7 @@ Several features described in the tech spec have no data model support:
 **File:** `C:\Users\andrg\coding-projects\foodops\docs\infrastructure-specification.md` (lines 677-688)
 
 The infra spec describes this monorepo structure:
+
 ```
 apps/
   web/
@@ -148,6 +153,7 @@ infra/          <-- NOT in actual repo
 ```
 
 Actual structure (from CLAUDE.md and package.json workspaces):
+
 ```
 apps/
   web/
@@ -166,6 +172,7 @@ extensions/
 ### M-04: Tech Spec Section 5 Mentions "Anthropic API" as Alternative, But CLAUDE.md Says "AI through OpenAI API (not self-hosted)"
 
 **Files:**
+
 - `C:\Users\andrg\coding-projects\foodops\docs\technical-specification.md` (line 452): `OpenAI GPT-4o / Anthropic Claude`
 - `C:\Users\andrg\coding-projects\foodops\docs\technical-specification.md` (line 345): Architecture diagram mentions `Anthropic API`
 - `C:\Users\andrg\coding-projects\foodops\docs\infrastructure-specification.md` (line 273): `Fallback | Claude 3.5 Haiku (Anthropic API)`
@@ -188,6 +195,7 @@ extensions/
 Only 3 models have `updatedAt`: User (line 79), Recipe (line 201), Product (line 270).
 
 Missing `updatedAt` on models that will be frequently updated:
+
 - `Family` -- users change budget, preferences, store
 - `FamilyMember` -- age changes yearly, restrictions change
 - `DietaryRestriction` -- may be updated
@@ -206,16 +214,16 @@ Missing `updatedAt` on models that will be frequently updated:
 
 Based on the API contracts and expected query patterns:
 
-| Missing Index | Query Pattern | Reference |
-|---|---|---|
-| `WeeklyMenu(familyId, weekStart)` composite | GET menu by family + week | Menu API, history |
-| `WeeklyMenu(familyId, status)` composite | Filter menus by status | Menu history page |
-| `Product(nameFi)` text search | Product search by Finnish name | FR-210, Catalog API |
-| `Product(category)` | Category-based product filtering | FR-202 |
-| `Ingredient(nameEn)` / `Ingredient(nameFi)` | Ingredient search | Mapping logic |
-| `ShoppingList(familyId, status)` composite | Active shopping list lookup | Extension API |
-| `Meal(menuDayId, mealType)` unique | Prevent duplicate meals per slot | Data integrity |
-| `MenuDay(menuId, dayOfWeek)` unique | Prevent duplicate days per menu | Data integrity |
+| Missing Index                               | Query Pattern                    | Reference           |
+| ------------------------------------------- | -------------------------------- | ------------------- |
+| `WeeklyMenu(familyId, weekStart)` composite | GET menu by family + week        | Menu API, history   |
+| `WeeklyMenu(familyId, status)` composite    | Filter menus by status           | Menu history page   |
+| `Product(nameFi)` text search               | Product search by Finnish name   | FR-210, Catalog API |
+| `Product(category)`                         | Category-based product filtering | FR-202              |
+| `Ingredient(nameEn)` / `Ingredient(nameFi)` | Ingredient search                | Mapping logic       |
+| `ShoppingList(familyId, status)` composite  | Active shopping list lookup      | Extension API       |
+| `Meal(menuDayId, mealType)` unique          | Prevent duplicate meals per slot | Data integrity      |
+| `MenuDay(menuId, dayOfWeek)` unique         | Prevent duplicate days per menu  | Data integrity      |
 
 ---
 
@@ -224,6 +232,7 @@ Based on the API contracts and expected query patterns:
 **File:** `C:\Users\andrg\coding-projects\foodops\docs\technical-specification.md` (lines 1076-1123)
 
 The POST /shopping-list/generate response includes:
+
 - `categories` grouping (line 1080) -- no category field on ShoppingListItem
 - `line_total` per item (line 1107) -- not in Prisma model
 - `alternatives` array per item (line 1108) -- no relation in Prisma
@@ -268,6 +277,7 @@ But the tech stack says Next.js 14+ with App Router (line 1521), which is SSR/SS
 ### N-04: API URL Prefix Inconsistency
 
 **Files:**
+
 - Tech spec API contracts (line 727): Base URL is `https://api.foodops.app/v1`
 - CLAUDE.md backlog (line 94): References `/api/users`, `/api/families`
 - Infra spec (line 585): Domain is `api.foodops.fi`
@@ -281,6 +291,7 @@ Three different API URL patterns: `api.foodops.app/v1`, `/api/...`, and `api.foo
 **File:** `C:\Users\andrg\coding-projects\foodops\docs\technical-specification.md` (line 511)
 
 The ER diagram shows `MedicalRestriction` with a `type` field, but:
+
 - The detailed table description (line 625-630) does not include `type`
 - The Prisma schema does not include `type`
 - The model has `condition` instead
@@ -329,10 +340,10 @@ The API (PUT /family/preferences) accepts `calorie_target_per_person`, but there
 
 ### I-01: Phase Numbering Mismatch
 
-| Document | Phase 0 | Phase 1 | Phase 2 |
-|---|---|---|---|
-| CLAUDE.md Work-Now | 0.1-0.4: Monorepo, DB, Fastify, CI | Phase 1: CRUD APIs | Phase 2: AI |
-| Project Plan | Phase 0: Prep + infra (14 tasks) | Phase 1: Backend Core (13 tasks) | Phase 2: AI/ML (10 tasks) |
+| Document           | Phase 0                            | Phase 1                          | Phase 2                   |
+| ------------------ | ---------------------------------- | -------------------------------- | ------------------------- |
+| CLAUDE.md Work-Now | 0.1-0.4: Monorepo, DB, Fastify, CI | Phase 1: CRUD APIs               | Phase 2: AI               |
+| Project Plan       | Phase 0: Prep + infra (14 tasks)   | Phase 1: Backend Core (13 tasks) | Phase 2: AI/ML (10 tasks) |
 
 These roughly align, but CLAUDE.md's "Phase 0.2 = Neon + Prisma schema" corresponds to project plan task 1.2 (which is in Phase 1, not Phase 0). The Phase 0 in project-plan.md includes domain registration, Hetzner setup, Cloudflare, etc. -- which CLAUDE.md does not mention at all in its Phase 0.
 
@@ -353,6 +364,7 @@ But $27-76/month x 4 months = $108-304. Using EUR/USD parity this is approximate
 ### I-03: NFR-001 Says Menu Generation < 15 Seconds, Infra Spec Says < 10 Seconds
 
 **Files:**
+
 - `C:\Users\andrg\coding-projects\foodops\docs\technical-specification.md` (line 221): NFR-001: `< 15 seconds`
 - `C:\Users\andrg\coding-projects\foodops\docs\infrastructure-specification.md` (line 123): `< 10 sec` (MVP), `< 5 sec` (Scale)
 
@@ -384,13 +396,13 @@ The tech spec suggests Railway/Render/Fly.io for backend hosting, while everythi
 
 ### I-06: GPT Model Version Inconsistency
 
-| Document | Primary Model |
-|---|---|
-| CLAUDE.md | GPT-4o-mini |
-| Tech spec section 8.2.1 | GPT-4o |
-| Tech spec section 10 | GPT-4o |
-| Infra spec section 3.2 | GPT-4o-mini (primary), GPT-4o (complex tasks) |
-| Project plan section 1.4 | GPT-4o (Structured Outputs) |
+| Document                 | Primary Model                                 |
+| ------------------------ | --------------------------------------------- |
+| CLAUDE.md                | GPT-4o-mini                                   |
+| Tech spec section 8.2.1  | GPT-4o                                        |
+| Tech spec section 10     | GPT-4o                                        |
+| Infra spec section 3.2   | GPT-4o-mini (primary), GPT-4o (complex tasks) |
+| Project plan section 1.4 | GPT-4o (Structured Outputs)                   |
 
 ---
 
@@ -401,6 +413,7 @@ The tech spec suggests Railway/Render/Fly.io for backend hosting, while everythi
 **Priority: High**
 
 Currently, there is no clear hierarchy for which document wins on contradictions. Suggested hierarchy:
+
 1. **CLAUDE.md** -- canonical tech stack decisions and current phase definitions
 2. **Tech spec** -- canonical for requirements (FR/US/NFR) and API contracts
 3. **Infra spec** -- canonical for infrastructure and deployment decisions
@@ -434,6 +447,7 @@ Confirmed: foodie.fi redirects to S-kaupat.fi. All project references updated. E
 **Priority: Medium (before Phase 1)**
 
 Add models or fields for:
+
 - Consent tracking (what the user consented to and when)
 - Data export endpoint support
 - Account deletion cascade verification
@@ -443,6 +457,7 @@ Add models or fields for:
 **Priority: Low**
 
 Decide whether endpoints use:
+
 - `/v1/family` (versioned, tech spec style)
 - `/api/families` (CLAUDE.md backlog style)
 - Singular vs plural nouns (`/family` vs `/families`)

@@ -18,9 +18,7 @@ interface FastifyValidationError {
   message: string;
 }
 
-function isFastifyValidationError(
-  err: unknown,
-): err is FastifyValidationError {
+function isFastifyValidationError(err: unknown): err is FastifyValidationError {
   return (
     typeof err === 'object' &&
     err !== null &&
@@ -71,8 +69,7 @@ const errorHandlerPlugin: FastifyPluginAsync = async (fastify) => {
 
     // Unknown errors
     const isProduction = fastify.config.NODE_ENV === 'production';
-    const errMessage =
-      error instanceof Error ? error.message : 'Internal server error';
+    const errMessage = error instanceof Error ? error.message : 'Internal server error';
     const errStatusCode =
       typeof error === 'object' &&
       error !== null &&

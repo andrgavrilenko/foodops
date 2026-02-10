@@ -89,7 +89,8 @@ npm run build --workspace=extensions/chrome
 - [x] **Фаза 0.3** — Базовый Fastify сервер с healthcheck
 - [x] **Фаза 0.4** — CI pipeline (GitHub Actions: lint, typecheck, test)
 - [x] **Фаза 1.0** — CRUD API для пользователей и семей (auth, family profile, preferences)
-- [ ] **Фаза 1.1** — CRUD API для рецептов (FR-100..FR-110)
+- [x] **Фаза 1.1** — CRUD API для рецептов (FR-100..FR-110)
+- [ ] **Фаза 2.0** — AI генерация меню (US-010..US-016)
 
 ---
 
@@ -113,6 +114,12 @@ npm run build --workspace=extensions/chrome
 
 > Формат: 1 запись = 1 сессия, max 10 строк. Только milestones и contract changes.
 > Храним последние 20 записей. Старее — удаляем.
+
+### 2026-02-10 (сессия 9)
+
+- **Done:** PM-ревью Phase 1.0 (8/10). Фикс P0-issues: expires_in в auth ответах, preferred_store_id в family schemas, Zod→Fastify schemas для Swagger (/docs), добавлены тесты login/refresh/E2E flow. Phase 1.1 завершена — Recipe CRUD API (5 endpoints, 15 тестов). Всего 56 тестов проходят.
+- **Changed:** Добавлены зависимости: zod-to-json-schema. Новые error codes: RECIPE_NOT_FOUND, RECIPE_NOT_OWNER. Recipe routes зарегистрированы на /recipes.
+- **Notes:** Все проверки проходят (typecheck, lint, test, format). Следующий шаг — Фаза 2.0 (AI генерация меню).
 
 ### 2026-02-10 (сессия 8)
 

@@ -17,6 +17,7 @@ function toFamilyResponse(family: {
   weeklyBudget: Prisma.Decimal | null;
   mealsPerDay: number;
   calorieTargetPerPerson: number | null;
+  preferredStoreId: string | null;
   createdAt: Date;
   updatedAt: Date;
   members?: Array<{
@@ -53,6 +54,7 @@ function toFamilyResponse(family: {
     weekly_budget: family.weeklyBudget ? Number(family.weeklyBudget) : null,
     meals_per_day: family.mealsPerDay,
     calorie_target_per_person: family.calorieTargetPerPerson,
+    preferred_store_id: family.preferredStoreId,
     created_at: family.createdAt.toISOString(),
     updated_at: family.updatedAt.toISOString(),
     members: family.members?.map((m) => ({
@@ -94,6 +96,7 @@ export function createFamilyService(prisma: PrismaClient) {
         weekly_budget?: number;
         meals_per_day: number;
         calorie_target_per_person?: number;
+        preferred_store_id?: string;
       },
     ) {
       try {
@@ -104,6 +107,7 @@ export function createFamilyService(prisma: PrismaClient) {
             weeklyBudget: data.weekly_budget ?? null,
             mealsPerDay: data.meals_per_day,
             calorieTargetPerPerson: data.calorie_target_per_person ?? null,
+            preferredStoreId: data.preferred_store_id ?? null,
           },
         });
         // Re-fetch with updatedAt (create returns it but let's be consistent)
@@ -148,16 +152,19 @@ export function createFamilyService(prisma: PrismaClient) {
         weekly_budget?: number | null;
         meals_per_day?: number;
         calorie_target_per_person?: number | null;
+        preferred_store_id?: string | null;
       },
     ) {
       await verifyFamilyOwnership(prisma, userId);
 
-      const updateData: Prisma.FamilyUpdateInput = {};
+      const updateData: Prisma.FamilyUncheckedUpdateInput = {};
       if (data.name !== undefined) updateData.name = data.name;
       if (data.weekly_budget !== undefined) updateData.weeklyBudget = data.weekly_budget;
       if (data.meals_per_day !== undefined) updateData.mealsPerDay = data.meals_per_day;
       if (data.calorie_target_per_person !== undefined)
         updateData.calorieTargetPerPerson = data.calorie_target_per_person;
+      if (data.preferred_store_id !== undefined)
+        updateData.preferredStoreId = data.preferred_store_id;
 
       const family = await prisma.family.update({
         where: { userId },

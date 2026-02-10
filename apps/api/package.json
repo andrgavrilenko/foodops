@@ -24,7 +24,8 @@
     "fastify-plugin": "^5.0",
     "bcrypt": "^6.0",
     "fast-jwt": "^5.0",
-    "zod": "^3.25"
+    "zod": "^3.25",
+    "zod-to-json-schema": "^3.24"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

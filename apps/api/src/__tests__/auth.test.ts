@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
+import bcrypt from 'bcrypt';
 import { mockPrisma } from './helpers/setup.js';
 import type { FastifyInstance } from 'fastify';
 
@@ -56,6 +57,7 @@ describe('Auth endpoints', () => {
       expect(body.user.id).toBe('user-1');
       expect(body.access_token).toBeDefined();
       expect(body.refresh_token).toBeDefined();
+      expect(body.expires_in).toBe(900);
     });
 
     it('should return 409 if email already exists', async () => {
@@ -99,6 +101,42 @@ describe('Auth endpoints', () => {
   });
 
   describe('POST /auth/login', () => {
+    it('should login successfully and return tokens with expires_in', async () => {
+      const now = new Date();
+      const passwordHash = await bcrypt.hash('Password1', 10);
+
+      mockPrisma.user.findUnique.mockResolvedValueOnce({
+        id: 'login-user-1',
+        email: 'login@test.com',
+        passwordHash,
+        authProvider: 'local',
+        authProviderId: null,
+        language: 'en',
+        createdAt: now,
+        updatedAt: now,
+      });
+      mockPrisma.refreshToken.create.mockResolvedValueOnce({
+        id: 'rt-login',
+        userId: 'login-user-1',
+        tokenHash: 'hash',
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        createdAt: now,
+      });
+
+      const response = await app.inject({
+        method: 'POST',
+        url: '/auth/login',
+        payload: { email: 'login@test.com', password: 'Password1' },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = response.json();
+      expect(body.user.email).toBe('login@test.com');
+      expect(body.access_token).toBeDefined();
+      expect(body.refresh_token).toBeDefined();
+      expect(body.expires_in).toBe(900);
+    });
+
     it('should return 401 for non-existent user', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
 
@@ -115,6 +153,65 @@ describe('Auth endpoints', () => {
   });
 
   describe('POST /auth/refresh', () => {
+    it('should refresh tokens successfully and return expires_in', async () => {
+      // First register to get a valid refresh token
+      const now = new Date();
+      mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+      mockPrisma.user.create.mockResolvedValueOnce({
+        id: 'refresh-user',
+        email: 'refresh@test.com',
+        passwordHash: 'hashed',
+        authProvider: 'local',
+        authProviderId: null,
+        language: 'en',
+        createdAt: now,
+        updatedAt: now,
+      });
+      mockPrisma.refreshToken.create.mockResolvedValueOnce({
+        id: 'rt-refresh-1',
+        userId: 'refresh-user',
+        tokenHash: 'hash',
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        createdAt: now,
+      });
+
+      const registerRes = await app.inject({
+        method: 'POST',
+        url: '/auth/register',
+        payload: { email: 'refresh@test.com', password: 'Password1' },
+      });
+      const { refresh_token } = registerRes.json();
+
+      // Mock for the refresh call
+      mockPrisma.refreshToken.findFirst.mockResolvedValueOnce({
+        id: 'rt-refresh-1',
+        userId: 'refresh-user',
+        tokenHash: 'hash',
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        createdAt: now,
+      });
+      mockPrisma.refreshToken.delete.mockResolvedValueOnce({});
+      mockPrisma.refreshToken.create.mockResolvedValueOnce({
+        id: 'rt-refresh-2',
+        userId: 'refresh-user',
+        tokenHash: 'new-hash',
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        createdAt: now,
+      });
+
+      const response = await app.inject({
+        method: 'POST',
+        url: '/auth/refresh',
+        payload: { refresh_token },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = response.json();
+      expect(body.access_token).toBeDefined();
+      expect(body.refresh_token).toBeDefined();
+      expect(body.expires_in).toBe(900);
+    });
+
     it('should return 400 for missing refresh_token', async () => {
       const response = await app.inject({
         method: 'POST',

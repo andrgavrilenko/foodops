@@ -58,6 +58,20 @@ export function createMockPrisma() {
       create: vi.fn(),
       delete: vi.fn(),
     },
+    recipe: {
+      findUnique: vi.fn(),
+      findMany: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      count: vi.fn(),
+    },
+    recipeIngredient: {
+      findMany: vi.fn(),
+      create: vi.fn(),
+      delete: vi.fn(),
+      deleteMany: vi.fn(),
+    },
   };
 }
 

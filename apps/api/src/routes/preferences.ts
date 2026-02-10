@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from 'fastify';
 import { createPreferenceBodySchema } from '../schemas/preference.schemas.js';
 import { createPreferenceService } from '../services/preference.service.js';
 import { uuidSchema } from '../schemas/common.js';
+import { zodToFastify } from '../lib/schema-utils.js';
 
 const preferenceRoutes: FastifyPluginAsync = async (fastify) => {
   const service = createPreferenceService(fastify.prisma);
@@ -9,11 +10,15 @@ const preferenceRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.addHook('preHandler', fastify.authenticate);
 
   // POST /family/preferences
-  fastify.post('/', async (request, reply) => {
-    const body = createPreferenceBodySchema.parse(request.body);
-    const result = await service.create(request.user.userId, body);
-    return reply.status(201).send(result);
-  });
+  fastify.post(
+    '/',
+    { schema: { body: zodToFastify(createPreferenceBodySchema) } },
+    async (request, reply) => {
+      const body = createPreferenceBodySchema.parse(request.body);
+      const result = await service.create(request.user.userId, body);
+      return reply.status(201).send(result);
+    },
+  );
 
   // GET /family/preferences
   fastify.get('/', async (request, reply) => {

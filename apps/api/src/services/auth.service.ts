@@ -48,6 +48,7 @@ export function createAuthService(prisma: PrismaClient, jwt: JwtService, config:
         },
         access_token: tokens.accessToken,
         refresh_token: tokens.refreshToken,
+        expires_in: config.JWT_ACCESS_EXPIRY_SECONDS,
       };
     },
 
@@ -73,6 +74,7 @@ export function createAuthService(prisma: PrismaClient, jwt: JwtService, config:
         },
         access_token: tokens.accessToken,
         refresh_token: tokens.refreshToken,
+        expires_in: config.JWT_ACCESS_EXPIRY_SECONDS,
       };
     },
 
@@ -101,6 +103,7 @@ export function createAuthService(prisma: PrismaClient, jwt: JwtService, config:
       return {
         access_token: tokens.accessToken,
         refresh_token: tokens.refreshToken,
+        expires_in: config.JWT_ACCESS_EXPIRY_SECONDS,
       };
     },
 

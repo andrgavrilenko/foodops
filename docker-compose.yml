@@ -3,7 +3,7 @@ services:
     image: postgres:16-alpine
     container_name: foodops-postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_DB: foodops
       POSTGRES_USER: foodops
@@ -15,6 +15,43 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    networks:
+      - foodops-network
+    restart: unless-stopped
+
+  adminer:
+    image: adminer:latest
+    container_name: foodops-adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - foodops-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: foodops-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - foodops-network
+    restart: unless-stopped
 
 volumes:
   pgdata:
+  redisdata:
+
+networks:
+  foodops-network:
+    driver: bridge

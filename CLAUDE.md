@@ -21,17 +21,19 @@ FoodOps/
 │   ├── technical-specification.md   # ТЗ для архитектора (FR-xxx, US-xxx)
 │   ├── market-research.md           # Маркетинговое исследование (Финляндия)
 │   ├── infrastructure-specification.md  # ТЗ по инфраструктуре
-│   └── project-plan.md             # План работ (WBS, Gantt, бюджет)
+│   ├── project-plan.md             # План работ (WBS, Gantt, бюджет)
+│   ├── feature-backlog.md          # Product backlog (15 epics, ~100 stories)
+│   └── document-review.md          # Architect review (issues & recommendations)
 ├── apps/
-│   ├── web/                   # Next.js frontend (будет создан)
-│   └── api/                   # Node.js + Fastify backend (будет создан)
+│   ├── web/                   # Next.js frontend (skeleton created)
+│   └── api/                   # Fastify backend (✅ Phase 0.3 complete)
 ├── packages/
-│   ├── shared/                # Общие типы, утилиты (будет создан)
-│   └── db/                    # Prisma schema + клиент (будет создан)
+│   ├── shared/                # Общие типы, утилиты (skeleton created)
+│   └── db/                    # Prisma schema + клиент (✅ Phase 0.2 complete)
 ├── extensions/
-│   └── chrome/                # Chrome Extension (будет создан)
+│   └── chrome/                # Chrome Extension (skeleton created)
 │       └── README.md          # Source of truth по extension
-└── package.json               # Monorepo root (будет создан)
+└── package.json               # Monorepo root (✅ Phase 0.1 complete)
 ```
 
 **Non-negotiables:**
@@ -49,7 +51,7 @@ FoodOps/
 |------|-----------|
 | Frontend | Next.js 14+ / React / TypeScript |
 | Backend | Node.js / Fastify / TypeScript |
-| AI | OpenAI GPT-4o-mini API |
+| AI | OpenAI GPT-4o-mini API (Plan B: DeepSeek V3) |
 | DB | PostgreSQL (Neon serverless) |
 | ORM | Prisma |
 | Cache | Redis (Upstash) |
@@ -83,9 +85,10 @@ npm run build --workspace=extensions/chrome
 ## Work — Now
 
 - [x] **Фаза 0.1** — Инициализация monorepo (Turborepo, TypeScript, ESLint, Prettier)
-- [x] **Фаза 0.2** — Настройка Neon PostgreSQL, Prisma schema (модель данных из ТЗ)
+- [x] **Фаза 0.2** — Настройка PostgreSQL, Prisma schema (модель данных из ТЗ)
 - [x] **Фаза 0.3** — Базовый Fastify сервер с healthcheck
-- [ ] **Фаза 0.4** — CI pipeline (GitHub Actions: lint, typecheck, test)
+- [x] **Фаза 0.4** — CI pipeline (GitHub Actions: lint, typecheck, test)
+- [ ] **Фаза 1.0** — CRUD API для пользователей и семей (auth, family profile, preferences)
 
 ---
 
@@ -93,7 +96,7 @@ npm run build --workspace=extensions/chrome
 
 - [feat] Фаза 1: CRUD API для пользователей и семей — DoD: POST/GET/PATCH/DELETE /api/users, /api/families работают с тестами
 - [feat] Фаза 1: CRUD API для рецептов — DoD: endpoints по FR-100..FR-110
-- [feat] Фаза 2: AI генерация меню — DoD: POST /api/menu/generate возвращает меню на неделю (US-001..US-005)
+- [feat] Фаза 2: AI генерация меню — DoD: POST /api/menu/generate возвращает меню на неделю (US-010..US-016)
 - [feat] Фаза 3: Парсер каталога S-Market (S-kaupat.fi) — DoD: скрипт загружает товары в БД
 - [feat] Фаза 3: Маппинг ингредиентов на товары — DoD: FR-200..FR-210
 - [feat] Фаза 4: Frontend — регистрация и профиль семьи — DoD: US-001, US-002
@@ -109,6 +112,12 @@ npm run build --workspace=extensions/chrome
 
 > Формат: 1 запись = 1 сессия, max 10 строк. Только milestones и contract changes.
 > Храним последние 20 записей. Старее — удаляем.
+
+### 2026-02-10 (сессия 6)
+
+- **Done:** Фаза 0.4 завершена — CI pipeline на GitHub Actions. Workflow `.github/workflows/ci.yml`: lint, typecheck, build, test, format:check. Vitest добавлен в apps/api — 6 тестов health endpoints (inject + mocked Prisma). Prettier fix для 8 файлов. Команда агентов: Architect → Dev-CI + Dev-Backend (параллельно) → QA.
+- **Changed:** apps/api test script: `echo` → `vitest run`. Добавлен vitest ^3.2.1 в apps/api devDependencies.
+- **Notes:** Фаза 0 полностью завершена. Следующий шаг — Фаза 1.0 (CRUD API для пользователей и семей).
 
 ### 2026-02-10 (сессия 5)
 

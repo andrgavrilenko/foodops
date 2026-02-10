@@ -2,8 +2,28 @@
 
 **Reviewer:** Document Architect (AI)
 **Date:** 2026-02-09
+**Last Updated:** 2026-02-10 (PM review after Phase 0 completion)
 **Scope:** All project documentation, Prisma schema, Docker config, root package.json
 **Documents reviewed:** 8 files
+
+---
+
+## UPDATE 2026-02-10: PM Review & Fixes
+
+**After Phase 0 completion (Phases 0.1-0.4 complete), the following critical issues have been FIXED:**
+
+✅ **C-01 (Backend Framework):** All documents updated to consistently use "Fastify" (removed NestJS/FastAPI references)
+✅ **C-04 (Phase 0 Status):** Document statuses updated to "Approved/In Progress", repo map updated with completion markers
+✅ **N-01 (CLAUDE.md US IDs):** Fixed US-001..005 → US-010..016 for menu generation backlog item
+✅ **N-02 (Repo Map):** Removed "(будет создан)" annotations for completed workspaces
+
+**Still OPEN (require implementation, not just documentation fixes):**
+- C-02 (Infra Spec DB Schema) — needs major rewrite of section 4.1
+- C-03 (AI Cost Estimates) — needs decision on GPT-4o vs GPT-4o-mini + recalculation
+- M-02 (Missing Indexes) — needs Prisma schema updates
+- M-03 (Missing updatedAt) — needs Prisma schema updates
+- M-04 (Preference calorie_target) — needs data model decision
+- M-05 (MVP Scope Too Large) — needs PM scope reduction
 
 ---
 

@@ -1,8 +1,8 @@
 # Техническое задание: Инфраструктура проекта FoodOps
 
-**Версия документа:** 1.0
-**Дата:** 2026-02-09
-**Статус:** Черновик
+**Версия документа:** 1.1
+**Дата:** 2026-02-10 (updated after Phase 0 completion)
+**Статус:** Approved (Phase 0 complete, Phase 1 in progress)
 
 ---
 
@@ -31,8 +31,8 @@
 | Компонент                         | Технология                                         | Описание                                                                                    |
 | --------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | **Frontend (Web App)**            | React/Next.js                                      | SPA/SSR приложение для планирования меню, управления списками продуктов, просмотра рецептов |
-| **Backend API**                   | Node.js (NestJS) или Python (FastAPI)              | REST/GraphQL API для бизнес-логики, управления пользователями, обработки заказов            |
-| **AI/ML модуль**                  | Python (FastAPI) + OpenAI API / собственные модели | Генерация меню, подбор продуктов, персонализация рекомендаций                               |
+| **Backend API**                   | Node.js (Fastify)                                  | REST API для бизнес-логики, управления пользователями, обработки заказов                     |
+| **AI/ML модуль**                  | Node.js (Fastify) + OpenAI API                     | Генерация меню, подбор продуктов, персонализация рекомендаций                               |
 | **Chrome Extension**              | JavaScript/TypeScript                              | Автоматизация покупки на S-kaupat.fi (S-Market), парсинг каталога                           |
 | **База данных**                   | PostgreSQL                                         | Хранение пользователей, меню, рецептов, продуктов, истории заказов                          |
 | **Кэш**                           | Redis                                              | Кэширование каталога продуктов, сессий, часто запрашиваемых данных                          |
@@ -68,7 +68,7 @@
                          |                                       |
                 +--------v---------+                   +---------v--------+
                 |   Backend API    |                   |   AI/ML Module   |
-                |  (NestJS/FastAPI)|                   |  (FastAPI +      |
+                |    (Fastify)     |                   |   (Fastify +     |
                 |  2+ instances    |                   |   OpenAI API)    |
                 +--------+---------+                   +---------+--------+
                          |                                       |
@@ -270,7 +270,7 @@
 | Модель      | OpenAI GPT-4o-mini (основная) / GPT-4o (сложные задачи) |
 | Сервер      | Тот же, что Backend API (отдельный контейнер)           |
 | Rate limits | 10 000 RPM (tier 2 OpenAI)                              |
-| Fallback    | Claude 3.5 Haiku (Anthropic API)                        |
+| Fallback    | DeepSeek V3 (Plan B) / шаблонные меню (Plan C)          |
 | Кэширование | Redis -- кэширование результатов генерации меню         |
 
 #### Оценка объёма AI-вызовов
@@ -299,8 +299,8 @@
 ```yaml
 # Структура docker-compose.yml
 services:
-  backend-api: # NestJS/FastAPI backend
-  ai-service: # AI/ML модуль (FastAPI)
+  backend-api: # Fastify backend
+  ai-service: # AI/ML модуль (Fastify + OpenAI)
   meilisearch: # Поисковый движок
   redis: # Кэш + очереди
   nginx: # Reverse proxy + SSL
@@ -1573,8 +1573,8 @@ Read Operations (SELECT)
      |
      v
 [Hetzner CX22] -- Docker Compose
-  ├── Backend API (NestJS/FastAPI)
-  ├── AI Service (FastAPI)
+  ├── Backend API (Fastify)
+  ├── AI Service (Fastify + OpenAI)
   ├── Meilisearch
   ├── Redis (для кэша и очередей)
   ├── Worker (фоновые задачи)

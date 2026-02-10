@@ -1,8 +1,8 @@
 # FoodOps -- План проекта (Project Roadmap & WBS)
 
-**Версия документа:** 1.0
-**Дата:** 2026-02-09
-**Статус:** Черновик
+**Версия документа:** 1.1
+**Дата:** 2026-02-10 (updated after Phase 0 completion)
+**Статус:** In Progress (Phase 0 complete, Phase 1 starting)
 **Основа:** technical-specification.md, market-research.md, infrastructure-specification.md
 
 ---
@@ -49,7 +49,7 @@ MVP включает три основных модуля:
 | Слой             | Технология                                                                             |
 | ---------------- | -------------------------------------------------------------------------------------- |
 | Frontend         | Next.js 14+ (App Router), TypeScript, shadcn/ui + Tailwind CSS, Zustand/TanStack Query |
-| Backend          | Node.js 20 LTS, NestJS/Fastify, TypeScript, Prisma ORM                                 |
+| Backend          | Node.js 20 LTS, Fastify, TypeScript, Prisma ORM                                        |
 | AI/ML            | OpenAI GPT-4o (Structured Outputs), Handlebars (промпт-шаблоны)                        |
 | Chrome Extension | Manifest V3, React + TypeScript, Vite                                                  |
 | БД               | PostgreSQL 16 (Neon), Redis (Upstash), Meilisearch                                     |
@@ -108,7 +108,7 @@ MVP включает три основных модуля:
 
 | #    | Задача                          | Описание                                                                                                                                                                                                                                                                                                                   | Зависимости | Приоритет | Трудоёмкость | Роль        |
 | ---- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------- | ------------ | ----------- |
-| 1.1  | Инициализация backend-проекта   | Scaffolding NestJS/Fastify с TypeScript. Настройка ESLint, Prettier, Jest. Структура модулей: auth, family, menu, shopping-list, catalog, extension-api.                                                                                                                                                                   | 0.3         | P0        | 1 дн         | Backend-dev |
+| 1.1  | Инициализация backend-проекта   | ✅ DONE Phase 0.3 — Fastify с TypeScript. Настройка ESLint, Prettier, Vitest. Структура модулей: auth, family, menu, shopping-list, catalog, extension-api.                                                                                                                                                                   | 0.3         | P0        | 1 дн         | Backend-dev |
 | 1.2  | Настройка Prisma ORM и миграции | Подключение Prisma к Neon PostgreSQL. Создание schema.prisma со всеми сущностями из модели данных ТЗ (User, Family, FamilyMember, DietaryRestriction, MedicalRestriction, Preference, Recipe, Ingredient, Product, WeeklyMenu, MenuDay, Meal, ShoppingList, ShoppingListItem, Store, IngredientMap).                       | 0.7, 1.1    | P0        | 2 дн         | Backend-dev |
 | 1.3  | Seed-данные                     | Скрипт seed для начальных данных: базовые ингредиенты (~200), категории продуктов, тестовый магазин S-Market.                                                                                                                                                                                                              | 1.2         | P1        | 1 дн         | Backend-dev |
 | 1.4  | Auth модуль (Clerk integration) | Интеграция Clerk SDK. Middleware для проверки JWT. Эндпоинты: POST /auth/register, POST /auth/login, POST /auth/refresh (FR-300). Rate limiting: 100 req/min (NFR-023).                                                                                                                                                    | 0.12, 1.1   | P0        | 2 дн         | Backend-dev |
@@ -130,7 +130,7 @@ MVP включает три основных модуля:
 
 | #    | Задача                                 | Описание                                                                                                                                                                                                                               | Зависимости | Приоритет | Трудоёмкость | Роль        |
 | ---- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------- | ------------ | ----------- |
-| 2.1  | Настройка AI-сервиса                   | Инициализация FastAPI-контейнера (или модуля в NestJS). Подключение OpenAI SDK. Конфигурация API-ключей.                                                                                                                               | 0.6         | P0        | 0,5 дн       | AI-engineer |
+| 2.1  | Настройка AI-сервиса                   | Модуль в Fastify backend. Подключение OpenAI SDK (npm package). Конфигурация API-ключей через Zod config.                                                                                                                               | 0.6         | P0        | 0,5 дн       | AI-engineer |
 | 2.2  | Разработка System Prompt               | Создание system prompt для роли нутрициолога-повара. Определение JSON-схемы выходных данных (Structured Outputs). Правила: ограничения, разнообразие, калорийность, бюджет (FR-100--FR-103).                                           | --          | P0        | 2 дн         | AI-engineer |
 | 2.3  | Разработка User Prompt Builder         | Модуль, собирающий динамический user prompt из профиля семьи: состав, возраст, ограничения, предпочтения, бюджет, закреплённые блюда (FR-101, FR-102, FR-113).                                                                         | 2.2         | P0        | 1,5 дн       | AI-engineer |
 | 2.4  | Интеграция с OpenAI Structured Outputs | Вызов GPT-4o с JSON-схемой. Обработка streaming (SSE для фронтенда). Retry-логика (до 3 попыток при невалидном ответе).                                                                                                                | 2.1, 2.3    | P0        | 2 дн         | AI-engineer |

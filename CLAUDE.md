@@ -10,7 +10,8 @@
 
 1. Фаза 0 — Инициализация проекта (repo, структура, tooling, CI)
 2. Фаза 1 — Backend Core (модель данных, Prisma, базовый API)
-3. Фаза 2 — AI модуль генерации меню
+3. Фаза 2 — AI модуль генерации меню (✅ Phase 2.0 complete)
+4. Фаза 3 — Парсер каталога S-Market + маппинг ингредиентов
 
 **Repo map:**
 
@@ -26,7 +27,7 @@ FoodOps/
 │   └── document-review.md          # Architect review (issues & recommendations)
 ├── apps/
 │   ├── web/                   # Next.js frontend (skeleton created)
-│   └── api/                   # Fastify backend (✅ Phase 0.3 complete)
+│   └── api/                   # Fastify backend (✅ Phase 2.0 complete)
 ├── packages/
 │   ├── shared/                # Общие типы, утилиты (skeleton created)
 │   └── db/                    # Prisma schema + клиент (✅ Phase 0.2 complete)
@@ -90,7 +91,8 @@ npm run build --workspace=extensions/chrome
 - [x] **Фаза 0.4** — CI pipeline (GitHub Actions: lint, typecheck, test)
 - [x] **Фаза 1.0** — CRUD API для пользователей и семей (auth, family profile, preferences)
 - [x] **Фаза 1.1** — CRUD API для рецептов (FR-100..FR-110)
-- [ ] **Фаза 2.0** — AI генерация меню (US-010..US-016)
+- [x] **Фаза 2.0** — AI генерация меню (US-010..US-016)
+- [ ] **Фаза 3.0** — Парсер каталога S-Market + маппинг ингредиентов на товары
 
 ---
 
@@ -114,6 +116,18 @@ npm run build --workspace=extensions/chrome
 
 > Формат: 1 запись = 1 сессия, max 10 строк. Только milestones и contract changes.
 > Храним последние 20 записей. Старее — удаляем.
+
+### 2026-02-10 (сессия 11)
+
+- **Done:** Phase 2.0 завершена — AI генерация меню с GPT-4o-mini. 8 endpoints: generate, current, history, getById, replaceMeal, lockMeal, alternatives, approve. OpenAI интеграция с 3-retry validation pipeline (Zod → meal count → restriction compliance → uniqueness → completeness). GDPR-compliant prompt builder (анонимизация членов семьи). 36 новых тестов (92 всего).
+- **Changed:** Добавлена зависимость: openai ^4.0. Новые файлы: lib/prompt-builder.ts, lib/menu-validator.ts, schemas/ai-output.schemas.ts, schemas/menu.schemas.ts, services/ai-menu-generator.ts, services/menu.service.ts, routes/menu.ts. 11 новых error codes для menu module. 2 индекса на WeeklyMenu (familyId+status, familyId+weekStart).
+- **Notes:** Все проверки проходят (typecheck, lint, test, format). Следующий шаг — Фаза 3.0 (каталог S-Market).
+
+### 2026-02-10 (сессия 10)
+
+- **Done:** Code review fixes (7 items): DRY extraction (verifyMemberOwnership → lib/ownership.ts, isPrismaUniqueError → lib/errors.ts, toAuthResponse), merge duplicate JWT verifiers, login rate limit 5/min, expired token cleanup on refresh, removed wasted re-fetch in family.create(). Phase 2.0 plan created by PM agent (docs/phase-2-plan.md): 8 endpoints, 28 SP, 2.5 weeks, GPT-4o-mini integration.
+- **Changed:** New file: lib/ownership.ts (shared ownership verification). Auth routes: login-specific rate limit (5 req/min). Auth service: expired token cleanup during refresh rotation.
+- **Notes:** 56 tests pass. All checks clean (typecheck/lint/format). Phase 2.0 plan ready for implementation.
 
 ### 2026-02-10 (сессия 9)
 
@@ -180,6 +194,7 @@ npm run build --workspace=extensions/chrome
 - **Инфраструктура:** `docs/infrastructure-specification.md` — Hetzner/Neon/Upstash
 - **План работ:** `docs/project-plan.md` — WBS, Gantt, бюджет, milestones
 - **Phase 1 план:** `docs/phase-1-plan.md` — 20 endpoints, 4 модуля, 32 SP
+- **Phase 2 план:** `docs/phase-2-plan.md` — 8 endpoints, AI меню, 28 SP
 - **Feature backlog:** `docs/feature-backlog.md` — 15 epics, MVP=166 SP
 - **S-kaupat.fi:** https://www.S-kaupat.fi — целевой магазин (S-Market Helsinki)
 - **Neon Console:** https://console.neon.tech — база данных

@@ -20,7 +20,10 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   // POST /auth/login
   fastify.post(
     '/login',
-    { schema: { body: zodToFastify(loginBodySchema) } },
+    {
+      schema: { body: zodToFastify(loginBodySchema) },
+      config: { rateLimit: { max: 5, timeWindow: '1 minute' } },
+    },
     async (request, reply) => {
       const body = loginBodySchema.parse(request.body);
       const result = await authService.login(body.email, body.password);

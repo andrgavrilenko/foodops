@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@foodops/db';
-import { AppError, ErrorCodes } from '../lib/errors.js';
-import { verifyFamilyOwnership } from './family.service.js';
+import { AppError, ErrorCodes, isPrismaUniqueError } from '../lib/errors.js';
+import { verifyMemberOwnership } from '../lib/ownership.js';
 
 function toRestrictionResponse(r: {
   id: string;
@@ -19,17 +19,6 @@ function toRestrictionResponse(r: {
 }
 
 export function createDietaryRestrictionService(prisma: PrismaClient) {
-  async function verifyMemberOwnership(userId: string, memberId: string) {
-    const family = await verifyFamilyOwnership(prisma, userId);
-    const member = await prisma.familyMember.findFirst({
-      where: { id: memberId, familyId: family.id },
-    });
-    if (!member) {
-      throw new AppError('Family member not found', 404, ErrorCodes.RESTRICTION_MEMBER_NOT_FOUND);
-    }
-    return member;
-  }
-
   return {
     async create(
       userId: string,
@@ -40,7 +29,7 @@ export function createDietaryRestrictionService(prisma: PrismaClient) {
         severity: 'STRICT' | 'MODERATE' | 'MILD';
       },
     ) {
-      await verifyMemberOwnership(userId, memberId);
+      await verifyMemberOwnership(prisma, userId, memberId);
 
       try {
         const restriction = await prisma.dietaryRestriction.create({
@@ -53,12 +42,7 @@ export function createDietaryRestrictionService(prisma: PrismaClient) {
         });
         return toRestrictionResponse(restriction);
       } catch (err) {
-        if (
-          typeof err === 'object' &&
-          err !== null &&
-          'code' in err &&
-          (err as { code: string }).code === 'P2002'
-        ) {
+        if (isPrismaUniqueError(err)) {
           throw new AppError(
             'Duplicate dietary restriction',
             409,
@@ -70,7 +54,7 @@ export function createDietaryRestrictionService(prisma: PrismaClient) {
     },
 
     async delete(userId: string, memberId: string, restrictionId: string) {
-      await verifyMemberOwnership(userId, memberId);
+      await verifyMemberOwnership(prisma, userId, memberId);
 
       const restriction = await prisma.dietaryRestriction.findFirst({
         where: { id: restrictionId, memberId },

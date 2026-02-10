@@ -25,6 +25,23 @@ export function createAuthService(prisma: PrismaClient, jwt: JwtService, config:
     return { accessToken, refreshToken };
   }
 
+  function toAuthResponse(
+    user: { id: string; email: string; language: string; createdAt: Date },
+    tokens: { accessToken: string; refreshToken: string },
+  ) {
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        language: user.language,
+        created_at: user.createdAt.toISOString(),
+      },
+      access_token: tokens.accessToken,
+      refresh_token: tokens.refreshToken,
+      expires_in: config.JWT_ACCESS_EXPIRY_SECONDS,
+    };
+  }
+
   return {
     async register(email: string, password: string, language: string) {
       const existing = await prisma.user.findUnique({ where: { email } });
@@ -38,18 +55,7 @@ export function createAuthService(prisma: PrismaClient, jwt: JwtService, config:
       });
 
       const tokens = await generateTokens(user.id, user.email);
-
-      return {
-        user: {
-          id: user.id,
-          email: user.email,
-          language: user.language,
-          created_at: user.createdAt.toISOString(),
-        },
-        access_token: tokens.accessToken,
-        refresh_token: tokens.refreshToken,
-        expires_in: config.JWT_ACCESS_EXPIRY_SECONDS,
-      };
+      return toAuthResponse(user, tokens);
     },
 
     async login(email: string, password: string) {
@@ -64,18 +70,7 @@ export function createAuthService(prisma: PrismaClient, jwt: JwtService, config:
       }
 
       const tokens = await generateTokens(user.id, user.email);
-
-      return {
-        user: {
-          id: user.id,
-          email: user.email,
-          language: user.language,
-          created_at: user.createdAt.toISOString(),
-        },
-        access_token: tokens.accessToken,
-        refresh_token: tokens.refreshToken,
-        expires_in: config.JWT_ACCESS_EXPIRY_SECONDS,
-      };
+      return toAuthResponse(user, tokens);
     },
 
     async refresh(refreshToken: string) {
@@ -96,8 +91,13 @@ export function createAuthService(prisma: PrismaClient, jwt: JwtService, config:
         );
       }
 
-      // Rotate: delete old, issue new
-      await prisma.refreshToken.delete({ where: { id: stored.id } });
+      // Rotate: delete old + cleanup expired tokens for this user
+      await prisma.refreshToken.deleteMany({
+        where: {
+          userId: payload.userId,
+          OR: [{ id: stored.id }, { expiresAt: { lt: new Date() } }],
+        },
+      });
       const tokens = await generateTokens(payload.userId, payload.email);
 
       return {

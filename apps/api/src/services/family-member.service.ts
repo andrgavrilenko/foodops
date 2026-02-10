@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@foodops/db';
 import { AppError, ErrorCodes } from '../lib/errors.js';
-import { verifyFamilyOwnership } from './family.service.js';
+import { verifyFamilyOwnership } from '../lib/ownership.js';
 
 const MAX_MEMBERS = 10;
 

@@ -1,15 +1,6 @@
 import type { PrismaClient, Prisma } from '@foodops/db';
-import { AppError, ErrorCodes } from '../lib/errors.js';
-
-export async function verifyFamilyOwnership(prisma: PrismaClient, userId: string) {
-  const family = await prisma.family.findUnique({
-    where: { userId },
-  });
-  if (!family) {
-    throw new AppError('Family not found', 404, ErrorCodes.FAMILY_NOT_FOUND);
-  }
-  return family;
-}
+import { AppError, ErrorCodes, isPrismaUniqueError } from '../lib/errors.js';
+import { verifyFamilyOwnership } from '../lib/ownership.js';
 
 function toFamilyResponse(family: {
   id: string;
@@ -110,16 +101,9 @@ export function createFamilyService(prisma: PrismaClient) {
             preferredStoreId: data.preferred_store_id ?? null,
           },
         });
-        // Re-fetch with updatedAt (create returns it but let's be consistent)
-        const full = await prisma.family.findUniqueOrThrow({ where: { id: family.id } });
-        return toFamilyResponse(full);
+        return toFamilyResponse(family);
       } catch (err) {
-        if (
-          typeof err === 'object' &&
-          err !== null &&
-          'code' in err &&
-          (err as { code: string }).code === 'P2002'
-        ) {
+        if (isPrismaUniqueError(err)) {
           throw new AppError('User already has a family', 409, ErrorCodes.FAMILY_ALREADY_EXISTS);
         }
         throw err;

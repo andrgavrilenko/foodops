@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@foodops/db';
 import { AppError, ErrorCodes } from '../lib/errors.js';
-import { verifyFamilyOwnership } from './family.service.js';
+import { verifyMemberOwnership } from '../lib/ownership.js';
 
 function toRestrictionResponse(r: {
   id: string;
@@ -17,24 +17,13 @@ function toRestrictionResponse(r: {
 }
 
 export function createMedicalRestrictionService(prisma: PrismaClient) {
-  async function verifyMemberOwnership(userId: string, memberId: string) {
-    const family = await verifyFamilyOwnership(prisma, userId);
-    const member = await prisma.familyMember.findFirst({
-      where: { id: memberId, familyId: family.id },
-    });
-    if (!member) {
-      throw new AppError('Family member not found', 404, ErrorCodes.RESTRICTION_MEMBER_NOT_FOUND);
-    }
-    return member;
-  }
-
   return {
     async create(
       userId: string,
       memberId: string,
       data: { condition: string; notes?: string | null },
     ) {
-      await verifyMemberOwnership(userId, memberId);
+      await verifyMemberOwnership(prisma, userId, memberId);
 
       const restriction = await prisma.medicalRestriction.create({
         data: {
@@ -47,7 +36,7 @@ export function createMedicalRestrictionService(prisma: PrismaClient) {
     },
 
     async delete(userId: string, memberId: string, restrictionId: string) {
-      await verifyMemberOwnership(userId, memberId);
+      await verifyMemberOwnership(prisma, userId, memberId);
 
       const restriction = await prisma.medicalRestriction.findFirst({
         where: { id: restrictionId, memberId },

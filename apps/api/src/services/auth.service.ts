@@ -4,6 +4,7 @@ import type { JwtService } from '../plugins/auth.js';
 import type { AppConfig } from '../config.js';
 import { hashPassword, verifyPassword } from '../lib/password.js';
 import { AppError, ErrorCodes } from '../lib/errors.js';
+import type { FastifyBaseLogger } from '../lib/logger.js';
 
 function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
@@ -43,7 +44,7 @@ export function createAuthService(prisma: PrismaClient, jwt: JwtService, config:
   }
 
   return {
-    async register(email: string, password: string, language: string) {
+    async register(email: string, password: string, language: string, log?: FastifyBaseLogger) {
       const existing = await prisma.user.findUnique({ where: { email } });
       if (existing) {
         throw new AppError('Email already registered', 409, ErrorCodes.AUTH_EMAIL_EXISTS);
@@ -54,26 +55,32 @@ export function createAuthService(prisma: PrismaClient, jwt: JwtService, config:
         data: { email, passwordHash, language },
       });
 
+      log?.info({ event: 'user_registered', userId: user.id }, 'User registered');
+
       const tokens = await generateTokens(user.id, user.email);
       return toAuthResponse(user, tokens);
     },
 
-    async login(email: string, password: string) {
+    async login(email: string, password: string, log?: FastifyBaseLogger) {
       const user = await prisma.user.findUnique({ where: { email } });
       if (!user?.passwordHash) {
+        log?.warn({ event: 'user_login_failed', reason: 'unknown_email' }, 'Login failed');
         throw new AppError('Invalid email or password', 401, ErrorCodes.AUTH_INVALID_CREDENTIALS);
       }
 
       const valid = await verifyPassword(password, user.passwordHash);
       if (!valid) {
+        log?.warn({ event: 'user_login_failed', userId: user.id, reason: 'bad_password' }, 'Login failed');
         throw new AppError('Invalid email or password', 401, ErrorCodes.AUTH_INVALID_CREDENTIALS);
       }
+
+      log?.info({ event: 'user_login_success', userId: user.id }, 'User logged in');
 
       const tokens = await generateTokens(user.id, user.email);
       return toAuthResponse(user, tokens);
     },
 
-    async refresh(refreshToken: string) {
+    async refresh(refreshToken: string, log?: FastifyBaseLogger) {
       const payload = jwt.verifyRefresh(refreshToken);
 
       const tokenHash = hashToken(refreshToken);
@@ -83,6 +90,7 @@ export function createAuthService(prisma: PrismaClient, jwt: JwtService, config:
 
       if (!stored || stored.expiresAt < new Date()) {
         // Delete all tokens for this user if token reuse detected
+        log?.warn({ event: 'token_reuse_detected', userId: payload.userId }, 'Refresh token reuse detected');
         await prisma.refreshToken.deleteMany({ where: { userId: payload.userId } });
         throw new AppError(
           'Invalid or expired refresh token',
@@ -100,6 +108,8 @@ export function createAuthService(prisma: PrismaClient, jwt: JwtService, config:
       });
       const tokens = await generateTokens(payload.userId, payload.email);
 
+      log?.info({ event: 'token_refreshed', userId: payload.userId }, 'Token refreshed');
+
       return {
         access_token: tokens.accessToken,
         refresh_token: tokens.refreshToken,
@@ -107,8 +117,9 @@ export function createAuthService(prisma: PrismaClient, jwt: JwtService, config:
       };
     },
 
-    async logout(userId: string) {
+    async logout(userId: string, log?: FastifyBaseLogger) {
       await prisma.refreshToken.deleteMany({ where: { userId } });
+      log?.info({ event: 'user_logout', userId }, 'User logged out');
     },
   };
 }

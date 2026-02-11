@@ -1,22 +1,8 @@
 import type { PrismaClient } from '@foodops/db';
 import { AppError, ErrorCodes, isPrismaUniqueError } from '../lib/errors.js';
 import { verifyMemberOwnership } from '../lib/ownership.js';
-
-function toRestrictionResponse(r: {
-  id: string;
-  type: string;
-  value: string;
-  severity: string;
-  createdAt: Date;
-}) {
-  return {
-    id: r.id,
-    type: r.type,
-    value: r.value,
-    severity: r.severity,
-    created_at: r.createdAt.toISOString(),
-  };
-}
+import { toDietaryRestrictionResponse } from '../lib/response-mappers.js';
+import type { FastifyBaseLogger } from '../lib/logger.js';
 
 export function createDietaryRestrictionService(prisma: PrismaClient) {
   return {
@@ -28,6 +14,7 @@ export function createDietaryRestrictionService(prisma: PrismaClient) {
         value: string;
         severity: 'STRICT' | 'MODERATE' | 'MILD';
       },
+      log?: FastifyBaseLogger,
     ) {
       await verifyMemberOwnership(prisma, userId, memberId);
 
@@ -40,7 +27,8 @@ export function createDietaryRestrictionService(prisma: PrismaClient) {
             severity: data.severity,
           },
         });
-        return toRestrictionResponse(restriction);
+        log?.info({ event: 'dietary_restriction_added', userId, memberId, restrictionId: restriction.id }, 'Dietary restriction added');
+        return toDietaryRestrictionResponse(restriction);
       } catch (err) {
         if (isPrismaUniqueError(err)) {
           throw new AppError(
@@ -53,7 +41,7 @@ export function createDietaryRestrictionService(prisma: PrismaClient) {
       }
     },
 
-    async delete(userId: string, memberId: string, restrictionId: string) {
+    async delete(userId: string, memberId: string, restrictionId: string, log?: FastifyBaseLogger) {
       await verifyMemberOwnership(prisma, userId, memberId);
 
       const restriction = await prisma.dietaryRestriction.findFirst({
@@ -64,6 +52,7 @@ export function createDietaryRestrictionService(prisma: PrismaClient) {
       }
 
       await prisma.dietaryRestriction.delete({ where: { id: restrictionId } });
+      log?.info({ event: 'dietary_restriction_removed', userId, memberId, restrictionId }, 'Dietary restriction removed');
     },
   };
 }

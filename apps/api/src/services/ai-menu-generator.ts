@@ -19,16 +19,18 @@ import {
   validateMealCount,
 } from '../lib/menu-validator.js';
 import { z } from 'zod';
+import type { FastifyBaseLogger } from '../lib/logger.js';
 
 const MAX_RETRIES = 3;
 const ALTERNATIVES_MAX_RETRIES = 2;
 
 export interface AiMenuGenerator {
-  generateWeeklyMenu(context: FamilyContext): Promise<AiMenuResponse>;
+  generateWeeklyMenu(context: FamilyContext, log?: FastifyBaseLogger): Promise<AiMenuResponse>;
   generateAlternatives(
     context: FamilyContext,
     existingRecipeTitles: string[],
     mealType: string,
+    log?: FastifyBaseLogger,
   ): Promise<AiRecipe[]>;
 }
 
@@ -73,7 +75,7 @@ export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
   });
 
   return {
-    async generateWeeklyMenu(context: FamilyContext): Promise<AiMenuResponse> {
+    async generateWeeklyMenu(context: FamilyContext, log?: FastifyBaseLogger): Promise<AiMenuResponse> {
       const systemPrompt = buildSystemPrompt(context.meals_per_day);
       const userPrompt = buildUserPrompt(context);
       const strictRestrictions = context.dietary_restrictions
@@ -88,13 +90,19 @@ export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
             ? userPrompt
             : `${userPrompt}\n\nPREVIOUS ATTEMPT FAILED. Fix these errors:\n${lastError}`;
 
+        log?.info({ event: 'ai_call_started', attempt, type: 'weekly_menu' }, 'AI call started');
+        const callStart = performance.now();
         const raw = await callOpenAI(systemPrompt, promptWithRetry);
+        const durationMs = Math.round(performance.now() - callStart);
+        log?.info({ event: 'ai_call_completed', attempt, durationMs, type: 'weekly_menu' }, 'AI call completed');
+
         const parsed = parseJson(raw);
 
         // Step 1: Zod schema validation
         const zodResult = aiMenuResponseSchema.safeParse(parsed);
         if (!zodResult.success) {
           lastError = `Schema validation failed: ${zodResult.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')}`;
+          log?.warn({ event: 'ai_validation_failed', attempt, step: 'schema', errors: lastError }, 'AI validation failed');
           continue;
         }
 
@@ -104,6 +112,7 @@ export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
         const mealCountResult = validateMealCount(menu, context.meals_per_day);
         if (!mealCountResult.valid) {
           lastError = `Meal count errors: ${mealCountResult.errors.join('; ')}`;
+          log?.warn({ event: 'ai_validation_failed', attempt, step: 'meal_count', errors: lastError }, 'AI validation failed');
           continue;
         }
 
@@ -111,6 +120,7 @@ export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
         const restrictionResult = validateRestrictionCompliance(menu, strictRestrictions);
         if (!restrictionResult.valid) {
           lastError = `Restriction violations: ${restrictionResult.errors.join('; ')}. These ingredients are FORBIDDEN.`;
+          log?.warn({ event: 'ai_validation_failed', attempt, step: 'restriction_compliance', errors: lastError }, 'AI validation failed');
           continue;
         }
 
@@ -118,6 +128,7 @@ export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
         const uniqueResult = validateUniqueness(menu);
         if (!uniqueResult.valid) {
           lastError = `Duplicate recipes: ${uniqueResult.errors.join('; ')}. Each recipe must be unique.`;
+          log?.warn({ event: 'ai_validation_failed', attempt, step: 'uniqueness', errors: lastError }, 'AI validation failed');
           continue;
         }
 
@@ -125,12 +136,14 @@ export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
         const completeResult = validateCompleteness(menu);
         if (!completeResult.valid) {
           lastError = `Incomplete recipes: ${completeResult.errors.join('; ')}`;
+          log?.warn({ event: 'ai_validation_failed', attempt, step: 'completeness', errors: lastError }, 'AI validation failed');
           continue;
         }
 
         return menu;
       }
 
+      log?.error({ event: 'ai_generation_exhausted', type: 'weekly_menu', lastError }, 'AI menu generation exhausted all retries');
       throw new Error(`AI menu generation failed after ${MAX_RETRIES} attempts: ${lastError}`);
     },
 
@@ -138,6 +151,7 @@ export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
       context: FamilyContext,
       existingRecipeTitles: string[],
       mealType: string,
+      log?: FastifyBaseLogger,
     ): Promise<AiRecipe[]> {
       const systemPrompt = buildAlternativesSystemPrompt();
       const userPrompt = JSON.stringify({
@@ -153,18 +167,25 @@ export function createAiMenuGenerator(config: AppConfig): AiMenuGenerator {
           await sleep(500 * Math.pow(2, attempt - 2)); // 500ms, 1000ms
         }
 
+        log?.info({ event: 'ai_call_started', attempt, type: 'alternatives' }, 'AI call started');
+        const callStart = performance.now();
         const raw = await callOpenAI(systemPrompt, userPrompt);
+        const durationMs = Math.round(performance.now() - callStart);
+        log?.info({ event: 'ai_call_completed', attempt, durationMs, type: 'alternatives' }, 'AI call completed');
+
         const parsed = parseJson(raw);
 
         const result = alternativesSchema.safeParse(parsed);
         if (!result.success) {
           lastError = result.error.issues.map((i) => i.message).join('; ');
+          log?.warn({ event: 'ai_validation_failed', attempt, step: 'schema', errors: lastError, type: 'alternatives' }, 'AI validation failed');
           continue;
         }
 
         return result.data.alternatives;
       }
 
+      log?.error({ event: 'ai_generation_exhausted', type: 'alternatives', lastError }, 'AI alternatives generation exhausted all retries');
       throw new Error(
         `AI alternatives generation failed after ${ALTERNATIVES_MAX_RETRIES} attempts: ${lastError}`,
       );

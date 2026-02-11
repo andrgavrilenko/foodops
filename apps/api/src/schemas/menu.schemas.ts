@@ -30,6 +30,73 @@ export const menuHistoryQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(50).default(10),
 });
 
+// Response schemas (permissive — describe shape for Swagger, not validate output)
+const mealRecipeResponseSchema = z.object({
+  id: z.string(),
+  title_en: z.string(),
+  title_fi: z.string(),
+  description_en: z.string().nullable(),
+  description_fi: z.string().nullable(),
+  cuisine_type: z.string().nullable(),
+  prep_time_min: z.number().nullable(),
+  calories_per_serving: z.number().nullable(),
+  protein_per_serving: z.number().nullable(),
+  carbs_per_serving: z.number().nullable(),
+  fat_per_serving: z.number().nullable(),
+  tags: z.unknown(),
+});
+
+export const mealResponseSchema = z.object({
+  id: z.string(),
+  meal_type: z.string(),
+  is_locked: z.boolean(),
+  servings: z.number(),
+  recipe: mealRecipeResponseSchema,
+});
+
+const menuDayResponseSchema = z.object({
+  id: z.string(),
+  day_of_week: z.number(),
+  date: z.string(),
+  meals: z.array(mealResponseSchema),
+});
+
+export const menuResponseSchema = z.object({
+  id: z.string(),
+  family_id: z.string(),
+  week_start: z.string(),
+  status: z.string(),
+  total_cost_estimate: z.number().nullable(),
+  total_calories: z.number().nullable(),
+  created_at: z.string(),
+  days: z.array(menuDayResponseSchema),
+});
+
+const menuSummaryResponseSchema = z.object({
+  id: z.string(),
+  week_start: z.string(),
+  status: z.string(),
+  total_cost_estimate: z.number().nullable(),
+  total_calories: z.number().nullable(),
+  created_at: z.string(),
+});
+
+const paginationSchema = z.object({
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+  total_pages: z.number(),
+});
+
+export const menuHistoryResponseSchema = z.object({
+  data: z.array(menuSummaryResponseSchema),
+  pagination: paginationSchema,
+});
+
+export const alternativesResponseSchema = z.object({
+  alternatives: z.array(mealRecipeResponseSchema),
+});
+
 export type GenerateMenuBody = z.infer<typeof generateMenuBodySchema>;
 export type ReplaceMealBody = z.infer<typeof replaceMealBodySchema>;
 export type LockMealBody = z.infer<typeof lockMealBodySchema>;

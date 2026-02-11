@@ -1,10 +1,12 @@
-import type { FastifyPluginAsync } from 'fastify';
-import { createMedicalRestrictionBodySchema } from '../schemas/medical-restriction.schemas.js';
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
+import {
+  createMedicalRestrictionBodySchema,
+  medicalRestrictionResponseSchema,
+} from '../schemas/medical-restriction.schemas.js';
 import { createMedicalRestrictionService } from '../services/medical-restriction.service.js';
-import { uuidSchema } from '../schemas/common.js';
-import { zodToFastify } from '../lib/schema-utils.js';
+import { memberIdParamSchema, memberIdAndIdParamSchema } from '../schemas/common.js';
 
-const medicalRestrictionRoutes: FastifyPluginAsync = async (fastify) => {
+const medicalRestrictionRoutes: FastifyPluginAsyncZod = async (fastify) => {
   const service = createMedicalRestrictionService(fastify.prisma);
 
   fastify.addHook('preHandler', fastify.authenticate);
@@ -12,24 +14,33 @@ const medicalRestrictionRoutes: FastifyPluginAsync = async (fastify) => {
   // POST /family/members/:memberId/medical-restrictions
   fastify.post(
     '/:memberId/medical-restrictions',
-    { schema: { body: zodToFastify(createMedicalRestrictionBodySchema) } },
+    {
+      schema: {
+        params: memberIdParamSchema,
+        body: createMedicalRestrictionBodySchema,
+        response: { 201: medicalRestrictionResponseSchema },
+      },
+    },
     async (request, reply) => {
-      const { memberId } = request.params as { memberId: string };
-      uuidSchema.parse(memberId);
-      const body = createMedicalRestrictionBodySchema.parse(request.body);
-      const result = await service.create(request.user.userId, memberId, body);
+      const result = await service.create(
+        request.user.userId,
+        request.params.memberId,
+        request.body,
+        request.log,
+      );
       return reply.status(201).send(result);
     },
   );
 
   // DELETE /family/members/:memberId/medical-restrictions/:id
-  fastify.delete('/:memberId/medical-restrictions/:id', async (request, reply) => {
-    const { memberId, id } = request.params as { memberId: string; id: string };
-    uuidSchema.parse(memberId);
-    uuidSchema.parse(id);
-    await service.delete(request.user.userId, memberId, id);
-    return reply.status(204).send();
-  });
+  fastify.delete(
+    '/:memberId/medical-restrictions/:id',
+    { schema: { params: memberIdAndIdParamSchema } },
+    async (request, reply) => {
+      await service.delete(request.user.userId, request.params.memberId, request.params.id, request.log);
+      return reply.status(204).send();
+    },
+  );
 };
 
 export default medicalRestrictionRoutes;

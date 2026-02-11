@@ -1,20 +1,8 @@
 import type { PrismaClient } from '@foodops/db';
 import { AppError, ErrorCodes } from '../lib/errors.js';
 import { verifyMemberOwnership } from '../lib/ownership.js';
-
-function toRestrictionResponse(r: {
-  id: string;
-  condition: string;
-  notes: string | null;
-  createdAt: Date;
-}) {
-  return {
-    id: r.id,
-    condition: r.condition,
-    notes: r.notes,
-    created_at: r.createdAt.toISOString(),
-  };
-}
+import { toMedicalRestrictionResponse } from '../lib/response-mappers.js';
+import type { FastifyBaseLogger } from '../lib/logger.js';
 
 export function createMedicalRestrictionService(prisma: PrismaClient) {
   return {
@@ -22,6 +10,7 @@ export function createMedicalRestrictionService(prisma: PrismaClient) {
       userId: string,
       memberId: string,
       data: { condition: string; notes?: string | null },
+      log?: FastifyBaseLogger,
     ) {
       await verifyMemberOwnership(prisma, userId, memberId);
 
@@ -32,10 +21,11 @@ export function createMedicalRestrictionService(prisma: PrismaClient) {
           notes: data.notes ?? null,
         },
       });
-      return toRestrictionResponse(restriction);
+      log?.info({ event: 'medical_restriction_added', userId, memberId, restrictionId: restriction.id }, 'Medical restriction added');
+      return toMedicalRestrictionResponse(restriction);
     },
 
-    async delete(userId: string, memberId: string, restrictionId: string) {
+    async delete(userId: string, memberId: string, restrictionId: string, log?: FastifyBaseLogger) {
       await verifyMemberOwnership(prisma, userId, memberId);
 
       const restriction = await prisma.medicalRestriction.findFirst({
@@ -46,6 +36,7 @@ export function createMedicalRestrictionService(prisma: PrismaClient) {
       }
 
       await prisma.medicalRestriction.delete({ where: { id: restrictionId } });
+      log?.info({ event: 'medical_restriction_removed', userId, memberId, restrictionId }, 'Medical restriction removed');
     },
   };
 }

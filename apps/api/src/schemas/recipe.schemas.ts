@@ -36,6 +36,39 @@ export const listRecipesQuerySchema = z.object({
   cuisine_type: z.string().max(50).optional(),
 });
 
+// Response schemas
+export const recipeResponseSchema = z.object({
+  id: z.string(),
+  title_en: z.string(),
+  title_fi: z.string(),
+  description_en: z.string().nullable(),
+  description_fi: z.string().nullable(),
+  cuisine_type: z.string().nullable(),
+  prep_time_min: z.number().nullable(),
+  calories_per_serving: z.number().nullable(),
+  protein_per_serving: z.number().nullable(),
+  carbs_per_serving: z.number().nullable(),
+  fat_per_serving: z.number().nullable(),
+  tags: z.unknown(),
+  is_custom: z.boolean(),
+  user_id: z.string().nullable(),
+  source: z.string().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
+const paginationSchema = z.object({
+  page: z.number(),
+  limit: z.number(),
+  total: z.number(),
+  total_pages: z.number(),
+});
+
+export const recipeListResponseSchema = z.object({
+  data: z.array(recipeResponseSchema),
+  pagination: paginationSchema,
+});
+
 export type CreateRecipeBody = z.infer<typeof createRecipeBodySchema>;
 export type UpdateRecipeBody = z.infer<typeof updateRecipeBodySchema>;
 export type ListRecipesQuery = z.infer<typeof listRecipesQuerySchema>;

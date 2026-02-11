@@ -1,21 +1,15 @@
 import type { PrismaClient } from '@foodops/db';
 import { AppError, ErrorCodes } from '../lib/errors.js';
 import { verifyFamilyOwnership } from '../lib/ownership.js';
-
-function toPreferenceResponse(p: { id: string; type: string; value: string; createdAt: Date }) {
-  return {
-    id: p.id,
-    type: p.type,
-    value: p.value,
-    created_at: p.createdAt.toISOString(),
-  };
-}
+import { toPreferenceResponse } from '../lib/response-mappers.js';
+import type { FastifyBaseLogger } from '../lib/logger.js';
 
 export function createPreferenceService(prisma: PrismaClient) {
   return {
     async create(
       userId: string,
       data: { type: 'CUISINE' | 'EXCLUDED_INGREDIENT' | 'FAVORITE_RECIPE'; value: string },
+      log?: FastifyBaseLogger,
     ) {
       const family = await verifyFamilyOwnership(prisma, userId);
 
@@ -26,6 +20,7 @@ export function createPreferenceService(prisma: PrismaClient) {
           value: data.value,
         },
       });
+      log?.info({ event: 'preference_added', userId, familyId: family.id, preferenceId: preference.id }, 'Preference added');
       return toPreferenceResponse(preference);
     },
 
@@ -39,7 +34,7 @@ export function createPreferenceService(prisma: PrismaClient) {
       return preferences.map(toPreferenceResponse);
     },
 
-    async delete(userId: string, preferenceId: string) {
+    async delete(userId: string, preferenceId: string, log?: FastifyBaseLogger) {
       const family = await verifyFamilyOwnership(prisma, userId);
 
       const preference = await prisma.preference.findFirst({
@@ -50,6 +45,7 @@ export function createPreferenceService(prisma: PrismaClient) {
       }
 
       await prisma.preference.delete({ where: { id: preferenceId } });
+      log?.info({ event: 'preference_removed', userId, preferenceId }, 'Preference removed');
     },
   };
 }

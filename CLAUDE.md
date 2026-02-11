@@ -8,10 +8,10 @@
 
 **Current focus:**
 
-1. Фаза 0 — Инициализация проекта (repo, структура, tooling, CI)
-2. Фаза 1 — Backend Core (модель данных, Prisma, базовый API)
-3. Фаза 2 — AI модуль генерации меню (✅ Phase 2.0 complete)
-4. Фаза 3 — Парсер каталога S-Market + маппинг ингредиентов
+1. ~~Фаза 0 — Инициализация проекта~~ (✅ complete)
+2. ~~Фаза 1 — Backend Core~~ (✅ Phase 1.0 + 1.1 complete)
+3. ~~Фаза 2 — AI модуль генерации меню~~ (✅ Phase 2.0 complete)
+4. **Фаза 3 — Парсер каталога S-Market + маппинг ингредиентов** ← next
 
 **Repo map:**
 
@@ -92,7 +92,8 @@ npm run build --workspace=extensions/chrome
 - [x] **Фаза 1.0** — CRUD API для пользователей и семей (auth, family profile, preferences)
 - [x] **Фаза 1.1** — CRUD API для рецептов (FR-100..FR-110)
 - [x] **Фаза 2.0** — AI генерация меню (US-010..US-016)
-- [x] **Tech Debt Sprint** — 29/38 items fixed (security, performance, DRY, testing)
+- [x] **Tech Debt Sprint** — 30/38 items fixed (security, performance, DRY, testing, observability)
+- [x] **TD-013** — Structured logging for business events (37 log statements, 9 services, 8 routes)
 - [ ] **Фаза 3.0** — Парсер каталога S-Market + маппинг ингредиентов на товары
 
 ---
@@ -117,6 +118,12 @@ npm run build --workspace=extensions/chrome
 
 > Формат: 1 запись = 1 сессия, max 10 строк. Только milestones и contract changes.
 > Храним последние 20 записей. Старее — удаляем.
+
+### 2026-02-11 (сессия 13)
+
+- **Done:** TD-013 — Structured logging for business events. 37 log statements across 9 services + 8 route files. Optional `log?: FastifyBaseLogger` param pattern — zero test changes. PM review: 8.5/10, fixed recipe.update() gap found during review.
+- **Changed:** New file: `lib/logger.ts` (FastifyBaseLogger re-export + noopLogger). All service methods with business ops now accept optional logger. All routes pass `request.log`. Events: user_registered, user_login_success/failed, token_reuse_detected, family/member/recipe CRUD, menu generation with durationMs, AI call timing + validation step tracking.
+- **Notes:** 115 tests pass (unchanged). Tech debt: 30/38 fixed, 8 deferred (TD-006,007,008,009,014,015,016,029). Следующий шаг — Фаза 3.0 (каталог S-Market).
 
 ### 2026-02-10 (сессия 12)
 
@@ -183,12 +190,6 @@ npm run build --workspace=extensions/chrome
 - **Done:** Фаза 0.1 завершена — monorepo инициализирован. Turborepo + npm workspaces, 5 workspace скелетов (@foodops/api, @foodops/web, @foodops/shared, @foodops/db, @foodops/chrome-extension). TypeScript strict, ESLint 9 flat config, Prettier. QA: typecheck/lint/build — всё PASS. Запушено на GitHub.
 - **Changed:** @eslint/js понижен до ^9.0.0 (peer dep конфликт с ESLint 9). Next.js 15 (не 16).
 - **Notes:** Следующий шаг — Фаза 0.2 (Neon PostgreSQL + Prisma schema).
-
-### 2026-02-09 (сессия 1)
-
-- **Done:** Создана документация проекта (ТЗ архитектора, маркетинговое исследование, ТЗ инфраструктуры, план работ). Создан CLAUDE.md.
-- **Changed:** —
-- **Notes:** Проект на стадии pre-code. Следующий шаг — Фаза 0 (инициализация repo).
 
 ---
 

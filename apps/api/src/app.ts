@@ -1,5 +1,9 @@
 import Fastify from 'fastify';
 import sensible from '@fastify/sensible';
+import {
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod';
 import type { AppConfig } from './config.js';
 import errorHandlerPlugin from './plugins/error-handler.js';
 import corsPlugin from './plugins/cors.js';
@@ -44,6 +48,11 @@ export function buildApp(config: AppConfig) {
           }),
     },
   });
+
+  // Zod type provider: auto-validate request body/params/query from Zod schemas,
+  // and serialize responses via Zod (skips fast-json-stringify issues with z.record)
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
 
   // Decorate with config
   app.decorate('config', config);

@@ -1,18 +1,32 @@
-import type { FastifyPluginAsync } from 'fastify';
-import { registerBodySchema, loginBodySchema, refreshBodySchema } from '../schemas/auth.schemas.js';
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
+import {
+  registerBodySchema,
+  loginBodySchema,
+  refreshBodySchema,
+  authUserResponseSchema,
+  refreshResponseSchema,
+} from '../schemas/auth.schemas.js';
 import { createAuthService } from '../services/auth.service.js';
-import { zodToFastify } from '../lib/schema-utils.js';
 
-const authRoutes: FastifyPluginAsync = async (fastify) => {
+const authRoutes: FastifyPluginAsyncZod = async (fastify) => {
   const authService = createAuthService(fastify.prisma, fastify.jwt, fastify.config);
 
   // POST /auth/register
   fastify.post(
     '/register',
-    { schema: { body: zodToFastify(registerBodySchema) } },
+    {
+      schema: {
+        body: registerBodySchema,
+        response: { 201: authUserResponseSchema },
+      },
+    },
     async (request, reply) => {
-      const body = registerBodySchema.parse(request.body);
-      const result = await authService.register(body.email, body.password, body.language);
+      const result = await authService.register(
+        request.body.email,
+        request.body.password,
+        request.body.language,
+        request.log,
+      );
       return reply.status(201).send(result);
     },
   );
@@ -21,12 +35,14 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post(
     '/login',
     {
-      schema: { body: zodToFastify(loginBodySchema) },
+      schema: {
+        body: loginBodySchema,
+        response: { 200: authUserResponseSchema },
+      },
       config: { rateLimit: { max: 5, timeWindow: '1 minute' } },
     },
     async (request, reply) => {
-      const body = loginBodySchema.parse(request.body);
-      const result = await authService.login(body.email, body.password);
+      const result = await authService.login(request.body.email, request.body.password, request.log);
       return reply.send(result);
     },
   );
@@ -34,10 +50,14 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
   // POST /auth/refresh
   fastify.post(
     '/refresh',
-    { schema: { body: zodToFastify(refreshBodySchema) } },
+    {
+      schema: {
+        body: refreshBodySchema,
+        response: { 200: refreshResponseSchema },
+      },
+    },
     async (request, reply) => {
-      const body = refreshBodySchema.parse(request.body);
-      const result = await authService.refresh(body.refresh_token);
+      const result = await authService.refresh(request.body.refresh_token, request.log);
       return reply.send(result);
     },
   );
@@ -49,7 +69,7 @@ const authRoutes: FastifyPluginAsync = async (fastify) => {
       preHandler: [fastify.authenticate],
     },
     async (request, reply) => {
-      await authService.logout(request.user.userId);
+      await authService.logout(request.user.userId, request.log);
       return reply.status(204).send();
     },
   );

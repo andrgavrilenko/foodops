@@ -1,32 +1,17 @@
 import type { PrismaClient } from '@foodops/db';
 import { AppError, ErrorCodes } from '../lib/errors.js';
 import { verifyFamilyOwnership } from '../lib/ownership.js';
+import { toMemberResponse } from '../lib/response-mappers.js';
+import type { FastifyBaseLogger } from '../lib/logger.js';
 
 const MAX_MEMBERS = 10;
-
-function toMemberResponse(member: {
-  id: string;
-  name: string;
-  age: number;
-  role: string;
-  createdAt: Date;
-  updatedAt: Date;
-}) {
-  return {
-    id: member.id,
-    name: member.name,
-    age: member.age,
-    role: member.role,
-    created_at: member.createdAt.toISOString(),
-    updated_at: member.updatedAt.toISOString(),
-  };
-}
 
 export function createFamilyMemberService(prisma: PrismaClient) {
   return {
     async create(
       userId: string,
       data: { name: string; age: number; role: 'ADULT' | 'CHILD' | 'INFANT' },
+      log?: FastifyBaseLogger,
     ) {
       const family = await verifyFamilyOwnership(prisma, userId);
 
@@ -49,6 +34,7 @@ export function createFamilyMemberService(prisma: PrismaClient) {
           role: data.role,
         },
       });
+      log?.info({ event: 'member_added', userId, memberId: member.id, familyId: family.id }, 'Family member added');
       return toMemberResponse(member);
     },
 
@@ -56,6 +42,7 @@ export function createFamilyMemberService(prisma: PrismaClient) {
       userId: string,
       memberId: string,
       data: { name?: string; age?: number; role?: 'ADULT' | 'CHILD' | 'INFANT' },
+      log?: FastifyBaseLogger,
     ) {
       const family = await verifyFamilyOwnership(prisma, userId);
 
@@ -70,10 +57,11 @@ export function createFamilyMemberService(prisma: PrismaClient) {
         where: { id: memberId },
         data,
       });
+      log?.info({ event: 'member_updated', userId, memberId }, 'Family member updated');
       return toMemberResponse(updated);
     },
 
-    async delete(userId: string, memberId: string) {
+    async delete(userId: string, memberId: string, log?: FastifyBaseLogger) {
       const family = await verifyFamilyOwnership(prisma, userId);
 
       const member = await prisma.familyMember.findFirst({
@@ -84,6 +72,7 @@ export function createFamilyMemberService(prisma: PrismaClient) {
       }
 
       await prisma.familyMember.delete({ where: { id: memberId } });
+      log?.info({ event: 'member_removed', userId, memberId }, 'Family member removed');
     },
   };
 }

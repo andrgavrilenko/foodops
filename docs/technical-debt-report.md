@@ -148,15 +148,15 @@
 - **Fix:** Add `signal: AbortSignal.timeout(30_000)` to the OpenAI call. Add Fastify route-level timeout for generation endpoints. Return 504 on timeout.
 - **Effort:** S (1-2h)
 
-### TD-013 | Observability
+### ~~TD-013 | Observability~~ ✅ RESOLVED (2026-02-11)
 
 **No structured logging for business events**
 
 - **Where:** Entire API — no business-level log events found
 - **Description:** The app uses Pino (via Fastify) for request logging, but menu generation success/failure, user registration, family creation, AI retry attempts — none emit structured log events. No request ID propagation to service-layer logs.
 - **Impact:** Cannot track usage patterns, debug production issues, or monitor AI success rates. Cannot measure how often AI validation retries occur.
-- **Fix:** Add structured logs: `log.info({ event: 'menu_generated', userId, familyId, attempt })`, `log.warn({ event: 'ai_validation_failed', attempt, errors })`. Use `request.log` in handlers and propagate request ID.
-- **Effort:** M (3-4h)
+- **Fix:** Added optional `log?: FastifyBaseLogger` param to all service methods. Routes pass `request.log`. 37 structured log events across 9 services. New file: `lib/logger.ts`.
+- **Effort:** M (3-4h) — actual: ~2h
 
 ---
 
@@ -469,9 +469,9 @@
 
 ## Sprint Results (2026-02-10)
 
-**29 of 38 items resolved** in one sprint session using 3 parallel agents.
+**30 of 38 items resolved** (29 in sprint session + TD-013 in session 13).
 
-### Implemented (29 items)
+### Implemented (30 items)
 
 - ✅ TD-001: Separate JWT secrets (JWT_ACCESS_SECRET + JWT_REFRESH_SECRET)
 - ✅ TD-002: Access token TTL reduced to 5 minutes (300s)
@@ -502,14 +502,14 @@
 - ✅ TD-036: nul file deleted, added to .gitignore
 - ✅ TD-037: AI generator extracted to Fastify plugin (plugins/ai.ts)
 - ✅ TD-038: credentials:true removed from CORS
+- ✅ TD-013: Structured logging (37 events, 9 services, optional logger pattern)
 
-### Deferred (9 items — schedule for Phase 3-4)
+### Deferred (8 items — schedule for Phase 3-4)
 
 - TD-006: Ownership consolidation (touches many services, high coupling risk)
 - TD-007: Response mapper extraction (7 service files, large DRY refactor)
 - TD-008: AI generator unit tests (6-8h, dedicated test sprint)
 - TD-009: Integration tests with real DB (1-2 days, needs testcontainers)
-- TD-013: Structured logging (all services, best done alongside Phase 3)
 - TD-014: Route params schema (needs fastify-type-provider-zod migration)
 - TD-015: Double validation (needs fastify-type-provider-zod migration)
 - TD-016: Decompose menu.service.ts (risky, defer to Phase 3)
@@ -518,6 +518,5 @@
 ### Remaining Recommendations for Phase 3
 
 - **TD-016** (menu.service.ts decomposition) — Before adding more service complexity
-- **TD-013** (structured logging) — To monitor catalog parser health
 - **TD-009** (real DB integration tests) — To validate bulk insert correctness
 - **TD-014 + TD-015** (type-provider migration) — Clean up validation architecture

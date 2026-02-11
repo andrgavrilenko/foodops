@@ -1,82 +1,8 @@
 import type { PrismaClient, Prisma } from '@foodops/db';
 import { AppError, ErrorCodes, isPrismaUniqueError } from '../lib/errors.js';
 import { verifyFamilyOwnership } from '../lib/ownership.js';
-
-function toFamilyResponse(family: {
-  id: string;
-  name: string;
-  weeklyBudget: Prisma.Decimal | null;
-  mealsPerDay: number;
-  calorieTargetPerPerson: number | null;
-  preferredStoreId: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  members?: Array<{
-    id: string;
-    name: string;
-    age: number;
-    role: string;
-    createdAt: Date;
-    updatedAt: Date;
-    dietaryRestrictions?: Array<{
-      id: string;
-      type: string;
-      value: string;
-      severity: string;
-      createdAt: Date;
-    }>;
-    medicalRestrictions?: Array<{
-      id: string;
-      condition: string;
-      notes: string | null;
-      createdAt: Date;
-    }>;
-  }>;
-  preferences?: Array<{
-    id: string;
-    type: string;
-    value: string;
-    createdAt: Date;
-  }>;
-}) {
-  return {
-    id: family.id,
-    name: family.name,
-    weekly_budget: family.weeklyBudget ? Number(family.weeklyBudget) : null,
-    meals_per_day: family.mealsPerDay,
-    calorie_target_per_person: family.calorieTargetPerPerson,
-    preferred_store_id: family.preferredStoreId,
-    created_at: family.createdAt.toISOString(),
-    updated_at: family.updatedAt.toISOString(),
-    members: family.members?.map((m) => ({
-      id: m.id,
-      name: m.name,
-      age: m.age,
-      role: m.role,
-      created_at: m.createdAt.toISOString(),
-      updated_at: m.updatedAt.toISOString(),
-      dietary_restrictions: m.dietaryRestrictions?.map((d) => ({
-        id: d.id,
-        type: d.type,
-        value: d.value,
-        severity: d.severity,
-        created_at: d.createdAt.toISOString(),
-      })),
-      medical_restrictions: m.medicalRestrictions?.map((mr) => ({
-        id: mr.id,
-        condition: mr.condition,
-        notes: mr.notes,
-        created_at: mr.createdAt.toISOString(),
-      })),
-    })),
-    preferences: family.preferences?.map((p) => ({
-      id: p.id,
-      type: p.type,
-      value: p.value,
-      created_at: p.createdAt.toISOString(),
-    })),
-  };
-}
+import { toFamilyResponse } from '../lib/response-mappers.js';
+import type { FastifyBaseLogger } from '../lib/logger.js';
 
 export function createFamilyService(prisma: PrismaClient) {
   return {
@@ -89,6 +15,7 @@ export function createFamilyService(prisma: PrismaClient) {
         calorie_target_per_person?: number;
         preferred_store_id?: string;
       },
+      log?: FastifyBaseLogger,
     ) {
       try {
         const family = await prisma.family.create({
@@ -101,6 +28,7 @@ export function createFamilyService(prisma: PrismaClient) {
             preferredStoreId: data.preferred_store_id ?? null,
           },
         });
+        log?.info({ event: 'family_created', userId, familyId: family.id }, 'Family created');
         return toFamilyResponse(family);
       } catch (err) {
         if (isPrismaUniqueError(err)) {
@@ -138,6 +66,7 @@ export function createFamilyService(prisma: PrismaClient) {
         calorie_target_per_person?: number | null;
         preferred_store_id?: string | null;
       },
+      log?: FastifyBaseLogger,
     ) {
       await verifyFamilyOwnership(prisma, userId);
 
@@ -154,6 +83,7 @@ export function createFamilyService(prisma: PrismaClient) {
         where: { userId },
         data: updateData,
       });
+      log?.info({ event: 'family_updated', userId, familyId: family.id }, 'Family updated');
       return toFamilyResponse(family);
     },
   };

@@ -1,9 +1,12 @@
-import type { FastifyPluginAsync } from 'fastify';
-import { createFamilyBodySchema, updateFamilyBodySchema } from '../schemas/family.schemas.js';
+import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
+import {
+  createFamilyBodySchema,
+  updateFamilyBodySchema,
+  familyResponseSchema,
+} from '../schemas/family.schemas.js';
 import { createFamilyService } from '../services/family.service.js';
-import { zodToFastify } from '../lib/schema-utils.js';
 
-const familyRoutes: FastifyPluginAsync = async (fastify) => {
+const familyRoutes: FastifyPluginAsyncZod = async (fastify) => {
   const familyService = createFamilyService(fastify.prisma);
 
   // All family routes require authentication
@@ -12,27 +15,39 @@ const familyRoutes: FastifyPluginAsync = async (fastify) => {
   // POST /family
   fastify.post(
     '/',
-    { schema: { body: zodToFastify(createFamilyBodySchema) } },
+    {
+      schema: {
+        body: createFamilyBodySchema,
+        response: { 201: familyResponseSchema },
+      },
+    },
     async (request, reply) => {
-      const body = createFamilyBodySchema.parse(request.body);
-      const result = await familyService.create(request.user.userId, body);
+      const result = await familyService.create(request.user.userId, request.body, request.log);
       return reply.status(201).send(result);
     },
   );
 
   // GET /family
-  fastify.get('/', async (request, reply) => {
-    const result = await familyService.get(request.user.userId);
-    return reply.send(result);
-  });
+  fastify.get(
+    '/',
+    { schema: { response: { 200: familyResponseSchema } } },
+    async (request, reply) => {
+      const result = await familyService.get(request.user.userId);
+      return reply.send(result);
+    },
+  );
 
   // PATCH /family
   fastify.patch(
     '/',
-    { schema: { body: zodToFastify(updateFamilyBodySchema) } },
+    {
+      schema: {
+        body: updateFamilyBodySchema,
+        response: { 200: familyResponseSchema },
+      },
+    },
     async (request, reply) => {
-      const body = updateFamilyBodySchema.parse(request.body);
-      const result = await familyService.update(request.user.userId, body);
+      const result = await familyService.update(request.user.userId, request.body, request.log);
       return reply.send(result);
     },
   );

@@ -1,45 +1,7 @@
 import type { PrismaClient, Prisma } from '@foodops/db';
 import { AppError, ErrorCodes } from '../lib/errors.js';
-
-function toRecipeResponse(recipe: {
-  id: string;
-  titleEn: string;
-  titleFi: string;
-  descriptionEn: string | null;
-  descriptionFi: string | null;
-  cuisineType: string | null;
-  prepTimeMin: number | null;
-  caloriesPerServing: number | null;
-  proteinPerServing: Prisma.Decimal | null;
-  carbsPerServing: Prisma.Decimal | null;
-  fatPerServing: Prisma.Decimal | null;
-  tags: Prisma.JsonValue;
-  isCustom: boolean;
-  userId: string | null;
-  source: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-}) {
-  return {
-    id: recipe.id,
-    title_en: recipe.titleEn,
-    title_fi: recipe.titleFi,
-    description_en: recipe.descriptionEn,
-    description_fi: recipe.descriptionFi,
-    cuisine_type: recipe.cuisineType,
-    prep_time_min: recipe.prepTimeMin,
-    calories_per_serving: recipe.caloriesPerServing,
-    protein_per_serving: recipe.proteinPerServing ? Number(recipe.proteinPerServing) : null,
-    carbs_per_serving: recipe.carbsPerServing ? Number(recipe.carbsPerServing) : null,
-    fat_per_serving: recipe.fatPerServing ? Number(recipe.fatPerServing) : null,
-    tags: recipe.tags ?? [],
-    is_custom: recipe.isCustom,
-    user_id: recipe.userId,
-    source: recipe.source,
-    created_at: recipe.createdAt.toISOString(),
-    updated_at: recipe.updatedAt.toISOString(),
-  };
-}
+import { toRecipeResponse } from '../lib/response-mappers.js';
+import type { FastifyBaseLogger } from '../lib/logger.js';
 
 export function createRecipeService(prisma: PrismaClient) {
   return {
@@ -59,6 +21,7 @@ export function createRecipeService(prisma: PrismaClient) {
         tags?: string[];
         source?: string | null;
       },
+      log?: FastifyBaseLogger,
     ) {
       const recipe = await prisma.recipe.create({
         data: {
@@ -78,6 +41,7 @@ export function createRecipeService(prisma: PrismaClient) {
           source: data.source ?? null,
         },
       });
+      log?.info({ event: 'recipe_created', userId, recipeId: recipe.id, isCustom: true }, 'Recipe created');
       return toRecipeResponse(recipe);
     },
 
@@ -137,6 +101,7 @@ export function createRecipeService(prisma: PrismaClient) {
         tags?: string[] | null;
         source?: string | null;
       },
+      log?: FastifyBaseLogger,
     ) {
       const recipe = await prisma.recipe.findUnique({ where: { id: recipeId } });
       if (!recipe) {
@@ -166,10 +131,11 @@ export function createRecipeService(prisma: PrismaClient) {
         where: { id: recipeId },
         data: updateData,
       });
+      log?.info({ event: 'recipe_updated', userId, recipeId }, 'Recipe updated');
       return toRecipeResponse(updated);
     },
 
-    async delete(userId: string, recipeId: string) {
+    async delete(userId: string, recipeId: string, log?: FastifyBaseLogger) {
       const recipe = await prisma.recipe.findUnique({ where: { id: recipeId } });
       if (!recipe) {
         throw new AppError('Recipe not found', 404, ErrorCodes.RECIPE_NOT_FOUND);
@@ -188,6 +154,7 @@ export function createRecipeService(prisma: PrismaClient) {
       }
 
       await prisma.recipe.delete({ where: { id: recipeId } });
+      log?.info({ event: 'recipe_deleted', userId, recipeId }, 'Recipe deleted');
     },
   };
 }

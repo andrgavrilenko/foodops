@@ -12,5 +12,15 @@ export const updateMemberBodySchema = z.object({
   role: z.enum(['ADULT', 'CHILD', 'INFANT']).optional(),
 });
 
+// Response schema
+export const memberResponseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  age: z.number(),
+  role: z.string(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
 export type CreateMemberBody = z.infer<typeof createMemberBodySchema>;
 export type UpdateMemberBody = z.infer<typeof updateMemberBodySchema>;

@@ -5,4 +5,12 @@ export const createMedicalRestrictionBodySchema = z.object({
   notes: z.string().max(500).nullable().optional(),
 });
 
+// Response schema
+export const medicalRestrictionResponseSchema = z.object({
+  id: z.string(),
+  condition: z.string(),
+  notes: z.string().nullable(),
+  created_at: z.string(),
+});
+
 export type CreateMedicalRestrictionBody = z.infer<typeof createMedicalRestrictionBodySchema>;

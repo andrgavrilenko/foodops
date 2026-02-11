@@ -11,6 +11,18 @@ export async function verifyFamilyOwnership(prisma: PrismaClient, userId: string
   return family;
 }
 
+/** Lightweight ownership check that only returns the family ID */
+export async function getFamilyIdByUser(prisma: PrismaClient, userId: string): Promise<string> {
+  const family = await prisma.family.findUnique({
+    where: { userId },
+    select: { id: true },
+  });
+  if (!family) {
+    throw new AppError('Family not found', 404, ErrorCodes.MENU_FAMILY_NOT_FOUND);
+  }
+  return family.id;
+}
+
 export async function verifyMemberOwnership(
   prisma: PrismaClient,
   userId: string,
